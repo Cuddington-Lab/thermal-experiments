@@ -1,0 +1,86 @@
+---
+title: 'Anova for the pea-aphid experiment at 15 C - autocorrelated temperatures '
+author: "Jon, Champ, Sunandan, Debora"
+date: "10/08/2021"
+output: pdf_document
+---
+### Purpose
+To determine if there is a significant relationship between aphid offspring (dependent variable) and different autocorrelated temperature regimes (independent variable)
+
+
+### Installing packages and enabling libraries
+```{r message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load metafile data from GitHub (expdata_metafile_01062021.csv)
+### and attribute columns as factors or numeric, as appropriate
+```{r message=FALSE, warning=FALSE}
+aphid.offspring <- read.csv("C:/Users/user/Desktop/uWaterloo/experiments/expdata_metafile_01062021.csv",
+header = TRUE, colClasses = c("factor", "factor","factor","factor","factor",
+                                "factor","factor","numeric","numeric","numeric",
+                                "numeric","numeric","numeric","factor"))
+```
+
+### Create new data frame including only mean temp of 15C
+```{r}
+anova.15C <- filter(aphid.offspring, Mean_Temp == 15)
+```
+
+### Remove 0.9 rows (Julie's recommendation)
+```{r}
+anova.15C <- anova.15C[-c(2, 4, 7, 8), ] 
+```
+
+### Concatenate columns Autocorrelation and Cat to enable autocorrelation regime
+### labelling (new column name: Autocorr_label)
+```{r}
+anova.15C$Autocorr_label<-paste(anova.15C$Autocorrelation,anova.15C$Cat)
+```
+
+### Rename autocorrelation regimes 
+```{r}
+anova.15C$Autocorr_label[anova.15C$Autocorr_label == "0.95 N"] <- "a=0.95,m<0"
+anova.15C$Autocorr_label[anova.15C$Autocorr_label == "0.95 N/A"] <- "a=0.95,m<0"
+anova.15C$Autocorr_label[anova.15C$Autocorr_label == "0.9 N"] <- "a=0.95,m<0"
+anova.15C$Autocorr_label[anova.15C$Autocorr_label == "0.9 N/A"] <- "a=0.95,m<0"
+anova.15C$Autocorr_label[anova.15C$Autocorr_label == "0.6 N/A"] <- "a=0.6"
+anova.15C$Autocorr_label[anova.15C$Autocorr_label == "0 N/A"] <- "a=0"
+anova.15C$Autocorr_label[anova.15C$Autocorr_label == "0.95 P"] <- "a=0.95,m>0"
+```
+
+### Create new column including sum of offspring (Total_Offspring) 
+```{r}
+anova.15C$Total_Offspring <- anova.15C$Offspring_Plant1 + 
+  anova.15C$Offspring_Plant2 + anova.15C$Offspring_Plant3
+```
+
+### Run an analysis of variance
+```{r}
+res.aov <- aov(Total_Offspring ~ Autocorr_label, data = anova.15C)
+summary(res.aov)
+```
+
+### Boxplots
+```{r}
+min.mean.sd.max <- function(x) {
+  r <- c(min(x), mean(x) - sd(x), mean(x), mean(x) + sd(x), max(x))
+  names(r) <- c("ymin", "lower", "middle", "upper", "ymax")
+  r
+}
+boxplots <- ggplot(aes(y = Total_Offspring, x = factor(Autocorr_label)), 
+                   data = anova.15C)
+boxplots <- boxplots + stat_summary(fun.data = min.mean.sd.max, 
+                                    geom = "boxplot") + 
+  geom_jitter(position=position_jitter(width=.2), size=3) + 
+  ggtitle("Mean temperature 15°C") + 
+  xlab("Autocorrelation") + ylab("Total_Offspring")
+boxplots
+```
+   
+### Linear model (0 autocorrelation vs. other groups)
+```{r}
+lm.15C <- lm(Total_Offspring ~ Autocorr_label, data = anova.15C)
+summary(lm.15C)
+```                     
