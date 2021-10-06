@@ -1,6 +1,6 @@
 ---
-title: 'Anova for the pea-aphid experiment at 15 C - autocorrelated temperatures '
-author: "Kim based on tidyverse dependent code from Jon, Champ, Sunandan, Debora"
+title: 'Anova for the pea-aphid experiment at 15&deg;C - autocorrelated temperatures '
+author: "Kim: based on tidyverse dependent code from Jon, Champ, Sunandan, Debora"
 date: "10/08/2021"
 output: github_document
 always_allow_html: true
@@ -16,12 +16,11 @@ str(datin)
 ```
 ### Complete any data manipulations
 
-Create new data frame including only mean temp of 15C, remove 0.9 autocorrelation treatments, and check
+Create new data frame including only mean temp of 15&deg;C, remove 0.9 autocorrelation treatments, and check
  
 ```{r}
 dat <- datin[datin$Mean_Temp == 15 & datin$Autocorrelation!=0.9,]
 table(dat$Mean_Temp,dat$Autocorrelation)
-
 ```
 
 Create new treatment label and check
@@ -37,13 +36,12 @@ Create new column including sum of offspring (sumOff)
 ```{r}
 str(dat)
 dat$sumOff=dat$Offspring_Plant1+dat$Offspring_Plant2+dat$Offspring_Plant3
-
 ```
 
 ### Plot 
 ```{r box, fig.cap="Boxplot of mean=15C treatments"}
 
-tr=boxplot(sumOff~label, data=dat,main="mean temperature 15C",outline=FALSE,
+tr=boxplot(sumOff~label, data=dat,main=expression(paste("mean temperature 15",degree,"C")),outline=FALSE,
            xlab="autocorr treatment", ylab="summed offspring",
   names = levels(as.factor(dat$label)))
 
@@ -68,8 +66,7 @@ Adding a table of results for Jorren's benefit
 
 ```{r}
  library(kableExtra)
-kable_classic(kable(summary(l1)$coefficients,caption="Anova results for meant 15C treatments"))
-             
+kable_classic(kable(summary(l1)$coefficients,caption="Anova results for mean 15&deg;C treatments"))
 
 ```
    

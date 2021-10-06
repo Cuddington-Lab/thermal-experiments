@@ -1,6 +1,6 @@
-Anova for the pea-aphid experiment at 15 C - autocorrelated temperatures
+Anova for the pea-aphid experiment at 15°C - autocorrelated temperatures
 ================
-Kim based on tidyverse dependent code from Jon, Champ, Sunandan, Debora
+Kim: based on tidyverse dependent code from Jon, Champ, Sunandan, Debora
 10/08/2021
 
 ### Purpose
@@ -35,7 +35,7 @@ str(datin)
 
 ### Complete any data manipulations
 
-Create new data frame including only mean temp of 15C, remove 0.9
+Create new data frame including only mean temp of 15°C, remove 0.9
 autocorrelation treatments, and check
 
 ``` r
@@ -101,7 +101,7 @@ dat$sumOff=dat$Offspring_Plant1+dat$Offspring_Plant2+dat$Offspring_Plant3
 ### Plot
 
 ``` r
-tr=boxplot(sumOff~label, data=dat,main="mean temperature 15C",outline=FALSE,
+tr=boxplot(sumOff~label, data=dat,main=expression(paste("mean temperature 15",degree,"C")),outline=FALSE,
            xlab="autocorr treatment", ylab="summed offspring",
   names = levels(as.factor(dat$label)))
 
@@ -112,10 +112,6 @@ stripchart(sumOff~label, data=dat,
 
 ![Boxplot of mean=15C
 treatments](simpleanovathermal_files/figure-gfm/box-1.png)
-
-``` r
-         #  col = 1:length(levels(dat$labels)))
-```
 
 ### Stats
 
@@ -152,12 +148,12 @@ Adding a table of results for Jorren’s benefit
 
 ``` r
  library(kableExtra)
-kable_classic(kable(summary(l1)$coefficients,caption="Anova results for meant 15C treatments"))
+kable_classic(kable(summary(l1)$coefficients,caption="Anova results for mean 15&deg;C treatments"))
 ```
 
 <table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
 <caption>
-Anova results for meant 15C treatments
+Anova results for mean 15°C treatments
 </caption>
 <thead>
 <tr>
