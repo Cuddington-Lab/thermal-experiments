@@ -110,7 +110,8 @@ stripchart(sumOff~label, data=dat,
            pch = 19, add = TRUE) 
 ```
 
-![](simpleanovathermal_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![Boxplot of mean=15C
+treatments](simpleanovathermal_files/figure-gfm/box-1.png)
 
 ``` r
          #  col = 1:length(levels(dat$labels)))
@@ -151,10 +152,13 @@ Adding a table of results for Jorren’s benefit
 
 ``` r
  library(kableExtra)
-kable_classic(kable((summary(l1)$coefficients)))
+kable_classic(kable(summary(l1)$coefficients,caption="Anova results for meant 15C treatments"))
 ```
 
 <table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>
+Anova results for meant 15C treatments
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">

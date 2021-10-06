@@ -41,7 +41,7 @@ dat$sumOff=dat$Offspring_Plant1+dat$Offspring_Plant2+dat$Offspring_Plant3
 ```
 
 ### Plot 
-```{r}
+```{r box, fig.cap="Boxplot of mean=15C treatments"}
 
 tr=boxplot(sumOff~label, data=dat,main="mean temperature 15C",outline=FALSE,
            xlab="autocorr treatment", ylab="summed offspring",
@@ -50,7 +50,7 @@ tr=boxplot(sumOff~label, data=dat,main="mean temperature 15C",outline=FALSE,
 stripchart(sumOff~label, data=dat, 
            vertical = TRUE, method = "jitter",
            pch = 19, add = TRUE) 
-         #  col = 1:length(levels(dat$labels)))
+         
 ```
 
 
@@ -68,7 +68,8 @@ Adding a table of results for Jorren's benefit
 
 ```{r}
  library(kableExtra)
-kable_classic(kable((summary(l1)$coefficients)))
+kable_classic(kable(summary(l1)$coefficients,caption="Anova results for meant 15C treatments"))
+             
 
 ```
    
