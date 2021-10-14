@@ -29,37 +29,43 @@ duckweed_constant <- duckweed_constant[!grepl("Celsius|celsius|Computer", duckwe
 # Create new column including sum of fronds
 duckweed_constant$Total_frond <- duckweed_constant$Duckweed_Rep1 + 
   duckweed_constant$Duckweed_Rep2 + duckweed_constant$Duckweed_Rep3
-
-# Create new column including mean of fronds
-duckweed_constant$Mean_frond <-apply(duckweed_constant[,10:12],1,mean)
-
-# Create new column including SD of fronds
-duckweed_constant$SD_frond <- apply(duckweed_constant[,10:12],1,sd)
 ```
 
 ### Scatterplot with error bars
 ```{r}
-# colors were assigned to different incubators to facilitate plot reading
-plot(duckweed_constant$Mean_Temp, duckweed_constant$Mean_frond,
-    ylim=range(c(duckweed_constant$Mean_frond-duckweed_constant$SD_frond, duckweed_constant$Mean_frond+duckweed_constant$SD_frond)),
-    pch=19, xlab="Temperature (ºC)", ylab="Mean Frond Count +/- SD",
-    main="Duckweed frond counts across constant temperatures",
-    col = duckweed_constant$Incubator
-)
-
-arrows(x0=duckweed_constant$Mean_Temp, y0=duckweed_constant$Mean_frond-duckweed_constant$SD_frond, x1=duckweed_constant$Mean_Tem, y1=duckweed_constant$Mean_frond+duckweed_constant$SD_frond, code=3, angle=90, length=0.1,
-       col = duckweed_constant$Incubator)
+plot(duckweed_constant$Mean_Temp, duckweed_constant$Total_frond,
+    pch=19, xlab="Temperature (ºC)", ylab="Total Frond Count",
+    main="Duckweed frond counts across constant temperatures")
 ```
 
 ### Relative growth rate calculation
+
+### Relative growth rate equation
+$$ RGR = ((log(Nf)-log(Ni))/t) $$
+### Where Nf = final frond count, Ni = initial frond count, t = growth time in days
+
+# Calculate RGR, mean, and SD
 ```{r}
 duckweed_constant$RGR <- (log(duckweed_constant$Total_frond) - log(12)) / 5
+
+stats <- data.frame(group=levels(factor(duckweed_constant$Mean_Temp)),
+                               mean=(aggregate(duckweed_constant$RGR,
+                               by=list(duckweed_constant$Mean_Temp),
+                               FUN=mean)$x),sd=(aggregate(duckweed_constant$RGR,
+                               by=list(duckweed_constant$Mean_Temp),
+                               FUN=sd)$x)
+                               )
+stats <- transform(stats, group = as.numeric(group))
 ```
 
 ### Relative growth rate visualization
 ```{r}
-plot(duckweed_constant$Mean_Temp, duckweed_constant$RGR,
-    pch=19, xlab="Temperature (ºC)", ylab="RGR (Relative growth rate)",
-    main="Duckweed growth rate across constant temperatures",
-)
+plot(stats$group, stats$mean,
+    ylim=range(c(stats$mean-stats$sd,
+                 stats$mean+stats$sd)),
+    pch=19, xlab="Temperature (ºC)", ylab="Mean relative growth rate +/- SD",
+    main="Duckweed relative growth rate across constant temperatures"
+    )
+
+arrows(x0=stats$group, y0=stats$mean-stats$sd, x1=stats$group, y1=stats$mean+stats$sd, code=3, angle=90, length=0.1)
 ```
