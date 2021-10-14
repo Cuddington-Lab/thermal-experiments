@@ -1,0 +1,65 @@
+---
+title: "Draft code for calculating and visualizing duckweed growth (experimental data)"
+author: "Debora"
+date: "10/14/2021"
+output: github_document
+---
+
+### Download dataset from github repository and check import
+```{r}
+duckweed <- read.csv("https://raw.githubusercontent.com//Cuddington-Lab/thermal-experiments/main/Aphid_Data - Sheet1.csv",
+                  header=TRUE, stringsAsFactors = TRUE)
+str(duckweed)
+```
+
+### Perform data cleaning
+```{r}
+# Select constant temperatures only
+duckweed_constant <- duckweed[duckweed$Autocorrelation == "constant",]
+
+# Remove NA data
+duckweed_constant <- na.omit(duckweed_constant)
+
+# Remove observations for which incubators had issues
+duckweed_constant <- duckweed_constant[!grepl("Celsius|celsius|Computer", duckweed_constant$Notes),]
+```
+
+### Perform data manipulations
+```{r}
+# Create new column including sum of fronds
+duckweed_constant$Total_frond <- duckweed_constant$Duckweed_Rep1 + 
+  duckweed_constant$Duckweed_Rep2 + duckweed_constant$Duckweed_Rep3
+
+# Create new column including mean of fronds
+duckweed_constant$Mean_frond <-apply(duckweed_constant[,10:12],1,mean)
+
+# Create new column including SD of fronds
+duckweed_constant$SD_frond <- apply(duckweed_constant[,10:12],1,sd)
+```
+
+### Scatterplot with error bars
+```{r}
+# colors were assigned to different incubators to facilitate plot reading
+plot(duckweed_constant$Mean_Temp, duckweed_constant$Mean_frond,
+    ylim=range(c(duckweed_constant$Mean_frond-duckweed_constant$SD_frond, duckweed_constant$Mean_frond+duckweed_constant$SD_frond)),
+    pch=19, xlab="Temperature (ºC)", ylab="Mean Frond Count +/- SD",
+    main="Duckweed frond counts across constant temperatures",
+    col = duckweed_constant$Incubator
+)
+
+arrows(x0=duckweed_constant$Mean_Temp, y0=duckweed_constant$Mean_frond-duckweed_constant$SD_frond, x1=duckweed_constant$Mean_Tem, y1=duckweed_constant$Mean_frond+duckweed_constant$SD_frond, code=3, angle=90, length=0.1,
+       col = duckweed_constant$Incubator)
+```
+
+### Relative growth rate calculation
+```{r}
+duckweed_constant$RGR <- (log(duckweed_constant$Total_frond) - log(12)) / 5
+```
+
+### Relative growth rate visualization
+```{r}
+plot(duckweed_constant$Mean_Temp, duckweed_constant$RGR,
+    pch=19, xlab="Temperature (ºC)", ylab="RGR (Relative growth rate)",
+    main="Duckweed growth rate across constant temperatures",
+)
+```
