@@ -31,7 +31,7 @@ duckweed_constant$Total_frond <- duckweed_constant$Duckweed_Rep1 +
   duckweed_constant$Duckweed_Rep2 + duckweed_constant$Duckweed_Rep3
 ```
 
-### Scatterplot with error bars
+### Scatterplot
 ```{r}
 plot(duckweed_constant$Mean_Temp, duckweed_constant$Total_frond,
     pch=19, xlab="Temperature (ºC)", ylab="Total Frond Count",
@@ -58,7 +58,7 @@ stats <- data.frame(group=levels(factor(duckweed_constant$Mean_Temp)),
 stats <- transform(stats, group = as.numeric(group))
 ```
 
-### Relative growth rate visualization
+### Relative growth rate visualization with error bars
 ```{r}
 plot(stats$group, stats$mean,
     ylim=range(c(stats$mean-stats$sd,
