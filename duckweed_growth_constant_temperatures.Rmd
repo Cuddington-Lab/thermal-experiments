@@ -17,6 +17,10 @@ str(duckweed)
 # Select constant temperatures only
 duckweed_constant <- duckweed[duckweed$Autocorrelation == "constant",]
 
+# Remove aphid data
+duckweed_constant = subset(duckweed_constant, select = -c(Offspring_Plant1,Offspring_Plant2,
+                                                          Offspring_Plant3) )
+
 # Remove NA data
 duckweed_constant <- na.omit(duckweed_constant)
 
