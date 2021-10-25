@@ -52,6 +52,8 @@ $$ RGR = ((log(Nf)-log(Ni))/t) $$
 ```{r}
 duckweed_constant$RGR <- (log(duckweed_constant$Total_frond) - log(12)) / 5
 
+duckweed_constant1<-duckweed_constant[!(duckweed_constant$Mean_Temp=="27"),] # remove single observation
+
 stats <- data.frame(group=levels(factor(duckweed_constant$Mean_Temp)),
                                mean=(aggregate(duckweed_constant$RGR,
                                by=list(duckweed_constant$Mean_Temp),
