@@ -95,7 +95,7 @@ june.obs$hour <- hour(june.obs$date)
 june.obs.control <- june.obs
 june.obs.control$id <- gsub("observed", "control", june.obs.control$id)
 
-# Create all-day warming treatment
+# Create all-day warming treatment (mean daily increase of 2.5C from control)
 june.obs.allday <- june.obs
 june.obs.allday$value <- ifelse(june.obs.allday$hour >= 6 & june.obs.allday$hour <= 19,
                                june.obs.allday$value+2.5, june.obs.allday$value+2.5)
@@ -118,4 +118,4 @@ ggplot(NULL, aes(date, value)) +
   geom_line(data = june.obs.allday, color="red") +
   geom_line(data = june.obs.night, color="blue") +
   ggtitle("Night warming experiment: 5-day temperature regimes") +
-  xlab("Date in days") + ylab("Temperature in °C")
+  xlab("Date in days") + ylab("Temperature in Â°C")
