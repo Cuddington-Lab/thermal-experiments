@@ -90,6 +90,7 @@ june.obs$hour <- hour(june.obs$date)
 
 # Temperature regimes were adapted from: Higashi, Barton, & Oliver (2019).  
 # Warmer nights offer no respite for a defensive mutualism. J Anim Ecol 89, 1895-1905.
+# This article also considers daytime as having 14 hours and nighttime as having 10 hours, so I am using these lenghts as my reference
 
 # Create control treatment
 june.obs.control <- june.obs
