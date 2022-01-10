@@ -114,9 +114,5 @@ tapply(merge$value, merge$id,
        function(x) format(summary(x), scientific = FALSE))
 
 # Visualize all treatments
-ggplot(NULL, aes(date, value)) + 
-  geom_line(data = june.obs.control, color="green") +
-  geom_line(data = june.obs.allday, color="red") +
-  geom_line(data = june.obs.night, color="blue") +
-  ggtitle("Night warming experiment: 5-day temperature regimes") +
-  xlab("Date in days") + ylab("Temperature in °C")
+colnames(merge)[3] <- "treatment"
+ggplot(data=merge, aes(x=date, y=value, col=treatment)) + geom_line()
