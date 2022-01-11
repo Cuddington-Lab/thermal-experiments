@@ -9,6 +9,7 @@
 # Libraries
 library(CoSMoS)
 library(ggplot2)
+library(lubridate)
 
 # Import clean historical temperatures from uWaterloo Weather Station for 2006
 # 2006 is the year to be used as a control (no night warming)
