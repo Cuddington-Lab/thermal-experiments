@@ -18,7 +18,7 @@ Duckweed is to be transferred in the laminar flow room (use lab key to open the 
 
     -   Sterilization - place the loop in the flame from the glass alcohol burner above the wick, then remove when the loop glows red. The loop should cool after \~1-2 seconds.
 
-6.  Place two duckweed fronds (from the "Source" duckweed population in incubator 5) with the titanium loop into each treatment jar. In between transfers, sterilize the loop each time.
+6.  Place 4 (four) duckweed fronds (equivalent to 2 duckeed colonies) (from the newest "Source" duckweed population in incubator 5) with the titanium loop into each treatment jar. In between transfers, sterilize the loop each time.
 
 7.  Place Parafilm over the replicate jars to completely cover them, and label the jars with the date, experiment number, incubator number, mean temperature, and autocorrelation number. Also replace the Parafilm covering the control duckweed population and return it to incubator 5.
 
