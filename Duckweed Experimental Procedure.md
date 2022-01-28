@@ -1,6 +1,6 @@
 # **Duckweed Experimental Procedure**
 
-*Updated: February 2020*
+*Updated: January 2022*
 
 ## <span class="underline">Experimental Setup</span>
 
@@ -12,7 +12,7 @@ Duckweed is to be transferred in the laminar flow room (use lab key to open the 
 
 3.  Fill the glass alcohol burner with ethanol if low, and adjust the rope if necessary.
 
-4.  Pour \~20 mL (can be a bit less if supplies are low) of the growth medium Hoglands solution (in the large fridge) with a graduated cylinder into 12 small jars, for 3 replicate jars per incubator treatment.
+4.  Pour \~15 mL (can be a bit less if supplies are low) of the growth medium Hoglands solution (in the large fridge) with a graduated cylinder into 18 small jars, for 3 replicate jars per incubator treatment.
 
 5.  Light the glass alcohol burner with a flame lighter and sterilize the titanium loop. Note that the due to the active air flow, the flame will bend away from the wall (i.e. towards you) so be careful!
 
