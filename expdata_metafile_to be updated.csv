@@ -85,8 +85,8 @@ Experiment_Number,Mean_Temp,Experiment_Start,Experiment_End,Profile_name,Autocor
 ,19,12-Mar-21,17-Mar-21,simplelong_19_095_2,0.95,5,26,34,23,,,,
 ,19,12-Mar-21,17-Mar-21,simplelong_19_060_2,0.6,6,32,35,32,,,,
 ,19,19-Mar-21,24-Mar-21,simplelong_19_000_2,0,5,14,16,23,3,1,1,N/A
-,19,19-Mar-21,24-Mar-21,simplelong_19_060_2,0.6,3,7,9,12,3,1,3,,
-,19,19-Mar-21,24-Mar-21,simplelong_19_095rev_2,0.95,6,26,27,28,1,1,
+,19,19-Mar-21,24-Mar-21,simplelong_19_060_2,0.6,3,7,9,12,3,1,3,
+,19,19-Mar-21,24-Mar-21,simplelong_19_095rev_2,0.95,6,26,27,28,1,1,,
 ,19,4-Jun-21,9-Jun-21,simplelong19_000_2,0,3,13,15,8,,,,N/A
 ,19,4-Jun-21,9-Jun-21,simplelong19_095rev_2,0.95,5,13,6,5,,,,
 ,19,4-Jun-21,9-Jun-21,simplelong19_095_2,0.95,6,27,23,13,,,,
