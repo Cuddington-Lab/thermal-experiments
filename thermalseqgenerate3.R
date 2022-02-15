@@ -1,8 +1,9 @@
-#select random seed: only implement once!
+#select random seed: only implement once! For reproducibility of the simulated numbers. 
 a=as.numeric(Sys.time())
 set.seed(a)
 
-#create mimicry function: only need to run once
+#create mimicry function: only need to run once. Orders the temperatures of each temperature sequence to mimic the order
+# of the 0.99 autocorrelation, keeping the random variation the same. 
 mimicry<- function(x,y){
   # x, y: 2 real vectors of length T
   # z: real vector of length T in which the elements of x
@@ -17,14 +18,18 @@ mimicry<- function(x,y){
 
 #set parameters: mean, upper threshold, lower threshold, sd and similulation tolerance limit(so it doesn't run forever 
 #searching for the perfect solution)
+# the higher the tolerance, the greater the chance for the code to find a solution within the provided boundaries.
 mtemp=27 #mean
 sdev=2.5 #std dev
-tol=1
+tol=100
 ut=31 #upper threshold
 lt=10 #lower threshold
-leg=120
+leg=120 #length
 
-#check if sd and range are reasonable
+
+#divides the temperature sequence into quartiles
+#checks if sd and range are reasonable, this is just a warning, if the inequality is true it means the code will run 
+#longer, but will still produce valid results.
 asd=(ut-lt)/4
 if (asd>1.25*sdev||asd<.75*sdev) {
   print(c("Too big a difference between standard deviation and range, estimated range sd=",asd))
@@ -33,7 +38,7 @@ if (asd>1.25*sdev||asd<.75*sdev) {
 #generate random numbers
 x=rnorm(leg, m=mtemp, sd=sdev)
 
-#check distribution, mean and standard deviation
+#check distribution, mean and standard deviation, creates histogram
 hist(x)
 text(20,22, paste("mean=",round(mean(x),1)))
 text(20,20, paste("stdev=",round(sd(x),1)))
@@ -49,6 +54,8 @@ while(((any(x>ut)||any(x<lt)))&&icount<tol) {
   }
 }
 
+#if extreme values after the correction to the tolerance limit persists, they are removed and replaced with the values
+#of the upper and lower threshold values
 #truncate values outside of thresholds if tolerance exceeded 
 if (icount>=tol){
   print(c("exceeded loop tolerance, truncating",icount,tol))
@@ -56,12 +63,13 @@ if (icount>=tol){
   x[x<lt]=lt
 }
 
-#check distribution, mean and standard deviation
+#check distribution, mean and standard deviation, to ensure the distribution is still normal.
 hist(x)
 text(20,20, paste("mean=",round(mean(x),1)))
 text(20,22, paste("stdev=",round(sd(x),1)))
-
-#standardize mean and variance
+ 
+#standardize mean and variance (this introduces random  vaation to the temperature data points as well as 
+# put the data points in units of standard deviation,
 meanxn=mean(x); varxn=sd(x);
 noise=(((x-meanxn)/(varxn))*sdev)+mtemp;
 #noise[noise<lt]=lt

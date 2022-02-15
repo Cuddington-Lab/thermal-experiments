@@ -1,7 +1,7 @@
 library('readxl')
 
 #find the files
-setwd("~/kim/thermal/")
+setwd("C:/Users/naazb/Documents/code files/Co-op repo/cattest")
 files <- list.files(pattern = "_095")
 
 #set up empty dataframe
