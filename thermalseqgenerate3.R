@@ -68,8 +68,9 @@ hist(x)
 text(20,20, paste("mean=",round(mean(x),1)))
 text(20,22, paste("stdev=",round(sd(x),1)))
  
-#standardize mean and variance (this introduces random  vaation to the temperature data points as well as 
-# put the data points in units of standard deviation,
+#standardize mean and variance (x is the temperatures produced by a normal distribution with the given mean temp and stdev
+# this code redistributes the error produced by the simulation after the truncation to get a distribution as close as possible
+# to the summary stats (i.e. mean, stdev, var). Therefore, noise is created based on x. 
 meanxn=mean(x); varxn=sd(x);
 noise=(((x-meanxn)/(varxn))*sdev)+mtemp;
 #noise[noise<lt]=lt
