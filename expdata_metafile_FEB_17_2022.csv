@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Experiment_Number,Mean_Temp,Experiment_Start,Experiment_End,Profile_name,Autocorrelation,Incubator,Offspring_Plant1,Offspring_Plant2,Offspring_Plant3,Duckweed_Rep1,Duckweed_Rep2,Duckweed_Rep3,Cat,Program_mean,Obs_mean,Program_sd,Obs_sd,Program_ac,Obs_ac,Gaps
 2,15,26-Jul-20,31-Jul-20,simplelong15_000_1,0,1,0,8,1,,,,N/A,,,,,,,n
 2,15,26-Jul-20,31-Jul-20,simplelong15_090_1,0.9,3,6,6,0,,,,,,,,,,,n
