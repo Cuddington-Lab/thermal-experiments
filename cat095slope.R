@@ -1,7 +1,7 @@
 library('readxl')
 
 #find the files
-setwd("C:/Users/naazb/Documents/code files/Co-op repo/cattest")
+setwd("C:/Users/naazb/Documents/code files/Co-op repo/cat_new")
 files <- list.files(pattern = "_095")
 
 #set up empty dataframe
@@ -28,7 +28,7 @@ if (is.na(my_data$DateTime[1])){
 }
 
 #regress first 1/4 of data
-l4=length(my_data$Obs)/4
+l4=length(my_data$Obs)
 lreg=lm(my_data$Obs[1:l4]~my_data$DateTime[1:l4])
 summary(lreg)
 plot(my_data$Obs[1:l4]~my_data$DateTime[1:l4])

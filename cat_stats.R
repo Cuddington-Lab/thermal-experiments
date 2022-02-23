@@ -1,7 +1,7 @@
 library('readxl')
 
 #find the files
-setwd("C:/Users/user/Desktop/teste")
+setwd("C:/Users/naazb/Documents/code files/Co-op repo/cat_new")
 files <- list.files(pattern = "_0")
 
 #set up empty dataframe
