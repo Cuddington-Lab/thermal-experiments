@@ -30,7 +30,7 @@ for (i in 1:length(files)){
   }
   
   #regress first 1/4 of data
-  l4=length(my_data$Obs)/4
+  l4=length(my_data$Obs)
   lreg=lm(my_data$Obs[1:l4]~my_data$DateTime[1:l4])
   summary(lreg)
   plot(my_data$Obs[1:l4]~my_data$DateTime[1:l4])
