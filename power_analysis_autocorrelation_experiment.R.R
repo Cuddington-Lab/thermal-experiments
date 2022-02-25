@@ -41,9 +41,6 @@ stripchart(sumFro~label, data=datpower,
            vertical = TRUE, method = "jitter",
            pch = 19, add = TRUE) 
 
-#In case an outlier needs to be removed
-#datpower <- datpower[-c(4), ]
-
 #Perform anova
 anova <- aov(sumFro~label, data=datpower)
 summary(anova)
