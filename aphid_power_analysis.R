@@ -10,9 +10,9 @@ str(datin)
 datin <- subset(datin, Obs_sd < 2.7 & Obs_sd > 2.2 & Gaps!="y")
 
 #Create new treatment label and check
-table(datin$Autocorrelation, datin$Cat)
-levels(datin$Cat) = c("","m<0","", "m>0" )
-datin$label<-paste0(datin$Autocorrelation, datin$Cat)
+table(datin$Autocorrelation, datin$cat_1)
+levels(datin$cat_1) = c("","m<0","", "m>0" )
+datin$label<-paste0(datin$Autocorrelation, datin$cat_1)
 table(datin$label)
 
 #Create new column including sum of fronds (sumFro) 
@@ -24,6 +24,8 @@ table(datin$Mean_Temp, datin$label)
 dat27 <- subset(datin, Mean_Temp == 27)
 
 #Plot 
+dat27 <- rbind(subset(dat27, label == "0" | cat_1 == "m>0"))
+               
 tr=boxplot(sumFro~label, data=dat27,main=expression(paste("mean temperature 27",degree,"C")),outline=FALSE,
            xlab="autocorr treatment", ylab="summed fronds",
            names = levels(as.factor(dat27$label)))
@@ -50,8 +52,8 @@ library(pwr)
 
 #Subset data to include only one 0.95 autocorrelation group and control group
 #Obtain same number of samples for each group
-datpower <- rbind(dat27[ sample(which (dat27$label == "0") ,13), ],
-                  dat27[ sample(which (dat27$label == "0.95m>0") ,11), ])
+datpower <- rbind(dat27[ sample(which (dat27$label == "0") ,10), ],
+                  dat27[ sample(which (dat27$label == "0.95m>0") ,10), ])
 #Perform anova
 anova <- aov(sumFro~label, data=datpower)
 summary(anova)
@@ -60,4 +62,4 @@ library(effectsize)
 #https://cran.r-project.org/web/packages/effectsize/vignettes/anovaES.html
 eta_squared(anova, partial = FALSE)
 
-pwr.anova.test(k = 2, f = 0.00919, sig.level = 0.05, power = 0.80)
+pwr.anova.test(k = 2, f = 0.02, sig.level = 0.05, power = 0.80)
