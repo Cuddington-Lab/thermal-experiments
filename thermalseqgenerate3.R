@@ -3,7 +3,8 @@ a=as.numeric(Sys.time())
 set.seed(a)
 
 #create mimicry function: only need to run once. Orders the temperatures of each temperature sequence to mimic the order
-# of the 0.99 autocorrelation, keeping the random variation the same. 
+#of the 0.99 autocorrelation, keeping the random variation the same. 
+#(reference paper: https://link.springer.com/article/10.1007/BF01200792)
 mimicry<- function(x,y){
   # x, y: 2 real vectors of length T
   # z: real vector of length T in which the elements of x
@@ -80,7 +81,11 @@ text(20,20, paste("mean=",round(mean(noise),3)))
 text(20,22, paste("stdev=",round(sd(noise),3)))
 
 #generate sequences with desired degree of autocorrelation (using Ar(1) process) within given
-# error tolerance
+#error tolerance
+#(a white noise sequence and an autocorrelated signal are created)
+#(the white noise is then rearranged so that it has the same order as the autocorrelated signal) 
+generate autocorrelated signal
+rearrange white noise so that it has the same 
 lbet=c(0,0.6,0.99) 
 tol2=0.01;
 
