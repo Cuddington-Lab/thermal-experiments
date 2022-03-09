@@ -1,6 +1,5 @@
 Experiment_Number,Mean_Temp,Experiment_Start,Experiment_End,Profile_name,Autocorrelation,Incubator,Offspring_Plant1,Offspring_Plant2,Offspring_Plant3,Duckweed_Rep1,Duckweed_Rep2,Duckweed_Rep3,cat_1,cat_1_4,Program_mean,Obs_mean,Program_sd,Obs_sd,Program_ac,Obs_ac,Gaps,Gap_size
 3,19,02-Aug-20,07-Aug-20,simplelong19_000_1,0,1,12,16,21,,,,N/A,N/A,,,,,,,,
-3,19,02-Aug-20,07-Aug-20,simplelong19_060_1,0.6,3,19,16,14,,,,N/A,N/A,,,,,,,n,
 3,19,02-Aug-20,07-Aug-20,simplelong19_095_1,0.95,5,22,23,8,,,,N,P,19.01,18.88,2.55,2.48,0.938,0.956,n,
 3,19,02-Aug-20,07-Aug-20,simplelong19_095_rev_1,0.95,6,19,17,8,,,,P,N,18.97,18.95,2.55,2.48,0.938,0.836,n,
 ,,,,,,,,,,,,,,,,,,,,,,
