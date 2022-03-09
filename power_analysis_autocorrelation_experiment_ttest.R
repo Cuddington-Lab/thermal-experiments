@@ -2,17 +2,17 @@
 #based on file named simpleanovathermal.Rmd
 
 #Download the data from github repo and check import
-datin <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/expdata_metafile_FEB_20_22.csv",
+datin <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dummy_meta_file.csv",
                   header=TRUE, stringsAsFactors = TRUE)
 str(datin)
 
 #Exclude NAs and samples with standard deviations too different from set value of 2.5
 #(code for duckweeds, needs to be adapted for aphids)
-datin <- subset(datin, Duckweed_Rep1 != "NA" & Obs_sd < 2.7 & Obs_sd > 2.2 & Gaps != "y")
+datin <- subset(datin, Offspring_Plant1 != "NA" & Obs_sd < 2.7 & Obs_sd > 2.2 & Gaps != "y")
 
 #Create new treatment label and check
 table(datin$Autocorrelation, datin$cat_1)
-levels(datin$cat_1) = c("","m<0","", "m>0" )
+levels(datin$cat_1) = c("m<0","", "m>0" )
 datin$label<-paste0(datin$Autocorrelation, datin$cat_1)
 table(datin$label)
 
@@ -30,8 +30,8 @@ library(pwr)
 
 #Subset data to include only one 0.95 autocorrelation group and control group
 #Include here max amount of preliminary samples from table view; same number of samples for each group
-datpower <- rbind(dat27[ sample(which (dat27$label == "0") ,2), ],
-              dat27[ sample(which (dat27$label == "0.95m<0") ,2), ])
+datpower <- rbind(dat27[ sample(which (dat27$label == "0") ,1), ],
+              dat27[ sample(which (dat27$label == "0.95m<0") ,1), ])
 
 #BoxPlot 
 tr=boxplot(sumFro~label, data=datpower,main=expression(paste("slope based on whole sequence - duckweed: mean temperature 27",degree,"C")),outline=FALSE,
@@ -51,4 +51,6 @@ effsize <- (treatmean-controlmean)/(sqrt((controlsd^2)+(treatsd^2))/2)
 
 #Perform power test to obtain estimated "n" in each group based on effect size
 pwr.t.test(d=effsize, sig.level=0.05, power=0.80, type="two.sample", alternative="two.sided")
+
+anova_test=aov(sumOff~label, data=dat27)
 
