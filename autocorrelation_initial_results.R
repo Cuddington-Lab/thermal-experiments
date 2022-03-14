@@ -1,4 +1,4 @@
-#Power analysis for autocorrelation experiments - duckweed
+#Statistical analyses for autocorrelation experiments - duckweeds and aphids
 #based on file named simpleanovathermal.Rmd
 
 #Download the data from github repo and check import
