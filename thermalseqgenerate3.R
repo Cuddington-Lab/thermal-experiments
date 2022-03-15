@@ -84,8 +84,6 @@ text(20,22, paste("stdev=",round(sd(noise),3)))
 #error tolerance
 #(a white noise sequence and an autocorrelated signal are created)
 #(the white noise is then rearranged so that it has the same order as the autocorrelated signal) 
-generate autocorrelated signal
-rearrange white noise so that it has the same 
 lbet=c(0,0.6,0.99) 
 tol2=0.01;
 
