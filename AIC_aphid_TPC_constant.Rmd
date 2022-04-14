@@ -1,0 +1,132 @@
+---
+title: 'Thermal performance models for *Acyrthosiphon pisum*'
+subtitle: 'Response variable: Total_offspring'
+author: "Debora"
+date: "4/14/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Installing packages and enabling libraries
+```{r message=FALSE, warning=FALSE}
+library(rTPC)
+library(ggplot2)
+library(nls.multstart)
+library(broom)
+library(dplyr)
+library(AICcmodavg)
+library(tidyverse)
+```
+
+### Download data and subset to include only performance and temperature
+```{r}
+aphid_constant <- read.csv("https://raw.githubusercontent.com//Cuddington-Lab/thermal-experiments/main/aphid_constant.csv",
+                     header=TRUE)
+aphid_constant <- subset(aphid_constant, select = c(Mean_Temp, Total_offspring))
+
+aphid_constant <- aphid_constant[apply(aphid_constant!=0, 1, all),]
+```
+
+### Fit the chosen models to the duckweed data
+```{r}
+label_facets_num <- function(string){
+  len <- length(string)
+  string = paste('(', 1:len, ') ', string, sep = '')
+  return(string)
+}
+
+d_fits <- nest(aphid_constant, data = c(Mean_Temp, Total_offspring)) %>%
+  mutate(
+    ratkowsky = map(data, ~nls_multstart(Total_offspring~ratkowsky_1983(temp = Mean_Temp, tmin, 
+    tmax, a, b), data = aphid_constant, iter = c(4,4,4,4),
+    start_lower = get_start_vals(aphid_constant$Mean_Temp, aphid_constant$Total_offspring, 
+    model_name = 'ratkowsky_1983') - 1,
+    start_upper = get_start_vals(aphid_constant$Mean_Temp, aphid_constant$Total_offspring, 
+    model_name = 'ratkowsky_1983') + 1,
+    lower = get_lower_lims(aphid_constant$Mean_Temp, aphid_constant$Total_offspring, 
+    model_name = 'ratkowsky_1983'), upper = get_upper_lims(aphid_constant$Mean_Temp, 
+    aphid_constant$Total_offspring, model_name = 'ratkowsky_1983'), supp_errors = 'Y',
+    convergence_count = FALSE)),
+    
+    briere2 = map(data, ~nls_multstart(Total_offspring~briere2_1999(temp = Mean_Temp,tmin, tmax, a, b),
+    data = aphid_constant, iter = c(4,4,4,4), 
+    start_lower = get_start_vals(aphid_constant$Mean_Temp, aphid_constant$Total_offspring, 
+    model_name = 'briere2_1999') - 1, 
+    start_upper = get_start_vals(aphid_constant$Mean_Temp, aphid_constant$Total_offspring, 
+    model_name = 'briere2_1999') + 1, lower = get_lower_lims(aphid_constant$Mean_Temp, 
+    aphid_constant$Total_offspring, model_name = 'briere2_1999'), 
+    upper = get_upper_lims(aphid_constant$Mean_Temp, aphid_constant$Total_offspring, 
+    model_name = 'briere2_1999'), supp_errors = 'Y', convergence_count = FALSE)),
+
+    lactin2 = map(data, ~nls_multstart(Total_offspring~lactin2_1995(temp = Mean_Temp, a, b, tmax, delta_t),
+    data = aphid_constant, iter = c(4,4,4,4),
+    start_lower = get_start_vals(aphid_constant$Mean_Temp, aphid_constant$Total_offspring, 
+    model_name = 'lactin2_1995')-1,
+    start_upper = get_start_vals(aphid_constant$Mean_Temp, aphid_constant$Total_offspring, 
+    model_name = 'lactin2_1995')+1, lower = get_lower_lims(aphid_constant$Mean_Temp, 
+    aphid_constant$Total_offspring, model_name = 'lactin2_1995'),
+    upper = get_upper_lims(aphid_constant$Mean_Temp, aphid_constant$Total_offspring, 
+    model_name = 'lactin2_1995'), supp_errors = 'Y', convergence_count = FALSE))
+    )
+```
+
+### Stack models
+```{r}
+d_stack <- select(d_fits, -data) %>%
+  pivot_longer(., names_to = 'model_name', values_to = 'fit', ratkowsky:lactin2)
+```
+
+### Obtain parameters
+```{r}
+params <- d_stack %>%
+  mutate(., est = map(fit, tidy)) %>%
+  select(-fit) %>%
+  unnest(est)
+```
+
+### Obtain model predictions
+```{r}
+newdata <- tibble(Mean_Temp = seq(min(aphid_constant$Mean_Temp), max(aphid_constant$Mean_Temp), length.out = 60))
+
+d_preds <- d_stack %>%
+  mutate(., preds = map(fit, augment, newdata = newdata)) %>%
+  select(-fit) %>%
+  unnest(preds)
+
+params1 <- d_stack %>%
+  mutate(., params = map(fit, calc_params)) %>%
+  select(-fit) %>%
+  unnest(params)
+estimates <- bind_rows(select(params1, model_name, rmax:skewness), params1) %>%
+  mutate_if(is.numeric, round, 2)
+estimates[!duplicated(estimates$model_name), ]
+```
+   
+### Plot model fits
+```{r}
+ggplot(d_preds) +
+  geom_line(aes(Mean_Temp, .fitted, col = model_name),size = 1.5) +
+  geom_point(aes(Mean_Temp, Total_offspring), aphid_constant) +
+    labs(x = "Mean_Temperature (ºC)",
+       y = "Total_offspring",
+       title = "Fitted thermal performance curves")
+```                     
+
+### Model assessment
+```{r}
+d_ic <- d_stack %>%
+  mutate(., info = map(fit, glance),
+         AICc =  map_dbl(fit, MuMIn::AICc)) %>%
+  select(-fit) %>%
+  unnest(info) %>%
+  select(model_name, AICc)
+d_ic <- distinct(d_ic)
+d_ic %>% arrange(AICc)
+```
+
+### Reference
+# Padfield, D., O’Sullivan, H., & Pawar, S. (2021). rTPC and nls.multstart: A new pipeline to fit thermal 
+# performance curves in R. Methods in Ecology and Evolution. https://doi.org/10.1111/2041-210X.13585
