@@ -8,11 +8,6 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-### This document provides information for modelling the performance 
-### distribution of organisms in strongly autocorrelated temperature scenarios
-### (autocorrelation coefficient = 0.95)
-
 ### Thermal performance model: Ratkowsky (Ratkowsky et al., 1983)
 $$ r_t  = (a*(T- T_{min})*(1-exp(b*(T-T{max}))))^2 $$
 where T is the temperature (°C); and a, b, Tmin, and Tmax (minimum and maximum temperatures) are fitted constants
@@ -78,3 +73,8 @@ aphid_constant <- aphid_constant[!(aphid_constant$Mean_Temp==5
 ### Ratkowsky, D.A., Lowry, R.K., McMeekin, T.A., Stokes, A.N., & Chandler, R.E. 
 ### (1983). Model for bacterial culture growth rate throughout the entire 
 ### biokinetic temperature range. J. Bacteriol. 154, 1222–1226.
+
+### Thermal performance curves can be found here
+https://github.com/Cuddington-Lab/thermal-experiments/blob/main/tpc_aphid_duckweed_constant.jpg
+https://github.com/Cuddington-Lab/thermal-experiments/blob/main/AIC_aphid_TPC_constant.Rmd
+https://github.com/Cuddington-Lab/thermal-experiments/blob/main/AIC_duckweed_TPC_constant.Rmd
