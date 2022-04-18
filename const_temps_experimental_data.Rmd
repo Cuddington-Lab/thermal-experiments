@@ -47,7 +47,7 @@ exp_constant$Offspring_Plant2 + exp_constant$Offspring_Plant3
 $$ RGR = ((log(Nf)-log(Ni))/t) $$
 Where Nf = final frond count, Ni = initial frond count, t = growth time in days
   
-### Create new column including RGR and remove negative RGR values
+### Create new column including RGR and replace negative RGR values with zero
 ```{r}
 exp_constant$RGR <- (log(exp_constant$Total_frond) - log(12)) / 5
 exp_constant$RGR <- pmax(exp_constant$RGR,0)
