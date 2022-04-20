@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "performance_data"
 author: "Champ and Debora"
@@ -78,3 +79,85 @@ aphid_constant <- aphid_constant[!(aphid_constant$Mean_Temp==5
 https://github.com/Cuddington-Lab/thermal-experiments/blob/main/tpc_aphid_duckweed_constant.jpg
 https://github.com/Cuddington-Lab/thermal-experiments/blob/main/AIC_aphid_TPC_constant.Rmd
 https://github.com/Cuddington-Lab/thermal-experiments/blob/main/AIC_duckweed_TPC_constant.Rmd
+=======
+---
+title: "performance_data"
+author: "Champ and Debora"
+date: "4/14/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Thermal performance model: Ratkowsky (Ratkowsky et al., 1983)
+$$ r_t  = (a*(T- T_{min})*(1-exp(b*(T-T{max}))))^2 $$
+where T is the temperature (°C); and a, b, Tmin, and Tmax (minimum and maximum temperatures) are fitted constants
+
+### Experimental data for *L. minor* and *Acyrthosiphon pisum* submitted to
+### constant temperature conditions
+
+### Download data
+```{r}
+exp_data <- read.csv("https://raw.githubusercontent.com//Cuddington-Lab/thermal-experiments/main/full_experimental_data.csv",
+                     header=TRUE)
+str(exp_data)
+```
+
+### Remove failed experiments
+```{r}
+exp_data <- exp_data[!(exp_data$Technical_issue=="y"),]
+```
+
+### Select constant temperatures only
+```{r}
+exp_constant <- exp_data[exp_data$Thermal_regime == "constant",]
+```
+
+### Add columns containing sum of fronds/offspring
+```{r warning=FALSE}
+exp_constant[,7:12] <- sapply(exp_constant[,7:12],as.numeric)
+
+exp_constant$Total_frond <- exp_constant$Duckweed_Rep1 + 
+exp_constant$Duckweed_Rep2 + exp_constant$Duckweed_Rep3
+
+exp_constant$Total_offspring <- exp_constant$Offspring_Plant1 + 
+exp_constant$Offspring_Plant2 + exp_constant$Offspring_Plant3
+```
+
+### Relative growth rate calculation for duckweed
+$$ RGR = ((log(Nf)-log(Ni))/t) $$
+Where Nf = final frond count, Ni = initial frond count, t = growth time in days
+  
+### Create new column including RGR and replace negative RGR values with zero
+```{r}
+exp_constant$RGR <- (log(exp_constant$Total_frond) - log(12)) / 5
+exp_constant$RGR <- pmax(exp_constant$RGR,0)
+```
+
+### Create performance dataset for each species; remove single observations and NA data
+```{r}
+table(duckweed_constant$Mean_Temp)
+duckweed_constant <- exp_constant
+duckweed_constant <- duckweed_constant[!(duckweed_constant$Mean_Temp==27 | duckweed_constant$Mean_Temp==30),]
+duckweed_constant <- duckweed_constant[complete.cases(duckweed_constant$Total_frond),]
+
+aphid_constant <- exp_constant
+aphid_constant <- aphid_constant[complete.cases(aphid_constant$Total_offspring),]
+table(aphid_constant$Mean_Temp)
+aphid_constant <- aphid_constant[!(aphid_constant$Mean_Temp==5
+                               | aphid_constant$Mean_Temp==20
+                               | aphid_constant$Mean_Temp==27 
+                               | aphid_constant$Mean_Temp==40),]
+```
+
+### Reference
+### Ratkowsky, D.A., Lowry, R.K., McMeekin, T.A., Stokes, A.N., & Chandler, R.E. 
+### (1983). Model for bacterial culture growth rate throughout the entire 
+### biokinetic temperature range. J. Bacteriol. 154, 1222–1226.
+
+### Thermal performance curves can be found here
+https://github.com/Cuddington-Lab/thermal-experiments/blob/main/tpc_aphid_duckweed_constant.jpg
+https://github.com/Cuddington-Lab/thermal-experiments/blob/main/AIC_aphid_TPC_constant.Rmd
+https://github.com/Cuddington-Lab/thermal-experiments/blob/main/AIC_duckweed_TPC_constant.Rmd
+>>>>>>> 5b005b31e31cba57016bae52d64974a77084536d
