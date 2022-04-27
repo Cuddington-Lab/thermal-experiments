@@ -556,14 +556,19 @@ Experiment_Start,Experiment_End,Profile_name,Mean_Temp,Thermal_regime,Incubator,
 01-Apr-22,06-Apr-22,Simplelong15_095rev_12,15,0.95,4,10,17,0,5,5,5,,
 01-Apr-22,06-Apr-22,Simplelong15_000_11,15,0,5,0,0,19,5,6,5,,
 01-Apr-22,06-Apr-22,Simplelong15_095_13,15,0.95,6,0,0,0,4,5,5,,
-08-Apr-22,13-Apr-22,Simplelong15_095rev_13,15,0.95,2,0,6,9,6,8,7,,one aphid had molt
+08-Apr-22,13-Apr-22,Simplelong15_095rev_13,15,0.95,2,0,6,9,6,8,7,,one aphid shed
 08-Apr-22,13-Apr-22,Simplelong15_000_13,15,0,3,10,12,3,6,6,7,,
 08-Apr-22,13-Apr-22,Simplelong15_000_14,15,0,4,13,14,0,7,6,6,,one aphid had wings
 08-Apr-22,13-Apr-22,Simplelong15_095_14,15,0.95,5,11,9,10,8,7,7,,
-08-Apr-22,13-Apr-22,Simplelong15_095rev_14,15,0.95,6,0,0,9,6,7,7,,one aphid had molt
-15-Apr-22,20-Apr-22,Simplelong15_000_15,15,0,2,,,,,,,,
-15-Apr-22,20-Apr-22,Simplelong15_095_15,15,0.95,3,,,,,,,,
-15-Apr-22,20-Apr-22,Simplelong15_095rev_15,15,0.95,4,,,,,,,,
-15-Apr-22,20-Apr-22,Simplelong15_095_16,15,0.95,5,,,,,,,,
-15-Apr-22,20-Apr-22,Simplelong15_095rev_16,15,0.95,6,,,,,,,,
+08-Apr-22,13-Apr-22,Simplelong15_095rev_14,15,0.95,6,0,0,9,6,7,7,,one aphid shed
+15-Apr-22,20-Apr-22,Simplelong15_000_15,15,0,2,6,7,5,6,6,6,,
+15-Apr-22,20-Apr-22,Simplelong15_095_15,15,0.95,3,12,12,17,7,7,6,,
+15-Apr-22,20-Apr-22,Simplelong15_095rev_15,15,0.95,4,0,7,13,5,6,6,,one aphid shed
+15-Apr-22,20-Apr-22,Simplelong15_095_16,15,0.95,5,17,8,0,6,5,7,,one aphid shed
+15-Apr-22,20-Apr-22,Simplelong15_095rev_16,15,0.95,6,0,17,13,6,7,7,,one aphid shed
+22-Apr-22,27-Apr-22,Simplelong10_000_1,10,0,2,,,,,,,,
+22-Apr-22,27-Apr-22,Simplelong10_095_1,10,0.95,3,,,,,,,,
+22-Apr-22,27-Apr-22,Simplelong10_095rev_1,10,0.95,4,,,,,,,,
+22-Apr-22,27-Apr-22,Simplelong10_000_2,10,0,5,,,,,,,,
+22-Apr-22,27-Apr-22,Simplelong10_095_2,10,0.95,6,,,,,,,,
 >>>>>>> 5b005b31e31cba57016bae52d64974a77084536d
