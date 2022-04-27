@@ -566,9 +566,9 @@ Experiment_Start,Experiment_End,Profile_name,Mean_Temp,Thermal_regime,Incubator,
 15-Apr-22,20-Apr-22,Simplelong15_095rev_15,15,0.95,4,0,7,13,5,6,6,,one aphid shed
 15-Apr-22,20-Apr-22,Simplelong15_095_16,15,0.95,5,17,8,0,6,5,7,,one aphid shed
 15-Apr-22,20-Apr-22,Simplelong15_095rev_16,15,0.95,6,0,17,13,6,7,7,,one aphid shed
-22-Apr-22,27-Apr-22,Simplelong10_000_1,10,0,2,,,,,,,,
-22-Apr-22,27-Apr-22,Simplelong10_095_1,10,0.95,3,,,,,,,,
-22-Apr-22,27-Apr-22,Simplelong10_095rev_1,10,0.95,4,,,,,,,,
+22-Apr-22,27-Apr-22,Simplelong10_000_1,10,0,2,6,8,10,,,,,
+22-Apr-22,27-Apr-22,Simplelong10_095_1,10,0.95,3,0,0,0,,,,,
+22-Apr-22,27-Apr-22,Simplelong10_095rev_1,10,0.95,4,0,0,0,,,,,one aphid shed
 22-Apr-22,27-Apr-22,Simplelong10_000_2,10,0,5,,,,,,,,
 22-Apr-22,27-Apr-22,Simplelong10_095_2,10,0.95,6,,,,,,,,
 >>>>>>> 5b005b31e31cba57016bae52d64974a77084536d,,,,,,,,,,,,,
