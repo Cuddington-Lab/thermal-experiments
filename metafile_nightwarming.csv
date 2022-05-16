@@ -1,0 +1,5 @@
+﻿Experiment_Number,Experiment_Start,Experiment_End,Profile_name,Treatment,Incubator,LM_dev_time1,LM_dev_time2,LM_dev_time3,LT_dev_time1,LT_dev_time2,LT_dev_time3,LP_dev_time1,LP_dev_time2,LP_dev_time3,LM_frond_count1,LM_frond_count2,LM_frond_count3,LT_frond_count1,LT_frond_count2,LT_frond_count3,LP_frond_count1,LP_frond_count2,LP_frond_count3,LM_initial_dry_weight1,LM_dry_weight1,LM_dry_weight2,LM_dry_weight3,LT_initial_dry_weight1,LT_dry_weight1,LT_dry_weight2,LT_dry_weight3,LP_initial_dry_weight1,LP_dry_weight1,LP_dry_weight2,LP_dry_weight3,LM_initial_area1,LM_initial_area2,LM_initial_area3,LM_area1,LM_area2,LM_area3,LT_initial_area1,LT_initial_area2,LT_initial_area3,LT_area1,LT_area2,LT_area3,LP_initial_area1,LP_initial_area2,LP_initial_area3,LP_area1,LP_area2,LP_area3,Program_mean,Obs_mean,Program_sd,Obs_sd,Gaps,Gap_size
+1,13-May-22,23-May-22,,ctr,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+1,13-May-22,23-May-22,,nw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+1,13-May-22,23-May-22,,dw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+1,13-May-22,23-May-22,,ww,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
