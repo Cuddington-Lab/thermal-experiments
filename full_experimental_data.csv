@@ -1,4 +1,3 @@
-<<<<<<< HEAD,,,,,,,,,,,,,
 Experiment_Start,Experiment_End,Profile_name,Mean_Temp,Thermal_regime,Incubator,Offspring_Plant1,Offspring_Plant2,Offspring_Plant3,Duckweed_Rep1,Duckweed_Rep2,Duckweed_Rep3,Technical_issue,Notes
 26-Jul-20,31-Jul-20,simplelong15_000_1,15,0,1,0,8,1,,,,,
 26-Jul-20,31-Jul-20,simplelong15_090_1,15,0.9,3,6,6,0,,,,,
@@ -576,4 +575,3 @@ Experiment_Start,Experiment_End,Profile_name,Mean_Temp,Thermal_regime,Incubator,
 29-Apr-22,04-May-22,Simplelong10_095_3,10,0.95,4,0,0,2,5,5,6,,
 29-Apr-22,04-May-22,Simplelong10_095rev_3,10,0.95,5,0,0,0,5,6,5,,
 29-Apr-22,04-May-22,Simplelong10_095rev_2,10,0.95,6,,,,7,6,5,,
->>>>>>> 5b005b31e31cba57016bae52d64974a77084536d,,,,,,,,,,,,,
