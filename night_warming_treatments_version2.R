@@ -82,18 +82,9 @@ thermalseq <- thermalseq[-(1:12),]
 thermalseq <- thermalseq[-(242:252),]
 
 #plot treatments
-par(mfrow=c(1,1))
 plot(thermalseq[,2],type="l",col="black",ylim=c(10,30),
      main="Fig. 2: Night warming experiment treatments",
-     xlab="Time (hours)", ylab="Temperature (°C)")
-lines(thermalseq[,4],type="l",col="green")
-lines(thermalseq[,5],type="l",col="red")
-lines(thermalseq[,6],type="l",col="red")
-
-
-plot(thermalseq[,2],type="l",col="black",ylim=c(10,30),
-     main="Fig. 2: Night warming experiment treatments",
-     xlab="Time (hours)", ylab="Temperature (°C)")
+     xlab="Time (hours)", ylab="Temperature (Â°C)")
 lines(thermalseq[,4],type="l",col="orange")
 lines(thermalseq[,5],type="l",col="green")
 lines(thermalseq[,6],type="l",col="red")
