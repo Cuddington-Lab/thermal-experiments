@@ -1,4 +1,4 @@
-﻿Experiment_Number,Completed_experiment_number,Experiment_Start,Experiment_End,Profile_name,Treatment,Incubator,Species,Dev_time,Frond_count,Initial_area,Final_area,Initial weight,Final weight,Program_mean,Obs_mean,Program_sd,Obs_sd,Gaps,Gap_size,"Discoloration (mild=1,mod=2 x n of fronds)",Remarks
+﻿Experiment_Number,Completed_experiment_number,Experiment_Start,Experiment_End,Profile_name,Treatment,Incubator,Species,Dev_time,Frond_count,Initial_area,Final_area,Initial_weight,Final_weight,Program_mean,Obs_mean,Program_sd,Obs_sd,Gaps,Gap_size,"Discoloration (mild=1,mod=2 x n of fronds)",Remarks
 1,1,13-May-22,23-May-22,trial1-control,ctr,2,LM,4,19,0.168,0.762,0.00076,0.00731,,,,,,,,
 1,1,13-May-22,23-May-22,trial1-control,ctr,2,LM,3,20,0.204,0.701,,,,,,,,,,
 1,1,13-May-22,23-May-22,trial1-control,ctr,2,LM,2,20,0.177,0.708,,,,,,,,,,
