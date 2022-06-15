@@ -2,19 +2,12 @@
 setwd("C:/Users/user/Desktop/github2/thermal-experiments/night_warming_thermallog")
 files <- list.files(pattern = ".csv")
 
-
-my_data <- as.data.frame(fread(sprintf(files[1], skip=10)))
-colnames(my_data)=c("Date", "Time", "Obs", "Program")
-
-my_data <- as.data.frame(read.csv(files[1], skip=10))
-colnames(my_data)=c("Date", "Time", "Obs", "Program")
-
 #set up empty dataframe
 lng=length(files)
 cat_stats=setNames(data.frame(matrix(ncol = 5, nrow = lng)), c("fname", "program_mean",
                                                                "obs_mean", "program_sd", "obs_sd"))
 
-#run a regression on each file, and categorize as postive or negative slope; add summary stats
+#add summary stats
 for (i in 1:length(files)){
   
   #read in file
