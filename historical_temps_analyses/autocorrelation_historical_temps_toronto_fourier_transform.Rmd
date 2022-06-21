@@ -1,0 +1,149 @@
+---
+title: "Power Spectral Analysis: Evaluating Changes in Autocorrelation Patterns within Toronto Minimal Temperatures"
+author: "Debora"
+date: "5/20/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Conceptualization of technique:
+-Power spectrum analysis separates the variation in a time series into distinct frequencies (Box, Jenkins, & Geinsel, 2008; Dakos et al., 2012)
+-When approaching a transition, a given system displays increased variation at low frequencies (spectral reddening) (Kleinen, Held, & Petschel-Held, 2003; Dakos et al., 2012)
+
+Objective of analysis: investigate if minimum temperature autocorrelation patterns have changed from 1950 to 2012.
+
+- temperature data was collected from Toronto Pearson Airport weather station, from 1950 to 2012
+```{r}
+#download temperature data (saved on May 11, 2022 from:
+#https://climate.weather.gc.ca/historical_data/search_historic_data_e.html)
+hist <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/historical_temps_analyses/historical_temps_toronto.csv", header=TRUE, stringsAsFactors = TRUE)
+```
+
+- convert the character Time/Date to an R readable time date format
+```{r}
+hist$LOCAL_DATE <- as.Date(hist$LOCAL_DATE, format = "%m/%d/%Y")
+```
+
+- plot time series data
+```{r}
+plot(hist[,6],hist[,13],type="l",col="blue",
+     main="Historical temperatures",
+     xlab="Time (days)", ylab="Temperature (°C)",ylim=c(-40,40))
+lines(hist[,6],hist[,11],type="l",col="black")
+lines(hist[,6],hist[,15],type="l",col="red")
+```
+
+- perform GAM to eliminate seasonality
+```{r include=FALSE}
+# perform a GAM to eliminate the yearly seasonality
+hist <- hist[!is.na(hist$MEAN_TEMPERATURE),]
+
+hist$JULIAN <- as.numeric(format(hist$LOCAL_DATE, "%j"))
+
+library(mgcv)
+gam.model <- gam(MIN_TEMPERATURE ~ s(JULIAN,bs="tp",k=30), data=hist, method="REML") 
+
+summary(gam.model)
+plot(gam.model)
+hist$pred.gam = predict(gam.model)
+
+library(ggplot2)
+ggplot(hist, aes(JULIAN, MIN_TEMPERATURE)) +
+  ylab("Temperature(°C)") +
+  xlab("Time (days)") +
+  geom_point() +
+  geom_line(aes(y = pred.gam), size = 1, col = "blue")
+
+resid_gam <- data.frame(LOCAL_DATE=hist$LOCAL_DATE, LOCAL_YEAR=hist$LOCAL_YEAR, 
+                        resid=residuals(gam.model))
+
+plot(resid_gam$LOCAL_DATE,resid_gam$resid)
+```
+
+- separate temperatures by year and run one power spectral analysis for each year
+- obtain spectral exponents of linear model fitted to log scale of spectral density x frequency
+```{r include=FALSE}
+year_list <- split(resid_gam, f = resid_gam$LOCAL_YEAR)
+
+# calculate frequency
+# find the sample period
+delta <- 1
+
+# calculate the Nyquist frequency
+f.Nyquist <- 1/2/delta
+
+all_results <- list()
+spectral_exponent <- data.frame(year=integer(),exponent=double())
+
+count = 1
+
+for (i in year_list) {
+  
+  # compute the Fast Fourier Transform (fft)
+  s = (fft(i[, 3]))
+  
+  # and use it to generate the actual frequency
+  frq <- f.Nyquist * c(seq(length(i[,3])/2),-rev(seq(length(i[,3])/2)))/(length(i[, 3])/2)
+  
+  # Plot fft vs frequency in a 2 panel graph
+  par(mfrow = c(2, 1))
+  plot((Mod(s[1:(length(frq))])) ~ frq, type = "l", main = paste("FFT of Temperature vs Frequency"),
+  xlab = "Frequency (cycles per sample interval)",
+  ylab = "Spectral Density")
+  plot((Mod(s[1:(length(frq))])) ~ frq, type = "l", xlim = c(0,0.5), 
+  ylab = "Spectral Density", xlab = "Frequency (cycles per sample interval)")
+  
+  #fit a linear model on a log-scale of spectral density x frequency
+  filines <- lm(log(Mod(s[3:(length(i[, 3])/2)])) ~ log(frq[3:(length(i[, 3])/2)]))
+  
+  #plot linear fit
+  par(mfrow = c(1, 1))
+  plot(log(Mod(s[3:(length(i[, 3])/2)])) ~ log(frq[3:(length(i[, 3])/2)]), 
+  main = "Linear regression of FFT vs Frequency", ylab =   "Power Spectral Density", 
+  xlab = "Frequency (cycles per sample interval)")
+  abline(filines, col = "red")
+  summary(filines)
+  #save exponent for each year
+  result <- summary(filines)$coefficients
+  all_results[[count]] = as.data.frame(result)
+  spectral_exponent[count,1] = i[1,"LOCAL_YEAR"]
+  spectral_exponent[count,2] = all_results[[count]][["Estimate"]][2]
+  count=count+1
+  
+  plot(filines)
+}
+```
+
+- fit a linear model to yearly spectral exponents
+```{r}
+lm.result <- lm(exponent ~ year, data=spectral_exponent) 
+
+plot(lm.result)
+
+summary(lm.result)
+par(mfrow=c(2,2))
+plot(lm.result)
+
+ggplot(spectral_exponent, aes(year, exponent)) +
+  ylab("spectral exponent") +
+  ylim(-0.9,-0.25) +
+  geom_point() +
+  geom_smooth(method='gam', formula= y~s(x)) +
+  labs(title = "Temporal autocorrelation of Toronto mean temperatures", 
+       caption = "Temporal autocorrelation changes based on a linear regression. 
+       Autocorrelation was calculated by an yearly linear regression based
+       on spectral expoents of the spectral density within a power spectral analysis.
+       More negative values represent stronger autocorrelation.")
+
+library(gridExtra)
+grid.arrange(pmin, pmean, pmax, ncol=3)
+```
+References:
+Box GEP, Jenkins GM, Geinsel GC. Time Series Analysis Forecasting and Control. New Jersey: Wiley. 2008
+
+Kleinen T, Held H, Petschel-Held G. The potential role of spectral properties in detecting thresholds in the Earth system: application to the thermohaline circulation. Ocean Dynamics. 2003;53:53–63.
+
+Dakos V, Carpenter SR, Brock WA, Ellison AM, Guttal V, Ives AR, Kéfi S, Livina V, Seekell DA, van Nes EH, Scheffer M. Methods for detecting early warnings of critical transitions in time series illustrated using simulated ecological data. PLoS One. 2012;7(7):e41010. doi: 10.1371/journal.pone.0041010. Epub 2012 Jul 17. PMID: 22815897; PMCID: PMC3398887.
