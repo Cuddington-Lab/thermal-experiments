@@ -80,3 +80,6 @@ ggplot(tpcLM, aes(temp, rgr)) +
 #Ratkowsky, D.A., Lowry, R.K., McMeekin, T.A., Stokes, A.N., & Chandler, R.E. 
 #(1983). Model for bacterial culture growth rate throughout the entire 
 #biokinetic temperature range. J. Bacteriol. 154, 1222–1226.
+
+#Padfield D, O'Sullivan H (2021). rTPC: Functions for Fitting Thermal Performance Curves. 
+#R package version 1.0.2, https://github.com/padpadpadpad/rTPC.
