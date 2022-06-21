@@ -1,4 +1,4 @@
-hist <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/historical_temps_toronto.csv", header=TRUE, stringsAsFactors = TRUE)
+hist <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/historical_temps_analyses/historical_temps_toronto.csv", header=TRUE, stringsAsFactors = TRUE)
 hist$LOCAL_DATE <- as.Date(hist$LOCAL_DATE, format = "%m/%d/%Y")
 hist <- hist[!is.na(hist$MEAN_TEMPERATURE),]
 hist$JULIAN <- as.numeric(format(hist$LOCAL_DATE, "%j"))
