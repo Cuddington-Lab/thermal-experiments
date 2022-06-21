@@ -1,0 +1,76 @@
+---
+title: "Aphids TPC"
+author: "Champ & Cuddington Lab"
+date: "2021/10/19"
+output: pdf_document
+---
+
+```{r}
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+# Access Dataset from Github Repository and Check Import
+
+```{r, echo = TRUE}
+aphids = read.csv(
+  "https://raw.githubusercontent.com//Cuddington-Lab/thermal-experiments/main/Aphid_Data - Sheet1.csv",
+   header = TRUE, stringsAsFactors = TRUE)
+str(aphids)
+```
+
+# Perform Data Cleaning
+
+```{r, echo = TRUE}
+# Select constant temperatures only
+aphids_constant = rbind(aphids[aphids$Autocorrelation == "constant",],
+                        aphids[grepl("constant", aphids$Profile_name),])
+
+# Select aphids data only
+aphids_constant = aphids_constant[,!grepl("Duckweed|X",names(aphids_constant))]
+# Remove NA data
+aphids_constant = na.omit(aphids_constant)
+# Remove observations for which incubators had issues
+aphids_constant = aphids_constant[!grepl("Celsius|Computer|error", aphids_constant$Notes),]
+# Special addition on plant 2 in line 137
+aphids_constant["137","Offspring_Plant2"] = aphids_constant["137","Offspring_Plant2"] + 1
+```
+
+# Perform Data Manipulations
+
+```{r, echo = TRUE}
+# Create new column including sum of aphids
+aphids_constant$Total_aphids = aphids_constant$Offspring_Plant1 + aphids_constant$Offspring_Plant2 + 
+  aphids_constant$Offspring_Plant3
+```
+
+# Create Scatterplot
+
+```{r, echo = TRUE}
+plot(aphids_constant$Total_aphids ~ aphids_constant$Mean_Temp, xlab = "Temperature (degree in Celsius)", 
+        ylab = "Total Aphids Offspring", main = "Aphids Reproductive Outputs Across Constant Temperatures",
+        xaxt = "n", pch = 16, type = "p", xlim = c(10,35))
+axis(1, at = seq(10,35,5))  
+```
+
+# Calculate Mean and SD
+
+```{r, echo = TRUE}
+stats = data.frame(group = levels(factor(aphids_constant$Mean_Temp)), 
+                   mean = (aggregate(aphids_constant$Total_aphids, by = list(aphids_constant$Mean_Temp), 
+                                        FUN = mean)$x),
+                   sd = (aggregate(aphids_constant$Total_aphids, by = list(aphids_constant$Mean_Temp), 
+                                   FUN = sd)$x)
+                             )
+stats = transform(stats, group = as.numeric(group))
+```
+
+# Reproductive Outputs Visualization With Error Bars
+
+```{r, echo = TRUE}
+plot(aphids_constant$Total_aphids ~ aphids_constant$Mean_Temp, xlab = "Temperature (degrees in Celsius)", 
+        ylab = "Total Aphids Offspring", main = "Aphids Reproductive Outputs Across Constant Temperatures",
+        xaxt = "n", pch = 16, type = "p", xlim = c(10,35))
+axis(1, at = seq(10,35,5))  
+arrows(x0 = stats$group, y0 = stats$mean-stats$sd, x1 = stats$group, y1 = stats$mean+stats$sd, code = 3, 
+       angle = 90, length = 0.1)
+```
