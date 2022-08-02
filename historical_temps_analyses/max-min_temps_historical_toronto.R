@@ -187,7 +187,7 @@ summary(gam.model)
 #edf in GAM models:
 #"The effective degrees of freedom (edf) estimated from generalized additive models were used as a proxy for the degree of non-linearity in stressor-response 
 #relationships. (a) An edf of 1 is equivalent to a linear relationship, (b) an edf > 1 and ≤ 2 is a weakly non-linear relationship, and (c) an edf > 2 indicates 
-#a highly non-linear relationship (Zuur et al. 2009).
+#a highly non-linear relationship" (Zuur et al. 2009).
 
 #plot actual and predicted data
 detrended$pred.gam = predict(gam.model)
