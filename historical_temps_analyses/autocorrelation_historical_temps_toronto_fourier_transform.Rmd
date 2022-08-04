@@ -19,7 +19,7 @@ Objective of analysis: investigate if minimum temperature autocorrelation patter
 ```{r}
 #download temperature data (saved on May 11, 2022 from:
 #https://climate.weather.gc.ca/historical_data/search_historic_data_e.html)
-hist <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/historical_temps_analyses/historical_temps_toronto.csv", header=TRUE, stringsAsFactors = TRUE)
+hist <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/historical_temps_analyses/historical_temps_toronto.csv", header=TRUE, stringsAsFactors = TRUE)
 ```
 
 - convert the character Time/Date to an R readable time date format
@@ -89,23 +89,23 @@ for (i in year_list) {
   frq <- f.Nyquist * c(seq(length(i[,3])/2),-rev(seq(length(i[,3])/2)))/(length(i[, 3])/2)
   
   # Plot fft vs frequency in a 2 panel graph
-  par(mfrow = c(2, 1))
-  plot((Mod(s[1:(length(frq))])) ~ frq, type = "l", main = paste("FFT of Temperature vs Frequency"),
-  xlab = "Frequency (cycles per sample interval)",
-  ylab = "Spectral Density")
-  plot((Mod(s[1:(length(frq))])) ~ frq, type = "l", xlim = c(0,0.5), 
-  ylab = "Spectral Density", xlab = "Frequency (cycles per sample interval)")
+#  par(mfrow = c(2, 1))
+#  plot((Mod(s[1:(length(frq))])) ~ frq, type = "l", main = paste("FFT of Temperature vs Frequency"),
+#  xlab = "Frequency (cycles per sample interval)",
+#  ylab = "Spectral Density")
+#  plot((Mod(s[1:(length(frq))])) ~ frq, type = "l", xlim = c(0,0.5), 
+#  ylab = "Spectral Density", xlab = "Frequency (cycles per sample interval)")
   
   #fit a linear model on a log-scale of spectral density x frequency
   filines <- lm(log(Mod(s[3:(length(i[, 3])/2)])) ~ log(frq[3:(length(i[, 3])/2)]))
   
   #plot linear fit
-  par(mfrow = c(1, 1))
-  plot(log(Mod(s[3:(length(i[, 3])/2)])) ~ log(frq[3:(length(i[, 3])/2)]), 
-  main = "Linear regression of FFT vs Frequency", ylab =   "Power Spectral Density", 
-  xlab = "Frequency (cycles per sample interval)")
-  abline(filines, col = "red")
-  summary(filines)
+ # par(mfrow = c(1, 1))
+ # plot(log(Mod(s[3:(length(i[, 3])/2)])) ~ log(frq[3:(length(i[, 3])/2)]), 
+ # main = "Linear regression of FFT vs Frequency", ylab =   "Power Spectral Density", 
+ # xlab = "Frequency (cycles per sample interval)")
+ # abline(filines, col = "red")
+ # summary(filines)
   #save exponent for each year
   result <- summary(filines)$coefficients
   all_results[[count]] = as.data.frame(result)
@@ -113,7 +113,7 @@ for (i in year_list) {
   spectral_exponent[count,2] = all_results[[count]][["Estimate"]][2]
   count=count+1
   
-  plot(filines)
+ # plot(filines)
 }
 ```
 
