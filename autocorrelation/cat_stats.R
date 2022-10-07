@@ -1,12 +1,12 @@
 library('readxl')
 
 #find the files
-setwd("C:/Users/naazb/Documents/code files/Co-op repo/cat_new")
-files <- list.files(pattern = "_0")
+setwd("C:/Users/Cuddington_admin/AppData/Roaming/Memmert/Celsius/Protocols/excel_files/1")
+files <- list.files(pattern = "_")
 
 #set up empty dataframe
 lng=length(files)
-cat_stats=setNames(data.frame(matrix(ncol = 9, nrow = lng)), c("fname", "slp", "cat", "program_mean",
+cat_stats=setNames(data.frame(matrix(ncol = 10, nrow = lng)), c("fname", "slp", "cat_1","cat_1_3", "program_mean",
                                                                "obs_mean", "program_sd", "obs_sd", "program_ac",
                                                                "obs_ac"))
 
@@ -29,7 +29,20 @@ for (i in 1:length(files)){
                                 format="%d/%m/%Y %H:%M")
   }
   
-  #regress first 1/4 of data
+  #regress first 1/3 of data
+  my_data=my_data[-c(1:61), ]
+  l4=length(my_data$Obs)/3
+  lreg=lm(my_data$Obs[1:l4]~my_data$DateTime[1:l4])
+  summary(lreg)
+  plot(my_data$Obs[1:l4]~my_data$DateTime[1:l4])
+  abline(lreg, col="red")
+  
+  #record slope and categorize as positive or negative
+  cat_stats$fname[i]=files[i]
+  cat_stats$slp[i]=lreg$coef[2]
+  cat_stats$cat_1_3[i]=ifelse(lreg$coef[2]>0, "P", "N")
+  
+  #regress entire dataset
   l4=length(my_data$Obs)
   lreg=lm(my_data$Obs[1:l4]~my_data$DateTime[1:l4])
   summary(lreg)
@@ -39,7 +52,7 @@ for (i in 1:length(files)){
   #record slope and categorize as positive or negative
   cat_stats$fname[i]=files[i]
   cat_stats$slp[i]=lreg$coef[2]
-  cat_stats$cat[i]=ifelse(lreg$coef[2]>0, "P", "N")
+  cat_stats$cat_1[i]=ifelse(lreg$coef[2]>0, "P", "N")
   
   #subset data to initial lenght of 120 time steps
   index=seq(from=1, to=nrow(my_data), by=60)
