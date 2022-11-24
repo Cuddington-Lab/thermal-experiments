@@ -20,12 +20,12 @@ new,27-Oct-22,1-Nov-22,simplelong20_1,20,constant,5,LP,11,11,12,0,0,0,20.0233333
 new,3-Nov-22,8-Nov-22,simplelong20_1,20,constant,5,Field_LM,13,7,10,0,0,1,20.03057851,20.01818182,0.096473636,0.145487686,
 new,3-Nov-22,8-Nov-22,simplelong20_2,20,constant,5,Lab_LM,12,17,12,0,0,0,20.03057851,20.01818182,0.096473636,0.145487686,
 new,3-Nov-22,8-Nov-22,simplelong20_3,20,constant,5,LP,20,13,16,0,1,0,20.03057851,20.01818182,0.096473636,0.145487686,
-new,10-Nov-22,15-Nov-22,simplelong20_1,30,constant,5,Field_LM,13,13,13,0,0,0,,,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-new,10-Nov-22,15-Nov-22,simplelong20_2,30,constant,5,Lab_LM,28,20,27,0,0,0,,,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-new,10-Nov-22,15-Nov-22,simplelong20_3,30,constant,5,LP,14,13,18,1,0,0,,,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-new,17-Nov-22,22-Nov-22,simplelong20_1,30,constant,5,Field_LM,11,9,11,0,1,0,30,29.99166667,0,0.065572249,
-new,17-Nov-22,22-Nov-22,simplelong20_2,30,constant,5,Lab_LM,17,16,17,0,1,0,30,29.99166667,0,0.065572249,
-new,17-Nov-22,22-Nov-22,simplelong20_3,30,constant,5,LP,24,20,19,0,0,1,30,29.99166667,0,0.065572249,
+new,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,Field_LM,13,13,13,0,0,0,,,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+new,10-Nov-22,15-Nov-22,simplelong30_2,30,constant,5,Lab_LM,28,20,27,0,0,0,,,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+new,10-Nov-22,15-Nov-22,simplelong30_3,30,constant,5,LP,14,13,18,1,0,0,,,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+new,17-Nov-22,22-Nov-22,simplelong30_1,30,constant,5,Field_LM,11,9,11,0,1,0,30,29.99166667,0,0.065572249,
+new,17-Nov-22,22-Nov-22,simplelong30_2,30,constant,5,Lab_LM,17,16,17,0,1,0,30,29.99166667,0,0.065572249,
+new,17-Nov-22,22-Nov-22,simplelong30_3,30,constant,5,LP,24,20,19,0,0,1,30,29.99166667,0,0.065572249,
 old,16-Jul-21,21-Jul-21,simplelong_31_1,31,constant,6,Lab_LM,10,9,8,,,,,,,,
 old,20-Aug-21,25-Aug-21,simplelong31_1,31,constant,3,Lab_LM,10,12,12,,,,,,,,
 old,10-Sep-21,15-Sep-21,simplelong31_1,31,constant,5,Lab_LM,10,12,10,,,,,,,,
