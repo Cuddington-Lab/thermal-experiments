@@ -1,4 +1,4 @@
-﻿,Experiment_Start,Experiment_End,Profile_name,Mean_temperature,Treatment,Incubator,Species,Frond_count_1,Frond_count_2,Frond_count_3,Dead_frond_count_1,Dead_frond_count_2,Dead_frond_count_3,Program_mean,Obs_mean,Program_sd,Obs_sd,Remarks
+Prep_technique,Experiment_Start,Experiment_End,Profile_name,Mean_temperature,Treatment,Incubator,Species,Frond_count_1,Frond_count_2,Frond_count_3,Dead_frond_count_1,Dead_frond_count_2,Dead_frond_count_3,Program_mean,Obs_mean,Program_sd,Obs_sd,Remarks
 new,15-Sep-22,20-Sep-22,simplelong7_1,7,constant,2,Field_LM,6,6,5,,,,7,6.993548387,0,0.234431065,
 new,15-Sep-22,20-Sep-22,simplelong7_1,7,constant,2,Lab_LM,5,7,6,,,,7,6.993548387,0,0.234431065,
 new,15-Sep-22,20-Sep-22,simplelong7_1,7,constant,2,LP,6,5,6,,,,7,6.993548387,0,0.234431065,
