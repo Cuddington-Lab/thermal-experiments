@@ -1,0 +1,24 @@
+set.seed(2023)  # for reproducibility
+
+## beta
+x = rbeta(10^6,1/8,1/8)
+mean(x); var(x)
+
+x = rbeta(500, 1/8, 1/8)
+hist(x, br=5, prob=T, ylim=c(0,3), col="skyblue2", label=T)
+curve(dbeta(x,1/8,1/8), add=TRUE, col="red", n=10001)
+
+curve(dbeta(x,1/8,1/8), add="true", n=10001,lwd=2)
+## eixo x corresponde a porcentagem de reproducao (0% a 100%)
+
+par(mfrow=c(2,2))
+curve(dnorm, -1.5, 1.5, lwd=2)
+curve(dbeta(x,1/8,1/8), n=10001,lwd=2)
+### work here so that both axis have the same interval number
+### add actual experiment data and superimpose it to distribution curves
+
+
+## normal
+curve(dnorm, -3.5, 3.5, lwd=2, axes = FALSE, xlab = "", ylab = "")
+axis(1, at = -3:3, labels = c("-3s", "-2s", "-1s", "mean", "1s", "2s", "3s"))
+axis(2, at = -3:3, labels = c("-3s", "-2s", "-1s", "mean", "1s", "2s", "3s"))
