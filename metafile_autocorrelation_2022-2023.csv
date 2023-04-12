@@ -56,13 +56,13 @@
 82,3-Nov-22,8-Nov-22,simplelong20_1,20,constant,5,Field_LM,,,,13,7,10,0,0,1,,0,,,,20,20,0.1,0.1,NA,NA,,,
 82,3-Nov-22,8-Nov-22,simplelong20_1,20,constant,5,Lab_LM,,,,12,17,12,0,0,0,,0,,,,20,20,0.1,0.1,NA,NA,,,
 82,3-Nov-22,8-Nov-22,simplelong20_1,20,constant,5,LP,,,,20,13,16,0,1,0,,0,,,,20,20,0.1,0.1,NA,NA,,,
-83,10-Nov-22,15-Nov-22,simplelong37_095_3,37,0.95,2,LP,,,,1,0,3,7,5,3,,0,,,,NA,NA,NA,NA,NA,NA,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong37_095_3,37,0.95,2,Field_LM,,,,0,0,0,5,5,5,,0,,,,NA,NA,NA,NA,NA,NA,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong37_000_3,37,0,3,LP,,,,7,12,6,2,0,2,,0,,,,NA,NA,NA,NA,NA,NA,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong37_000_3,37,0,3,Field_LM,,,,4,1,5,1,1,1,,0,,,,NA,NA,NA,NA,NA,NA,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,Field_LM,,,,13,13,13,0,0,0,,0,,,,NA,NA,NA,NA,NA,NA,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,Lab_LM,,,,28,20,27,0,0,0,,0,,,,NA,NA,NA,NA,NA,NA,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,LP,,,,14,13,18,1,0,0,,0,,,,NA,NA,NA,NA,NA,NA,,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong37_095_3,37,0.95,2,LP,,,,1,0,3,7,5,3,,0,,,,NA,NA,NA,NA,NA,NA,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong37_095_3,37,0.95,2,Field_LM,,,,0,0,0,5,5,5,,0,,,,NA,NA,NA,NA,NA,NA,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong37_000_3,37,0,3,LP,,,,7,12,6,2,0,2,,0,,,,NA,NA,NA,NA,NA,NA,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong37_000_3,37,0,3,Field_LM,,,,4,1,5,1,1,1,,0,,,,NA,NA,NA,NA,NA,NA,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,Field_LM,,,,13,13,13,0,0,0,,0,,,,NA,NA,NA,NA,NA,NA,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,Lab_LM,,,,28,20,27,0,0,0,,0,,,,NA,NA,NA,NA,NA,NA,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,LP,,,,14,13,18,1,0,0,,0,,,,NA,NA,NA,NA,NA,NA,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
 84,17-Nov-22,22-Nov-22,simplelong37_000_4,37,0,2,LP,0,0,0,5,7,10,1,0,0,0.344,0,,,,36.952,36.896,2.466,2.534,0.022,-0.01,,,
 84,17-Nov-22,22-Nov-22,simplelong37_000_4,37,0,2,Field_LM,,,,11,9,12,0,0,0,0.531,0,,,,36.952,36.896,2.466,2.534,0.022,-0.01,,,
 84,17-Nov-22,22-Nov-22,simplelong37_095_4,37,0.95,3,LP,0,0,0,9,9,7,0,0,0,0.319,0,,,P,36.956,36.912,2.496,2.497,0.958,0.956,,,
@@ -150,7 +150,7 @@
 98,30-Mar-23,4-Apr-23,simplelong40_1,40,constant,5,Field_LM,,,,0,0,0,6,8,9,,,,,,,,,,,,,,
 99,6-Apr-23,11-Apr-23,simplelong27_000_22,27,0,2,LP,,,,23,18,14,0,1,1,,,,,,26.964,26.948,2.468,2.525,0.009,-0.003,,,
 99,6-Apr-23,11-Apr-23,simplelong27_000_22,27,0,2,Field_LM,,,,39,36,36,0,0,0,,,,,,26.964,26.948,2.468,2.525,0.009,-0.003,,,
-99,6-Apr-23,11-Apr-23,simplelong27_095_22,27,0.95,3,LP,,,,12,10,11,0,1,0,,,,,N,36.952,36.913,2.474,2.477,0.952,0.953,,,experiment is invalid due to incorrect mean temperature
-99,6-Apr-23,11-Apr-23,simplelong27_095_22,27,0.95,3,Field_LM,,,,4,7,7,4,3,2,,,,,N,36.952,36.913,2.474,2.477,0.952,0.953,,,experiment is invalid due to incorrect mean temperature
-99,6-Apr-23,11-Apr-23,simplelong27_095rev_22,27,0.95,4,LP,,,,12,17,17,0,0,0,,,,,P,36.934,36.89,2.477,2.476,0.95,0.95,,,experiment is invalid due to incorrect mean temperature
-99,6-Apr-23,11-Apr-23,simplelong27_095rev_22,27,0.95,4,Field_LM,,,,17,14,16,0,0,0,,,,,P,36.934,36.89,2.477,2.476,0.95,0.95,,,experiment is invalid due to incorrect mean temperature
+99,6-Apr-23,11-Apr-23,simplelong27_095_22,27,0.95,3,LP,,,,12,10,11,0,1,0,,,,,N,36.952,36.913,2.474,2.477,0.952,0.953,y,,experiment is invalid due to incorrect mean temperature
+99,6-Apr-23,11-Apr-23,simplelong27_095_22,27,0.95,3,Field_LM,,,,4,7,7,4,3,2,,,,,N,36.952,36.913,2.474,2.477,0.952,0.953,y,,experiment is invalid due to incorrect mean temperature
+99,6-Apr-23,11-Apr-23,simplelong27_095rev_22,27,0.95,4,LP,,,,12,17,17,0,0,0,,,,,P,36.934,36.89,2.477,2.476,0.95,0.95,y,,experiment is invalid due to incorrect mean temperature
+99,6-Apr-23,11-Apr-23,simplelong27_095rev_22,27,0.95,4,Field_LM,,,,17,14,16,0,0,0,,,,,P,36.934,36.89,2.477,2.476,0.95,0.95,y,,experiment is invalid due to incorrect mean temperature
