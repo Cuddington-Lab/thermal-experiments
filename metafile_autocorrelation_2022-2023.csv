@@ -154,7 +154,7 @@
 99,06-Apr-23,11-Apr-23,simplelong27_095_22,27,0.95,3,Field_LM,,,,4,7,7,4,3,2,,,,,N,36.952,36.913,2.474,2.477,0.952,0.953,y,,experiment is invalid due to incorrect mean temperature
 99,06-Apr-23,11-Apr-23,simplelong27_095rev_22,27,0.95,4,LP,,,,12,17,17,0,0,0,,,,,P,36.934,36.89,2.477,2.476,0.95,0.95,y,,experiment is invalid due to incorrect mean temperature
 99,06-Apr-23,11-Apr-23,simplelong27_095rev_22,27,0.95,4,Field_LM,,,,17,14,16,0,0,0,,,,,P,36.934,36.89,2.477,2.476,0.95,0.95,y,,experiment is invalid due to incorrect mean temperature
-100,13-Apr-23,18-Apr-23,simplelong27_095_22,27,0.95,3,LP,,,,15,12,13,0,0,0,,,,,,,,,,,,,,
+100,13-Apr-23,18-Apr-23,simplelong27_095_22,27,0.95,3,LP,,,,15,13,13,0,0,0,,,,,,,,,,,,,,1 initial frond in 2nd set was stuck on parafilm
 100,13-Apr-23,18-Apr-23,simplelong27_095_22,27,0.95,3,Field_LM,,,,21,19,24,0,0,0,,,,,,,,,,,,,,
 100,13-Apr-23,18-Apr-23,simplelong27_095rev_22,27,0.95,4,LP,,,,16,19,11,0,0,0,,,,,,,,,,,,,,
 100,13-Apr-23,18-Apr-23,simplelong27_095rev_22,27,0.95,4,Field_LM,,,,20,22,20,0,0,0,,,,,,,,,,,,,,
