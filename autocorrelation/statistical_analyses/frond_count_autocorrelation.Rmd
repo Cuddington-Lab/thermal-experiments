@@ -1,0 +1,209 @@
+---
+title: "Autocorrelation experiment: statistical analyses at 37°C - frond count"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,comment = NA)
+```
+
+```{r, include=F, warning=FALSE, message=FALSE}
+datin1 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/metafile_autocorrelation_2022-2023.csv",header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+
+datin2 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/metafile_autocorrelation_2021-2022.csv",header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+
+datin <- rbind(datin1,datin2)
+
+# Data validation: excluding experiments outside thresholds established in my methods section
+# (for standard deviation and autocorrelation of observed temperatures)
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_sd <= 2.1 | datin$Obs_sd >= 2.9))
+              &!(datin$Treatment == 0.95 & (datin$Obs_sd <= 2.1 | datin$Obs_sd >= 2.9)),]
+
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_ac <= -0.2 | datin$Obs_ac >= 0.2))
+               &!(datin$Treatment == 0.95 & (datin$Obs_ac <= 0.92 | datin$Obs_ac >= 0.98)),]
+
+# Excluding failed experiments
+datin <- datin[!datin$Experiment_Number == 83,]
+datin <- datin[!(datin$Experiment_Number == 99 & datin$Incubator ==3),]
+datin <- datin[!(datin$Experiment_Number == 99 & datin$Incubator ==4),]
+
+# Selecting average temperature of 37C
+datin <- subset(datin, Mean_temperature == 37)
+
+# Create new treatment label (depending on slope of regression for observed temperature series)
+table(datin$Treatment, datin$cat_1)
+levels(datin$cat_1) = c("N/A","N","P","N/A")
+datin$label<-paste0(datin$Treatment, datin$cat_1)
+table(datin$label)
+
+# Re-label groups to simplify visualization of results
+library(stringr)
+datin$label <- str_replace(datin$label, "0N/A", "0")
+datin$label <- str_replace(datin$label, "0.95N", "hot-cold")
+datin$label <- str_replace(datin$label, "0.95P", "cold-hot")
+
+datin$Species <- str_replace(datin$Species, "Field_LM", "L. minor (native)")
+datin$Species <- str_replace(datin$Species, "LP", "L. punctata (invasive)")
+
+datin$Species <- as.factor(datin$Species)
+datin$label <- as.factor(datin$label)
+
+# Obtain summed frond counts
+datin$Frond_count <- datin$Frond_count_1 + datin$Frond_count_2 + datin$Frond_count_3
+datinF <- subset(datin, !Frond_count == 0)
+```
+
+### Check dataset (each row corresponds to a replicate)
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+knitr::kable(tail(datinF[c(1,5,7,8,32,33)],6),"simple")
+```
+
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+### Sample to obtain same number of replicates across groups
+# no need to balance samples for mixed models nor for post-hoc pairwise comparisons
+# Pinheiro, J. C. (2014). Linear mixed effects models for longitudinal data. Wiley StatsRef: Statistics Reference Online. : "The increasing popularity of these models is explained by the flexibility they offer in modeling the within-subject correlation often present in longitudinal data, by the handling of both balanced and unbalanced data"
+# https://onlinelibrary.wiley.com/doi/10.1002/0470011815.b2a12037
+# emmeans example: https://cran.r-project.org/web/packages/emmeans/vignettes/basics.html
+
+datinF_sampled <- rbind(datinF[sample(which(datinF$Species == "L. minor (native)" & datinF$label == "hot-cold"),6),],
+                 datinF[sample(which(datinF$Species == "L. minor (native)" & datinF$label == "cold-hot"),6),],
+                 datinF[sample(which(datinF$Species == "L. minor (native)" & datinF$label == "0"),6),],
+                 datinF[sample(which(datinF$Species == "L. punctata (invasive)" & datinF$label == "hot-cold"),5),],
+                 datinF[sample(which(datinF$Species == "L. punctata (invasive)" & datinF$label == "cold-hot"),6),],
+                 datinF[sample(which(datinF$Species == "L. punctata (invasive)" & datinF$label == "0"),6),])
+```
+
+
+### Check number of replicates
+```{r message=FALSE, warning=FALSE}
+table(datinF$Species,datinF$label)
+```
+
+### Barplot (means and standard errors): duckweed reproduction
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(cowplot)
+library(rlang)
+library(patchwork)
+
+datunique.mean <- aggregate(Frond_count ~ label + Species, data = datinF, mean)
+datunique.sd <- aggregate(Frond_count ~ label + Species, data = datinF, sd)
+datunique <- data.frame(cbind(label=as.character(datunique.mean$label),
+                              Species=as.character(datunique.mean$Species),
+                              Mean=datunique.mean$Frond,
+                              sd=datunique.sd$Frond))
+datunique$Mean <- as.numeric(datunique$Mean) 
+datunique$sd <- as.numeric(datunique$sd)
+
+f <- ggplot(datunique, aes(x=label, y=Mean, fill=Species)) +
+  geom_bar(stat = "identity",
+           position = position_dodge()) +
+  geom_errorbar(aes(x=label, ymin=Mean-sd, ymax=Mean+sd), width=0.4, 
+                colour="grey", alpha=0.9, size=1.3, stat = "identity",
+                position=position_dodge(.9)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        text = element_text(size = 18),legend.position="none") +
+  labs(y= "Mean frond count", x = "Treatment") + 
+  scale_fill_manual(values=c("#999999", "#E69F00"))
+
+ggp1_legend <- ggplot(datunique, aes(x=label, y=Mean, fill=Species)) +
+  geom_bar(stat = "identity",
+           position = position_dodge()) + 
+  theme(legend.position = "bottom")
+extract_legend <- function(my_ggp) {
+  step1 <- ggplot_gtable(ggplot_build(my_ggp))
+  step2 <- which(sapply(step1$grobs, function(x) x$name) == "guide-box")
+  step3 <- step1$grobs[[step2]]
+  return(step3)
+}
+
+ggp1_legend1 <- ggp1_legend + scale_fill_manual(values = c("#999999", "#E69F00"))
+
+shared_legend <- extract_legend(ggp1_legend1)
+
+library("gridExtra")
+grid.arrange(arrangeGrob(f, ncol = 2),
+             shared_legend, nrow = 2, heights = c(10, 1))
+```
+
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+#Reorganizing dataset to account for potential random effects of dishes (frond count only, as dry weights were obtained by putting together the fronds in each petri dish due to the sensitivity of the scale)
+#This is not being currently done because previous analyses showed that there are no effects of dishes in the models
+dish <- datinF
+dish$dish <- rep("d1",times=57)
+dish$Frond_count <- dish$Frond_count_1
+
+dish2 <- datinF
+dish2$dish <- rep("d2",times=57)
+dish2$Frond_count <- dish2$Frond_count_2
+
+dish3 <- datinF
+dish3$dish <- rep("d3",times=57)
+dish3$Frond_count <- dish3$Frond_count_3
+datinF2 <- rbind(dish,dish2,dish3)
+
+#check if summed values are correct
+aggregate(datinF$Frond_count, list(datinF$Treatment), FUN=sum)
+
+datinF2$dish <- as.factor(datinF2$dish)
+```
+
+### Checking the probability distribution of the response variables
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+library(MASS)
+library(car)
+qqp(datinF$Frond_count, "norm")
+```
+
+### Testing several models
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+library(lme4)
+
+lm.fit.spF = lm(Frond_count ~ label*Species,  data=datinF)
+experimF <- lmer(Frond_count ~ label*Species + (1|Experiment_Number),  data=datinF)
+incubF <- lmer(Frond_count ~ label*Species + (1|Incubator),  data=datinF)
+inc_expF <- lmer(Frond_count ~ label*Species + (1|Incubator)+(1|Experiment_Number),  data=datinF)
+exp.incF <- lmer(Frond_count ~ label*Species + (1|Experiment_Number/Incubator),  data=datinF)
+
+#model assessment
+##set up named list
+Cand.modsF <- list("no random effects" = lm.fit.spF,
+                  "experiment number" = experimF,
+                  "incubator" = incubF, 
+                  "incubator and experiment number" = inc_expF,
+                  "incubator nested in experiment number" = exp.incF)
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+library(performance)
+compareF <- compare_performance(Cand.modsF)
+knitr::kable(compareF[,c(1,2,3,4)],"simple")
+```
+
+### The best model
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+experimF <- lmer(Frond_count ~ label*Species + (1|Experiment_Number),  data=datinF)
+```
+
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+library(sjPlot)
+tab_model(experimF, digits = 3)
+```
+
+### Post-hoc pairwise comparisons
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+library(emmeans)
+f <- emmeans(experimF, list(pairwise ~ label*Species), lmer.df="satterthwaite")
+f1 <- as.data.frame(f$`pairwise differences of label, Species`)
+f2 <- subset(f1,p.value<=0.05)
+f2 <- f2[-c(3),]
+knitr::kable(f2,"simple",digits=4)
+
+```
+
