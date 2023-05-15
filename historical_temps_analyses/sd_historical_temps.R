@@ -55,4 +55,4 @@ hist(weekly_data$temp,prob=T,breaks=7)
 # fluctuations promote extinction risk. Nat. Clim. Chang. 12, 1037-1044 (2022)."
 # https://doi.org/10.1038/s41558-022-01490-7
 
-write.csv(download.data,"C:/Users/user/Desktop/hourly_data.csv", row.names=FALSE)
+weekly_data <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/historical_temps_analyses/waterloo_toronto_region_standard_deviations_temperatures.csv", header=TRUE, stringsAsFactors = TRUE)
