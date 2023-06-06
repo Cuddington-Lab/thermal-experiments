@@ -124,5 +124,45 @@ cat_plot(experimF, pred = label, modx = Species, geom = "bar") +
   labs(y = "Survival", x = "Survival") +
   scale_fill_manual(values=c("#999999", "#E69F00")) +
   scale_color_manual(values=c("#999999", "#E69F00")) 
+
+
+
+
+### Checking model assumptions
+#https://ademos.people.uic.edu/Chapter18.html
+#assumptions of linear models and linear mixed models: 
+#linearity (in parameters), homoscedasticity (equal variance), 
+#normal distribution of residuals, 
+#normal distribution of random effects (relevant for linear mixed models only), 
+#and independence (no clustering unaccounted for)
+
+#Assumption 1 - Linearity
+#The residuals should be approximately normally distributed. The Shapiro-Wilk test 
+#can be used to check the normal distribution of residuals. 
+#Null hypothesis: data is drawn from a normal distribution.
+shapiro.test(resid(experimF))
+
+#As the p-value is non-significant (p > 0.05), we fail to reject the null hypothesis 
+# and conclude that data is drawn from a normal distribution
+
+#Assumption 2 - Homogeneity of Variance (homoscedasticity)
+#The variance should be similar for all groups. Bartlett's test can be used to check the
+#homogeneity of variances. Null hypothesis: samples from populations have equal variances
+#https://www.r-bloggers.com/2021/10/analysis-of-covariance-ancova-using-r/
+bartlett.test(residuals(experimF) ~ datinF$Treatment)
+library(car)
+leveneTest(residuals(experimF) ~ datinF$Treatment)
+#As the p-value is non-significant (p > 0.05), we fail to reject the null hypothesis 
+# and conclude that treatments have equal variances
+
+#Assumption 3: The residuals of the model are normally distributed
+require("lattice")
+qqmath(experimF, id=0.05)
+plot(experimF)
+#There is some deviation from from the expected normal line towards the tails, 
+#but overall the line looks straight and therefore pretty normal and suggests that the 
+#assumption is not violated. See http://data.library.virginia.edu/diagnostic-plots/ 
+#and https://www.r-bloggers.com/model-validation-interpreting-residual-plots/ for 
+#more information regarding these visual tests
 ```
 
