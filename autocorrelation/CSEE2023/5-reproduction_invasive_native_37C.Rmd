@@ -104,7 +104,6 @@ library(emmeans)
 f <- emmeans(experimF, list(pairwise ~ label*Species), lmer.df="satterthwaite")
 f1 <- as.data.frame(f$`pairwise differences of label, Species`)
 f2 <- subset(f1,p.value<=0.05)
-f2 <- f2[-c(3),]
 knitr::kable(f2,"simple",digits=4)
 
 ```
