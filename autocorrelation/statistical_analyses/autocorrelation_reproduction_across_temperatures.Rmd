@@ -1,0 +1,233 @@
+---
+title: "Autocorrelation across temperatures"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+H3: When the mean temperature is much greater than the optimal, strongly autocorrelated sequences starting hot will have a negative impact to the performance in comparison with both autocorrelated sequences starting colder and the no autocorrelation group. The same will not be observed in mean temperatures which are lower or around optimal conditions. This is due to early mortality and/or reproduction suppression, which is more intense in superoptimal temperatures in comparison to suboptimal conditions as a result of the thermal performance curve shape of duckweeds. Thus, these negative responses will not be observed to the same extent in mean temperatures which are lower or around optimal conditions.   
+
+### Get datasets
+```{r}
+### This dataset contains replicates for which a preparation technique was performed (repeated first born frond selection to reduce maternal effects)
+datin1 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/metafile_autocorrelation_2022-2023.csv",header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+
+### This dataset contains replicates of experiments performed without a preparation technique 
+datin2 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/metafile_autocorrelation_2021-2022.csv",header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+
+datin <- rbind(datin1,datin2)
+```
+
+### Clean dataset
+
+### Data validation: excluding experiments outside thresholds established in my methods section (for standard deviation and autocorrelation of observed temperatures)
+```{r}
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_sd <= 2.1 | datin$Obs_sd >= 2.9))
+               &!(datin$Treatment == 0.95 & (datin$Obs_sd <= 2.1 | datin$Obs_sd >= 2.9)),]
+
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_ac <= -0.2 | datin$Obs_ac >= 0.2))
+               &!(datin$Treatment == 0.95 & (datin$Obs_ac <= 0.92 | datin$Obs_ac >= 0.98)),]
+```
+
+### Excluding failed experiments
+```{r}
+datin <- subset(datin, !Errors == "y"|is.na(Errors))
+```
+
+### Excluding recent experiments done at 27C which included maternal effects removal
+```{r}
+# To ensure that all replicates within this average temperature have the same preparation method; this is because the performance is higher when removing maternal effects around optimal conditions; this did not make a difference around 10-15C
+### 10C, 15C and 27C: no maternal effects removal (2021-2022 dataset)
+### 10C and 37C: included maternal effects removal (2022-2023 dataset)
+datin <- datin[!(datin$Experiment_Number == 99),]
+datin <- datin[!(datin$Experiment_Number == 100),]
+datin <- datin[!(datin$Experiment_Number == 103),]
+datin <- datin[!(datin$Experiment_Number == 104),]
+datin <- datin[!(datin$Experiment_Number == 105),]
+```
+
+### Remove constant temperature experiments
+```{r}
+datin <- subset(datin, !Treatment == "constant")
+```
+
+### Select *L. minor* for this analysis, as we do not have data for *L. punctata* across all mean temperatures
+```{r}
+datin <- subset(datin, Species == "Field_LM" | Species == "Lab_LM")
+```
+
+### Get total number of fronds for each replicate
+```{r}
+datin$Frond_count <- datin$Frond_count_1 + datin$Frond_count_2 + datin$Frond_count_3
+```
+
+### Relabel groups based on slope of regression for observed temperature series
+```{r include=FALSE}
+### Create new treatment
+table(datin$Treatment, datin$cat_1)
+levels(datin$cat_1) = c("","N","P","N/A")
+datin$label<-paste0(datin$Treatment, datin$cat_1)
+table(datin$label)
+
+colnames(datin)[6] <- "Treatment1"
+colnames(datin)[33] <- "Treatment"
+
+### Relabel groups to simplify visualization of results
+library(stringr)
+datin$Treatment <- str_replace(datin$Treatment, "0N/A", "0")
+datin$Treatment <- str_replace(datin$Treatment, "0.95N", "hot-cold")
+datin$Treatment <- str_replace(datin$Treatment, "0.95P", "cold-hot")
+datin$Treatment <- str_replace(datin$Treatment, "0", "no autocorrelation")
+datin$Mean_temperature <- str_replace(datin$Mean_temperature, "15", "10")
+datin$Mean_temperature <- str_replace(datin$Mean_temperature, "10", "10-15")
+```
+
+```{r}
+table(datin$Mean_temperature, datin$Treatment)
+```
+
+### Set variables to be used in the analyses as factors
+```{r}
+datin$Mean_temperature <- as.factor(datin$Mean_temperature)
+datin$Experiment_Number <- as.factor(datin$Experiment_Number)
+datin$Treatment <- as.factor(datin$Treatment)
+datin$Incubator <- as.factor(datin$Incubator)
+```
+
+### Define reference levels for regressions
+Mean temperature: 10-15C
+Treatment: no autocorrelation
+```{r}
+datin <- within(datin, Mean_temperature <- relevel(Mean_temperature, ref = "10-15"))
+datin <- within(datin, Treatment <- relevel(Treatment, ref = "no autocorrelation"))
+```
+
+Reproductive performance across several average temperatures was evaluated using a linear mixed model. The model, frond count ~ treatment * mean temperature, included experiment number as random effect and was fitted using REML with the nloptwrap optimizer. 
+
+### Fitting candidate models with different possible random effects and combinations
+```{r warning=FALSE}
+library(lme4)
+simple <- lm(Frond_count ~ Treatment*Mean_temperature,  data=datin)
+exp_number <- lmer(Frond_count ~ Treatment*Mean_temperature + (1|Experiment_Number),  data=datin)
+incubator <- lmer(Frond_count ~ Treatment*Mean_temperature + (1|Incubator),  data=datin)
+exp_number_incub <- lmer(Frond_count ~ Treatment*Mean_temperature + (1|Incubator)+(1|Experiment_Number),  data=datin)
+```
+
+### Model assessment
+```{r message=FALSE, warning=FALSE}
+##set up named list
+Cand.modsF <- list("no random effects" = simple,
+                   "experiment number" = exp_number,
+                   "incubator" = incubator, 
+                   "incubator and experiment number" = exp_number_incub)
+
+library(performance)
+compareF <- compare_performance(Cand.modsF)
+knitr::kable(compareF[,c(1,2,3,4,9)],"simple")
+```
+
+The best model is the one including experiment number as a random effect. Most previous experiments (eg., night warming) have this same result.
+
+### Statistical analysis of best model
+```{r}
+library(sjPlot)
+tab_model(exp_number, digits = 3)
+```
+
+
+Marginal R2: considers the effects of fixed effects alone  
+Conditional R2: considers the effects of both random and fixed effects
+
+There was no significant interaction at colder mean temperatures. There was a significant interaction between the hot-cold group and high temperatures (p $\lt$ 0.001, see table 1). 
+
+### Interaction plot
+```{r echo=FALSE, out.width="100%"}
+library(interactions)
+library(ggplot2)
+my_title <- expression(paste(italic("L. minor"), " reproduction across temperatures"))
+cat_plot(exp_number, pred = Mean_temperature, modx = Treatment,plot.points = TRUE,interval = FALSE,
+         point.shape = TRUE, pred.point.size = 10, 
+         point.size = 7, jitter = 1.3, geom = "line",vary.lty = TRUE,
+         line.thickness = 2,
+         colors = c("no autocorrelation" = "grey37","cold-hot" = "#0072B2","hot-cold" = "#D55E00")) + 
+  theme_bw(base_size=18) +
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black"),
+        legend.position="bottom") +
+  ggtitle(my_title) +
+  labs(y = "Frond count", x = "Mean temperature (°C)") +
+  geom_point(size=2)
+```
+
+This graph shows that the "hot-cold" treatment results in a reduction of reproduction in high temperatures, while the reproduction of duckweeds remains mostly the same across treatments in lower temperatures (low and optimal).
+
+### Plotting model estimates
+```{r echo=FALSE}
+library(sjPlot)
+set_theme(base = theme_light())
+estimates <- plot_model(exp_number, show.values = TRUE, value.offset = 0.3,
+           title = "Change in frond count compared to control",
+           rm.terms = c("Mean_temperature10-15", "Mean_temperature37", "Treatmentcold-hot",
+                        "Treatmenthot-cold"),vline.color = "red") + 
+  theme(text = element_text(size = 11))
+
+### vline
+estimates$layers[[1]]$aes_params$size <- 4
+### labels
+estimates$layers[[4]]$aes_params$size <- 8
+estimates
+```
+
+This graph shows changes in frond counts as compared to the control (zero autocorrelation group, intercept, not shown) with 95% confidence intervals and significance stars. The vertical 0 indicates no effect (position 0 for most linear models). This coefficient -15.24 represents the mean decrease in frond count for every additional frond count in the zero autocorrelation group.  
+
+
+In a post-hoc analysis, we examined the effects of different autocorrelation treatments to duckweeds exposed to high temperatures (37C). We observed negative effects of strongly autocorrelated temperature sequences starting hot, which were significantly different than effects to duckweeds exposed to both autocorrelated sequences starting colder (SE: 1.70, p < .001) and no autocorrelation sequences (SE: 1.53, p < .001). 
+
+### Post-hoc analyses
+```{r}
+library(emmeans)
+f <- emmeans(exp_number, list(pairwise ~ Treatment*Mean_temperature), lmer.df="satterthwaite")
+f1 <- as.data.frame(f$`pairwise differences of Treatment, Mean_temperature`)
+
+### selecting pairwise comparisons within each mean temperature
+knitr::kable(f1[c(1,2,9,22,23,27,34,35,36),],"simple",digits=4)
+```
+
+#### Checking linear mixed model assumptions
+
+* Linearity
+```{r}
+shapiro.test(resid(exp_number))
+```
+As the p-value is non-significant (p > 0.05), the null hypothesis is not rejected and we conclude that data has a normal distribution.
+
+* Homogeneity of variance (homoscedasticity): plotting predicted vs residual values
+```{r}
+plot(exp_number)
+```
+
+Dispersion looks partially homogenous.
+
+* Normal distribution 
+```{r}
+require("lattice")
+qqmath(exp_number, id=0.05)
+```
+
+Some deviation is seen around the tails, but most of the points fall within the normal line, suggesting that this assumption is not violated.
+
+* Normal distribution of random effects
+```{r}
+r_int <- ranef(exp_number)$Experiment_Number$`(Intercept)`
+qqnorm(r_int)
+qqline(r_int)
+shapiro.test(r_int)
+```
+
+Random effects are normally distributed, so this assumption was also not violated.
