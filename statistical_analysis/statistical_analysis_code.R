@@ -1,3 +1,17 @@
+a = 1.1
+k = 100
+T = (0:99)
+No = 1
+N = (No+0*(0:(length(T)-1)))
+
+
+for( i in T) {
+  if(i+1<length(T)){
+  N[i+1+1] = a* N[i+1]*(1-N[i+1]/k)
+  }
+  
+}
+plot(T,N)
 
 #Statistical analyses for autocorrelation experiments - duckweeds and aphids
 #based on file named simpleanovathermal.Rmd
