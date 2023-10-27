@@ -1,0 +1,197 @@
+---
+title: "Night warming in summer heat waves"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction of experiment
+Our previous experiments submitted duckweeds to springtime temperatures and tested for effects of warmer nights. Previous studies found significant effects in plants, both when comparing night warming x ambient conditions performance and invasive x native species in night warming conditions. However, I found no significant difference when comparing duckweeds submitted to ambient conditions (mean: ~16°C), warmer nights (mean: ~18.5°C), and warmer daytime (mean: ~18.5°C).
+
+For this next experiment, my objective is to test the performance of duckweeds submitted to warmer nights during the summertime. Previous studies have shown negative effects of warmer nights, which provide little recovery windows for ectotherms exposed to stressful daytime temperatures. However, the organisms tested in these studies had narrow thermal performance curves in comparison with duckweeds, which can survive to temperatures higher than 40°C. In the case of duckweeds, I expect that night warming during the summertime will have a beneficial effect to the performance, due to 2 main factors: mean temperature increase and photosynthetic overcompensation (warmer nights trigger higher photosynthetic levels the next day).
+
+These are the treatments I propose:
+```{r echo=FALSE}
+treatments <- data.frame(Treatment=c("Control", "Night warming"), Mean=c("24°C","27.5°C"),
+                         Min=c("13°C","20°C"), Max=c("35°C","35°C"))
+library(kableExtra)
+kable(x = treatments) %>%
+   kable_material(full_width = FALSE, html_font = "Cambria", font_size=16)
+```
+
+
+I will add 2 constant temperature treatments with the same mean temperature as each of these treatments above. This allows for a comparison between each of the fluctuating temperature groups with the constant temperature groups (same mean temperatures of 24°C and 27.5°C) to separate effects of mean temperature increase and night warming.
+
+## Background for temperature treatments
+My temperature treatments are based on [Ma et al. (2021)](https://besjournals.onlinelibrary.wiley.com/doi/pdf/10.1111/1365-2435.13833), and were adapted to Southern Ontario conditions based on historical hourly temperatures from recent years (2012-2022). 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(lubridate)
+
+reftemps <- read.csv("C:/Users/user/Desktop/waterloo_region_hourly_data_2012_2022.csv", 
+                     header=TRUE, stringsAsFactors = TRUE)
+
+reftemps$month <- as.numeric(reftemps$month)
+reftemps$day <- as.numeric(reftemps$day)
+
+reftemps <- subset(reftemps,!temp=="NA")
+
+map <- aggregate(list(lat=reftemps$lat, lon=reftemps$lon),
+                 by = list(station=reftemps$station_name), mean)
+
+# radius of 150km from Waterloo city
+#https://plantarum.ca/2020/10/30/simple-maps-r/
+library(raster)
+provinces <- getData(country="Canada", level=1)
+provinces1 <- c("Ontario")
+ca.provinces <- provinces[provinces$NAME_1 %in% provinces1,]
+
+ca.bbox <- bbox(ca.provinces)
+xlim <- c(min(ca.bbox[1,1]),max(ca.bbox[1,2]))
+ylim <- c(min(ca.bbox[2,1]),max(ca.bbox[2,2]))
+plot(ca.provinces, xlim=xlim, ylim=ylim, border = "gray",
+     main="Locations of weather stations used to obtain historical temperatures")
+points(map$lon, map$lat, col='orange', pch=20, cex=0.75)
+points(map$lon, map$lat, col='red', cex=0.75)
+mtext("Ontario", side=1)
+
+
+library(dplyr)
+library(tidyr)
+# Obtaining summary statistics for weekly periods
+weekly_data <- reftemps %>%
+  mutate(year = year(time), month = month(time), week = week(time)) %>%
+  unite_("date", c("year", "month", "week"), sep ="-") %>%
+  group_by(date,station_name) %>%
+  summarise(mean = mean(temp, na.rm = TRUE),min = min(temp, na.rm = TRUE),max = max(temp, na.rm = TRUE),
+            month = month(time))
+
+weekly_data_july <- subset(weekly_data, month > 6 & month < 8)
+
+# https://coastadapt.com.au/sites/default/files/infographics/15-117-NCCARFINFOGRAPHICS-01-UPLOADED-WEB%2827Feb%29.pdf
+# https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/1365-2435.13833
+weekly_data_july$future <- weekly_data_july$mean+3
+weekly_data_july$future_min <- weekly_data_july$min+4
+weekly_data_july$future_max <- weekly_data_july$max+2
+
+# Percentage of current and future weeks in which the mean, the min and the max temperatures are/will be 
+# similar to our experimental conditions
+scenarios <- data.frame(mean_temp = c(24,27.5), 
+                        mean_current = c(nrow(subset(weekly_data_july,mean>23.99)),
+                          nrow(subset(weekly_data_july,mean>27.49))),
+                        mean_future = c(nrow(subset(weekly_data_july,future>23.99)),
+                          nrow(subset(weekly_data_july,future>27.49))),
+                        min_temp = c(13,20), 
+                        min_current = c(nrow(subset(weekly_data_july,min>12.99)),
+                          nrow(subset(weekly_data_july,min>19.99))),
+                        min_future = c(nrow(subset(weekly_data_july,future_min>12.99)),
+                          nrow(subset(weekly_data_july,future_min>19.99))),
+                        max_temp = 35, 
+                        max_current = nrow(subset(weekly_data_july,max>34.99)),
+                        max_future = nrow(subset(weekly_data_july,future_max>34.99))
+                        )
+
+scenarios$mean_current <- round((scenarios$mean_current/nrow(weekly_data_july))*100,2) 
+scenarios$mean_future <- round((scenarios$mean_future/nrow(weekly_data_july))*100,2) 
+scenarios$min_current <- round((scenarios$min_current/nrow(weekly_data_july))*100,2) 
+scenarios$min_future <- round((scenarios$min_future/nrow(weekly_data_july))*100,2)
+scenarios$max_current <- round((scenarios$max_current/nrow(weekly_data_july))*100,2) 
+scenarios$max_future <- round((scenarios$max_future/nrow(weekly_data_july))*100,2)
+```
+
+I used recent temperature records for the month of July as representative of hot summer periods. I compared recent records with future IPCC projections, which predict that nighttime temperatures will increase twice as much as daytime temperatures in several regions of the globe, including southern Ontario. For the time period of a week, the current mean, minimum, and maximum weekly temperatures were increased as follows: mean = current temperature + 3, minimum = current temperature + 4, maximum = current temperature + 2.
+
+Considering all July weekly records from all southern Ontario weather stations and the time period of 2012-2022, the following current and future percentages of weeks correspond to the mean, minimum and maximum temperatures selected for this study:
+
+
+```{r echo=FALSE}
+treatments <- data.frame(Treatment=c("Control", "Night warming"), Mean=c("24°C","27.5°C"),
+                         Current=c("11.99%","0.8%"),Future=c("58.48%","8.01%"),
+                         Min=c("13°C","20°C"),Current_min=c("11.99%","0.8%"),
+                         Future_min=c("89.67%","17.76%"),Max=c("35°C","35°C"),
+                         Current_max=c("1.8%","11.54%"), Future_max=c("1.8%","11.54%"))
+kable(x = treatments) %>%
+   kable_material(full_width = FALSE, html_font = "Cambria", font_size=16) %>%
+  column_spec(2, border_left = T, background = "#FFFFCC") %>%
+  column_spec(3, background = "#FFFFCC") %>%
+  column_spec(4, border_right = T, background = "#FFFFCC") %>%
+  column_spec(5, border_left = T, background = "aliceblue") %>%
+  column_spec(6, background = "aliceblue") %>%
+  column_spec(7, border_right = T, background = "aliceblue") %>%
+  column_spec(8, border_left = T, background = "#FFFFCC") %>%
+  column_spec(9, background = "#FFFFCC") %>%
+  column_spec(10, border_right = T, background = "#FFFFCC")
+```
+
+The main difference between my temperature settings and the ones found in Ma et al. (2021) is the minimum temperature, as the high minimum temperatures of 26°C tested in their study were found to be very rare in our region, even when considering future projections.
+
+## Power analysis
+Based on the thermal performance curve for *L. minor*, a power analysis using expected mean performances resulting from mean temperatures in the night warming group vs. control suggests that 7 replicates are necessary to find significant differences between the 2 groups. The standard deviation is based on my previous night warming experiments performed during the spring.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(pwrss)
+pwrss.t.2means(mu1 = 28.5, mu2 = 22, sd1 = 3.79, kappa = 1,
+               power = .80, alpha = 0.05,
+               alternative = "not equal")
+```
+
+```{r include=FALSE}
+## Function to create daily cycles
+sinusoidalArray<- function (size = 10, min=-1, max=1, subdivide = 1){
+  ax = array(0, size)
+  for(i in 0:size){
+    ax[i]=min+(max-min)*(0.5+0.5*sin(2*pi*(i/subdivide)/24))
+  }
+  return(ax)
+}
+```
+
+```{r include=FALSE}
+# setting minimum and maximum temperatures 
+size = 24
+
+control <- sinusoidalArray(size,scenarios[1,7],scenarios[1,4])
+nw <- sinusoidalArray(size,scenarios[1,7],scenarios[2,4])
+plot(control, type="l",ylim=c(10,35))
+lines(nw)
+
+thermalseq<- cbind(control,nw)
+```
+
+## Thermal sequences for the night warming experiment
+```{r echo=FALSE}
+#rep
+cols = c(1:ncol(thermalseq))
+times = 11
+thermalseq <- thermalseq[,rep(cols, times)]
+
+thermalseq3 <- thermalseq[rep(seq_len(nrow(thermalseq)), times),]
+
+#cut
+#thermalseq3 <- thermalseq3[,-(1:12)]
+thermalseq <- thermalseq[,-(242:264)]
+
+#ploting
+plot(thermalseq3[,1],type="l",col="black",ylim=c(10,35),
+     main="Night warming experiment treatments",
+     xlab="Time (hours)", ylab="Temperature (°C)",lwd=2)
+lines(thermalseq3[,2],type="l",col="red",lwd=2)
+legend("bottomright", legend=c("Control", "Night warming"),
+       col=c("black", "red"), lty=1, cex=0.8)
+
+thermalseq <- thermalseq[rep(cols, times)]
+write.csv(thermalseq3*10, "C:/Users/user/Desktop/1/nightwarming.csv")
+
+```
+
+## Statistical properties of thermal sequences
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+thermalseq2<- cbind(control,nw)
+colnames(thermalseq2) <- c("Control","Night_warming")
+library(pastecs)
+stats <- stat.desc(thermalseq2)
+kable(x = round(stats[c(4,5,9,13),], 2)) %>%
+   kable_material(full_width = FALSE, html_font = "Cambria", font_size=16)
+```
