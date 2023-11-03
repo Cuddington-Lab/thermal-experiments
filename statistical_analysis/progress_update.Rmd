@@ -1,0 +1,736 @@
+---
+title: "progress_meeting"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: ioslides_presentation
+---
+
+<style type="text/css">
+body p,h3 {
+  color: #000000;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Climate change, temperature persistence patterns, and effects to the performance and distribution of native and invasive small aquatic plant populations  
+  
+  
+   
+Debora Andrade-Pereira  
+November, 2023
+
+## Agenda
+
+- My current and upcoming projects
+
+- Autocorrelation of temperatures: 
+  - Overview
+  - Previous questions from committee
+  - Preliminary experiment results
+
+- Distribution model and invasion risk: draft manuscript
+
+::: notes
+Speaker notes go here
+:::
+
+## My current and upcoming projects  
+  
+* Certificate in university teaching  
+  
+* Experiments:  
+  - Night warming    
+  - Autocorrelation in temperatures    
+  - Population growth (some generations)    
+
+* Models:  
+  - Population models    
+  - Distribution models: manuscript in progress    
+
+::: notes
+:::
+
+## Autocorrelation in temperatures: overview
+```{r, echo=FALSE, out.width="110%"}
+knitr::include_graphics("C:/Users/user/Desktop/committee_meeting_nov_2023/intro1.jpg")
+```
+
+
+## Autocorrelation in temperatures: overview
+- lag 1: hourly temperature changes 
+```{r, echo=FALSE, out.width="110%"}
+knitr::include_graphics("C:/Users/user/Desktop/committee_meeting_nov_2023/intro2.jpg")
+```
+
+## Autocorrelation in temperatures: overview
+```{r, echo=FALSE, out.width="110%"}
+knitr::include_graphics("C:/Users/user/Desktop/committee_meeting_nov_2023/intro3.jpg")
+```
+
+## Autocorrelation in temperatures: hypotheses
+```{r, echo=FALSE, out.width="110%"}
+knitr::include_graphics("C:/Users/user/Desktop/committee_meeting_nov_2023/intro4.jpg")
+```
+
+## Autocorrelation in temperatures: hypotheses
+```{r, echo=FALSE, out.width="110%"}
+knitr::include_graphics("C:/Users/user/Desktop/committee_meeting_nov_2023/intro5.jpg")
+```
+
+## Before checking out results: Addressing your previous comments  
+  
+- A pairwise comparison of a native and an invasive species in monoculture is limited
+
+- It would be nice to have a survival analysis for the autocorrelation in temperatures experiment
+
+- Why did you include nesting if your statistical analysis consists of interactions between average temperature and autocorrelation treatments as independent variables?
+
+## Comment: A pairwise comparison of a native and an invasive species in monoculture is limited
+
+* Limitation: without replicating experiment using more species, little can be concluded except for species differences      
+*My justifications for doing a pairwise study including only 2 species*
+- A number of studies include a comparison between 2 species (e.g., duckweed invasion in Europe, *L. minuta* x *L. minor*; night warming studies)    
+- Several cosmopolitan duckweed species share similar ecological features (e.g., thermal performance; negative density dependence; habitat; survival and reproductive strategies)    
+
+## Autocorrelation in temperatures: preliminary experiment results
+Overview of dataset: data we typically collect in a given experimental run (5 days)
+```{r include=FALSE}
+### This dataset contains replicates for which a preparation technique was performed (repeated first born frond selection to reduce maternal effects)
+datin1 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2022-2023.csv",header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+
+### This dataset contains replicates of experiments performed without a preparation technique 
+datin2 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2021-2022.csv",header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+
+datin <- rbind(datin1,datin2)
+```
+
+```{r echo=FALSE}
+datin <- subset(datin, !Treatment == "constant")
+knitr::kable(datin[c(1:6), c(1:4)])
+```
+
+
+## Autocorrelation in temperatures: preliminary experiment results
+Overview of dataset
+
+```{r echo=FALSE}
+knitr::kable(datin[c(1:6), c(5:8)])
+```
+
+## Autocorrelation in temperatures: preliminary experiment results
+Overview of dataset
+
+```{r echo=FALSE}
+knitr::kable(datin[c(1:6), c(12:15)])
+```
+
+## Data validation and data cleaning
+Excluding failed experiments outside established parameters:  
+  
+* Experiment duration (120h +- 1h)  
+* Standard deviation (2.5ºC +- 0.4ºC)  
+* Autocorrelation (ρ=0 or ρ=0.95 +-0.3)  
+
+```{r}
+### Data validation: excluding experiments outside thresholds established in my methods section (for standard deviation and autocorrelation of observed temperatures)
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_sd <= 2.1 | datin$Obs_sd >= 2.9))
+               &!(datin$Treatment == 0.95 & (datin$Obs_sd <= 2.1 | datin$Obs_sd >= 2.9)),]
+
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_ac <= -0.2 | datin$Obs_ac >= 0.2))
+               &!(datin$Treatment == 0.95 & (datin$Obs_ac <= 0.92 | datin$Obs_ac >= 0.98)),]
+```
+
+
+```{r echo=FALSE}
+### Excluding failed experiments
+datin <- subset(datin, !Errors == "y"|is.na(Errors))
+```
+
+
+```{r echo=FALSE}
+### Excluding recent experiments done at 27C which did not include maternal effects removal
+# To ensure that all replicates within this average temperature have the same preparation method; this is because the performance is higher when removing maternal effects around optimal conditions; this did not make a difference around 10-15C
+### 10C, 15C and 27C: no maternal effects removal (2021-2022 dataset)
+### 10C and 37C: included maternal effects removal (2022-2023 dataset)
+datin <- datin[!(datin$Mean_temperature == 27 & datin$Experiment_Number < 99),]
+```
+
+
+## Types of measurement I am taking
+- Population counts: living and dead frond counts
+
+- Surface area (not shown here)
+
+- Relative growth rate: frond count and surface area
+
+$$ RGR = ((log(Nf)-log(Ni))/t) $$
+
+Where  
+Nf = final number of fronds (individuals); Ni = initial number of fronds; t = time in days
+
+
+```{r echo=FALSE}
+datin$Frond_count <- datin$Frond_count_1 + datin$Frond_count_2 + datin$Frond_count_3
+datin$Frond_count[datin$Frond_count == 0] <- 0.001
+datin$Frond_count <- (log(datin$Frond_count) - log(12)) / 5
+```
+
+
+```{r include=FALSE}
+### Create new treatment
+table(datin$Treatment, datin$cat_1)
+levels(datin$cat_1) = c("","N","P","N/A")
+datin$label<-paste0(datin$Treatment, datin$cat_1)
+table(datin$label)
+
+colnames(datin)[6] <- "Treatment1"
+colnames(datin)[33] <- "Treatment"
+
+### Relabel groups to simplify visualization of results
+library(stringr)
+datin$Treatment <- str_replace(datin$Treatment, "0N/A", "0")
+datin$Treatment <- str_replace(datin$Treatment, "0.95N", "hot-cold")
+datin$Treatment <- str_replace(datin$Treatment, "0.95P", "cold-hot")
+datin$Treatment <- str_replace(datin$Treatment, "0", "no autocorrelation")
+datin$Mean_temperature <- str_replace(datin$Mean_temperature, "15", "10")
+datin$Mean_temperature <- str_replace(datin$Mean_temperature, "10", "10-15")
+```
+
+
+```{r cars, include=FALSE}
+datin$Treatment1 <- str_replace(datin$Treatment1, "0.95", "strong autocorrelation")
+datin$Treatment1 <- str_replace(datin$Treatment1, "0", "no autocorrelation")
+
+### Select *L. minor* for this analysis, as we do not have data for *L. punctata* across all mean temperatures
+datin_species <- datin 
+#datin <- datin_species
+datin <- subset(datin, Species == "Field_LM" | Species == "Lab_LM")
+
+
+set.seed(2023)
+
+datinLM37_0 <- subset(datin,datin$Mean_temperature == 37 & datin$Treatment == "no autocorrelation")
+datinLM37_NP <- subset(datin,datin$Mean_temperature == 37 & datin$Treatment1 == "strong autocorrelation")
+datinLM37_NP <- subset(datinLM37_NP,!duplicated(datinLM37_NP$Experiment_Number))
+
+datinLM1015_0 <- subset(datin,datin$Mean_temperature == "10-15" & datin$Treatment == "no autocorrelation")
+datinLM1015_NP <- subset(datin,datin$Mean_temperature == "10-15" & datin$Treatment1 == "strong autocorrelation")
+datinLM1015_NP <- subset(datinLM1015_NP,!duplicated(datinLM1015_NP$Experiment_Number))
+
+datinLM27_0 <- subset(datin,datin$Mean_temperature == 27 & datin$Treatment == "no autocorrelation")
+datinLM27_NP <- subset(datin,datin$Mean_temperature == 27 & datin$Treatment1 == "strong autocorrelation")
+datinLM27_NP <- subset(datinLM27_NP,!duplicated(datinLM27_NP$Experiment_Number))
+```
+
+## This is the number of replicates for each treatment
+- Subsampling done to remove duplicate "strong autocorrelation" replicates (i.e., starting hot or starting cold)
+```{r echo=FALSE}
+datinall <- rbind(datinLM1015_0,datinLM1015_NP,datinLM27_0,datinLM27_NP,datinLM37_0,datinLM37_NP)
+
+knitr::kable(table(datinall$Mean_temperature, datinall$Treatment1), "simple",
+             col.names = c("Temperature", "no autocorrelation", "strong autocorrelation"))
+```
+
+
+## H1:	Optimal temperatures: strong autocorrelation ≈ no autocorrelation
+  
+in terms of  
+- mean reproductive performance  
+- distribution of performance (normal distribution)
+
+This analysis is restricted to the relative growth rate of *Lemna minor*
+
+## Mean reproductive performance
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#Barplot (mean and SE for summed offspring)
+datin27 <- rbind(datinLM27_0,datinLM27_NP)
+datunique.mean <- aggregate(Frond_count ~ Treatment1, data = datin27, mean)
+datunique.sd <- aggregate(Frond_count ~ Treatment1, data = datin27, sd)
+datunique <- data.frame(cbind(Treatment=as.character(datunique.mean$Treatment1),
+                              Mean=datunique.mean$Frond_count,
+                              sd=datunique.sd$Frond_count))
+
+datunique$Mean <- as.numeric(datunique$Mean) 
+datunique$sd <- as.numeric(datunique$sd)
+
+library(ggplot2)
+ggplot(datunique, aes(x=Treatment, y=Mean, fill=Treatment)) +
+  theme_bw(base_size=24) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(y= "Mean RGR", x = "Treatment") +
+  ggtitle("Performance at 27 ºC") +
+  scale_fill_manual(values=c("#888888", 
+                             "#44AA99")) +
+  geom_errorbar(aes(x=Treatment, ymin=Mean-sd, ymax=Mean+sd), width=0.4, 
+                colour="black", alpha=0.9, size=1.3, stat = "identity",
+                position=position_dodge(.9)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
+  theme(legend.position = "none")
+```
+
+## H1: Frequency distribution
+```{r echo=FALSE}
+par(mfrow=c(1,2),mar=c(4,4,1,0))
+hist(datinLM27_0$Frond_count, col="#888888", xlab="Relative growth rate" , ylab="Frequency" , 
+     main="27ºC - No autocorrelation")
+hist(datinLM27_NP$Frond_count, 
+     col="#44AA99", xlab="Relative growth rate" , ylab="",
+     main="27ºC - Strong autocorrelation", breaks=5)
+stripchart(datinLM27_NP$Frond_count[datinLM27_NP$Treatment == "hot-cold"],method="stack",pch = 15, col="#D55E00",cex=2,at=0.005,add=TRUE)
+stripchart(datinLM27_NP$Frond_count[datinLM27_NP$Treatment == "cold-hot"],method="stack",add=TRUE,pch = 15, col="#0072B2",cex=2,at=0.005)
+legend("topleft",c("hot-cold","cold-hot"),col=c("#D55E00","#0072B2"),pch=15,bty = "n")
+```
+
+## H2:	Away from optimum, strong autocorrelation ≈ no autocorrelation
+- Cold: Mean reproductive performance  
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#Barplot (mean and SE for summed offspring)
+datin1015 <- rbind(datinLM1015_0,datinLM1015_NP)
+datunique.mean <- aggregate(Frond_count ~ Treatment1, data = datin1015, mean)
+datunique.sd <- aggregate(Frond_count ~ Treatment1, data = datin1015, sd)
+datunique <- data.frame(cbind(Treatment=as.character(datunique.mean$Treatment1),
+                              Mean=datunique.mean$Frond_count,
+                              sd=datunique.sd$Frond_count))
+
+datunique$Mean <- as.numeric(datunique$Mean) 
+datunique$sd <- as.numeric(datunique$sd)
+
+ggplot(datunique, aes(x=Treatment, y=Mean, fill=Treatment)) +
+  theme_bw(base_size=24) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(y= "Mean RGR", x = "Treatment") +
+  ggtitle("Performance at 10-15 ºC") +
+  scale_fill_manual(values=c("#888888", 
+                             "#44AA99")) +
+  geom_errorbar(aes(x=Treatment, ymin=Mean-sd, ymax=Mean+sd), width=0.4, 
+                colour="black", alpha=0.9, size=1.3, stat = "identity",
+                position=position_dodge(.9)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
+  theme(legend.position = "none")
+```
+
+## H2:	Away from optimum, strong autocorrelation ≠ no autocorrelation  
+- Cold: Frequency distribution of performance (bimodal)
+
+```{r echo=FALSE}
+par(mfrow=c(1,2),mar=c(4,4,1,0))
+hist(datinLM1015_0$Frond_count, col="#888888", xlab="Relative growth rate" , ylab="Frequency" , 
+     main="10-15ºC - No autocorrelation")
+hist(datinLM1015_NP$Frond_count, 
+     col="#44AA99", xlab="Relative growth rate" , ylab="",
+     main="10-15ºC - Strong autocorrelation")
+stripchart(datinLM1015_NP$Frond_count[datinLM1015_NP$Treatment == "hot-cold"],method="stack",pch = 15, col="#D55E00",cex=2,at=0.005,add=TRUE)
+stripchart(datinLM1015_NP$Frond_count[datinLM1015_NP$Treatment == "cold-hot"],method="stack",add=TRUE,pch = 15, col="#0072B2",cex=2,at=0.005)
+legend("topleft",c("hot-cold","cold-hot"),col=c("#D55E00","#0072B2"),pch=15,bty = "n")
+```
+
+## H2: When it's too hot...
+- Mean performance
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#Barplot (mean and SE for summed offspring)
+datin37 <- rbind(datinLM37_0,datinLM37_NP)
+datunique.mean <- aggregate(Frond_count ~ Treatment1, data = datin37, mean)
+datunique.sd <- aggregate(Frond_count ~ Treatment1, data = datin37, sd)
+datunique <- data.frame(cbind(Treatment=as.character(datunique.mean$Treatment1),
+                              Mean=datunique.mean$Frond_count,
+                              sd=datunique.sd$Frond_count))
+
+datunique$Mean <- as.numeric(datunique$Mean) 
+datunique$sd <- as.numeric(datunique$sd)
+
+ggplot(datunique, aes(x=Treatment, y=Mean, fill=Treatment)) +
+  theme_bw(base_size=24) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(y= "Mean RGR", x = "Treatment") +
+  ggtitle("Performance at 37 ºC") +
+  scale_fill_manual(values=c("#888888", 
+                             "#44AA99")) +
+  geom_errorbar(aes(x=Treatment, ymin=Mean-sd, ymax=Mean+sd), width=0.4, 
+                colour="black", alpha=0.9, size=1.3, stat = "identity",
+                position=position_dodge(.9)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
+  theme(legend.position = "none")
+```
+
+## H2: Frequency distribution (hot)
+```{r echo=FALSE}
+par(mfrow=c(1,2),mar=c(4,4,1,0))
+hist(datinLM37_0$Frond_count, col="#888888", xlab="Relative growth rate" , ylab="Frequency" , 
+     main="37ºC - No autocorrelation")
+
+hist(datinLM37_NP$Frond_count, 
+     col="#44AA99", xlab="Relative growth rate" , ylab="",
+     main="37ºC - Strong autocorrelation")
+stripchart(datinLM37_NP$Frond_count[datinLM37_NP$Treatment == "hot-cold"],method="stack",pch = 15, col="#D55E00",cex=2,at=0.005,add=TRUE)
+stripchart(datinLM37_NP$Frond_count[datinLM37_NP$Treatment == "cold-hot"],method="stack",add=TRUE,pch = 15, col="#0072B2",cex=2,at=0.005)
+legend("topleft",c("hot-cold","cold-hot"),col=c("#D55E00","#0072B2"),pch=15,bty = "n")
+```
+
+## What about initial conditions of exposure, do they matter?
+H3:	superoptimal conditions: strong autocorrelation starting hot -> negative impact to performance
+  
+- in comparison with autocorrelated sequences starting colder and the no autocorrelation group  
+- early mortality and/or reproduction suppression  
+  
+-> effects are more intense in superoptimal temperatures: thermal performance curve shape  
+
+-> negative responses will not be observed to the same extent in mean temperatures which are lower or around optimal conditions  
+
+## "Strong autocorrelation" group subdivided into:  
+cold-hot and hot-cold
+
+- New number of replicates:
+```{r echo=FALSE}
+knitr::kable(table(datin$Mean_temperature, datin$Treatment), "simple", 
+             col.names = c("Temperature", "hot-cold", "cold-hot", "no autocorrelation"))
+```
+
+## Comparing performance across temperatures
+```{r echo=FALSE}
+#Barplot (mean and SE for summed offspring)
+datin$Frond_count <- datin$Frond_count_1 + datin$Frond_count_2 + datin$Frond_count_3
+datunique.mean <- aggregate(Frond_count ~ Mean_temperature + Treatment, data = datin, mean)
+datunique.sd <- aggregate(Frond_count ~ Mean_temperature + Treatment, data = datin, sd)
+datunique <- data.frame(cbind(Mean_temperature=as.character(datunique.mean$Mean_temperature),
+                              Treatment=as.character(datunique.mean$Treatment),
+                              Mean=datunique.mean$Frond_count,
+                              sd=datunique.sd$Frond_count))
+
+datunique$Mean <- as.numeric(datunique$Mean) 
+datunique$sd <- as.numeric(datunique$sd)
+
+ggplot(datunique, aes(x=Mean_temperature, y=Mean, fill=Treatment)) +
+  theme_bw(base_size=20) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(y= "Mean number of fronds", x = "Treatment") +
+  scale_fill_manual(values=c("grey37","#D55E00","#0072B2")) +
+  geom_errorbar(aes(x=Mean_temperature, ymin=Mean-sd, ymax=Mean+sd), width=0.4, 
+                colour="black", alpha=0.9, size=1.3, stat = "identity",
+                position=position_dodge(.9)) + theme(panel.grid.major = element_blank(), 
+                                                     panel.grid.minor = element_blank(),
+                                                     panel.background = element_blank(), 
+                                                     axis.line = element_line(colour = "black"))
+```
+
+## Candidate model assessment
+- Poisson model for count data (total number of individuals at the end of experiment period)
+- Crossed design (factorial) including interactions between treatments and average temperatures
+
+```{r message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
+datin <- within(datin, Mean_temperature <- relevel(factor(Mean_temperature), ref = "27"))
+datin <- within(datin, Treatment <- relevel(factor(Treatment), ref = "no autocorrelation"))
+
+datin$Frond_count <- datin$Frond_count_1 + datin$Frond_count_2 + datin$Frond_count_3
+library(lme4)
+mnb1 <- glmer(Frond_count ~ Mean_temperature*Treatment + (1|Experiment_Number), data = datin, family = "poisson")
+simple <- glm(Frond_count ~ Treatment*Mean_temperature,  data=datin, family = "poisson")
+exp_number <- glmer(Frond_count ~ Treatment*Mean_temperature + (1|Experiment_Number),  data=datin, family = "poisson")
+incubator <- glmer(Frond_count ~ Treatment*Mean_temperature + (1|Incubator),  data=datin, family = "poisson")
+exp_number_incub <- glmer(Frond_count ~ Treatment*Mean_temperature + (1|Incubator)+(1|Experiment_Number),  data=datin, family = "poisson")
+exp.inc <- glmer(Frond_count ~ Treatment*Mean_temperature + (1|Incubator/Experiment_Number),  data=datin, family = "poisson")
+
+# reference for crossed/factorial design explanation
+# https://stat.ethz.ch/education/semesters/ss2010/seminar/01_synopsis.pdf
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+##set up named list
+Cand.modsF <- list("no random effects" = simple,
+                   "experiment number" = exp_number,
+                   "incubator" = incubator, 
+                   "incubator and experiment number" = exp_number_incub,
+                   "incubator nested in experiment number" = exp.inc)
+
+library(performance)
+compareF <- compare_performance(Cand.modsF)
+knitr::kable(compareF[,c(1,2,3,4)],"simple", digits=2)
+```
+
+## Selected model
+The best model is the one including incubator as a random effect  
+  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+data <- summary(exp_number)
+data["call"]
+```
+
+## Results from best model
+```{r include=FALSE}
+library(sjPlot)
+tab_model(exp_number, digits = 3)
+```
+
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("C:/Users/user/Desktop/committee_meeting_nov_2023/tabmodel1.jpg")
+```
+
+## Taking a look at survival data
+```{r echo=FALSE, out.width="80%"}
+datin <- subset(datin,Mean_temperature=="37")
+datin$Frond_count <- datin$Frond_count_1 + datin$Frond_count_2 + datin$Frond_count_3
+datin$Mortality <- datin$Dead_frond_count_1 + datin$Dead_frond_count_2 + datin$Dead_frond_count_3
+
+dish <- as.data.frame(lapply(datin, rep, datin$Frond_count_1))
+dish$dish <- rep("d1",times=length(dish$Frond_count))
+dish$Frond_count <- dish$Frond_count_1
+
+dish2 <- as.data.frame(lapply(datin, rep, datin$Frond_count_2))
+dish2$dish <- rep("d2",times=length(dish2$Frond_count))
+dish2$Frond_count <- dish2$Frond_count_2
+
+dish3 <- as.data.frame(lapply(datin, rep, datin$Frond_count_3))
+dish3$dish <- rep("d3",times=length(dish3$Frond_count))
+dish3$Frond_count <- dish3$Frond_count_3
+living <- rbind(dish,dish2,dish3)
+
+dish <- as.data.frame(lapply(datin, rep, datin$Dead_frond_count_1))
+dish$dish <- rep("d1",times=length(dish$Mortality))
+dish$Mortality <- dish$Dead_frond_count_1
+
+dish2 <- as.data.frame(lapply(datin, rep, datin$Dead_frond_count_2))
+dish2$dish <- rep("d2",times=length(dish2$Mortality))
+dish2$Mortality <- dish2$Dead_frond_count_2
+
+dish3 <- as.data.frame(lapply(datin, rep, datin$Dead_frond_count_3))
+dish3$dish <- rep("d3",times=length(dish3$Mortality))
+dish3$Mortality <- dish3$Dead_frond_count_3
+mort <- rbind(dish,dish2,dish3)
+
+#mort <- as.data.frame(lapply(datin, rep, datin$Mortality))
+mort <- subset(mort, !mort$Mortality == 0)
+mort["Mortality"][mort["Mortality"] >= 1] <- 0
+names(mort)[names(mort) == 'Mortality'] <- 'survival'
+mort <- subset(mort, select = -(Frond_count))
+
+#living <- as.data.frame(lapply(datin, rep, datin$Frond_count))
+living <- subset(living, !living$Frond_count == 0)
+living["Frond_count"][living["Frond_count"] >= 1] <- 1
+names(living)[names(living) == 'Frond_count'] <- 'survival'
+living <- subset(living, select = -(Mortality))
+datin3 <- rbind(living,mort)
+
+datin3$Species <- as.factor(datin3$Species)
+datin$Experiment_Number <- as.factor(datin$Experiment_Number)
+datin$Treatment <- as.factor(datin$Treatment)
+datin$Incubator <- as.factor(datin$Incubator)
+datin3$dish <- as.factor(datin3$dish)
+
+ggplot(datin3, aes(x = Treatment, y = survival, color = Treatment)) + 
+  theme_bw(base_size=22) +
+  geom_jitter() +
+  labs(title = "Duckweed survival") +
+  xlab("Treatment") +
+  ylab("Survival") +
+  geom_smooth(formula = y ~ x,method=lm,se=T) + theme_bw(base_size=34) +
+  theme(panel.border = element_blank(), 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+          axis.line = element_line(colour = "black")) +
+  scale_color_manual(values = c(" no autocorrelation" = "grey37",
+                                "hot-cold" = "#D55E00", "cold-hot" = "#0072B2")) +
+  theme(legend.position = "none",axis.text=element_text(size=12),
+        axis.title=element_text(size=14,face="bold"))
+```
+
+## Candidate models (logistic fit, binomial data: 1=survival; 0=mortality)
+```{r message=FALSE, warning=FALSE, comment=NA, include=FALSE}
+library(sjPlot)
+library(sjmisc)
+
+#Logistic regression allows categorically and continuously scaled variables to predict any categorically scaled criterion
+#Osborne, J. W. (Ed.). (2008). Best practices in quantitative methods. Sage.
+
+# adding random effects
+library(lme4)
+
+glm.fit.sp <- glm(survival ~ Treatment, family = binomial, data=datin3)
+experim <- glmer(survival ~ Treatment + (1|Experiment_Number), family=binomial, data=datin3)
+incub <- glmer(survival ~ Treatment + (1|Incubator), family=binomial, data=datin3)
+dish <- glmer(survival ~ Treatment + (1|dish), family=binomial, data=datin3)
+experim_inc_dish <- glmer(survival ~ Treatment + (1|Experiment_Number) + (1|Incubator) + (1|dish), family=binomial, data=datin3)
+inc_dish <- glmer(survival ~ Treatment + (1|Incubator)+(1|dish), family=binomial, data=datin3)
+inc_exp <- glmer(survival ~ Treatment + (1|Incubator)+(1|Experiment_Number), family=binomial, data=datin3)
+dish_exp <- glmer(survival ~ Treatment + (1|dish)+(1|Experiment_Number), family=binomial, data=datin3)
+exp.inc_dish <- glmer(survival ~ Treatment + (1|Experiment_Number/Incubator) + (1|dish), family=binomial, data=datin3)
+exp.inc <- glmer(survival ~ Treatment + (1|Experiment_Number/Incubator), family=binomial, data=datin3)
+
+#odds ratio: probability of success / probability of failure
+#for categorical features or predictors, the odds ratio compares the odds of the event occurring for each category of the predictor relative to the reference category, given that all other variables remain constant
+```
+  
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA}
+Cand.mods <- list("no random effects" = glm.fit.sp,
+                  "experiment number" = experim,
+                  "incubator" = incub, 
+                  "dish" = dish,
+                  "incubator, dish, and experiment number" = experim_inc_dish,
+                  "incubator and dish" = inc_dish,
+                  "incubator and experiment number" = inc_exp,
+                  "dish and experiment number" = dish_exp,
+                  "incubator nested in experiment number, and dish" = exp.inc_dish,
+                  "incubator nested in experiment number" = exp.inc)
+
+library(performance)
+compare <- compare_performance(Cand.mods)
+knitr::kable(compare[,c(1,2,3,4)],"simple", digits = 2)
+```  
+  
+## Selected model
+The best model includes incubator number nested in experiment number as a random effect  
+  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+data["call"]
+```
+
+## Statistical analysis of selected model
+```{r message=FALSE, warning=FALSE, include=FALSE}
+tab_model(exp.inc)
+```
+
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("C:/Users/user/Desktop/committee_meeting_nov_2023/tabmodel2.jpg")
+```
+
+The hot-cold strong autocorrelation treatment is significantly different than the control (zero autocorrelation). 
+
+## Plotting survival probability as estimated by the model
+```{r message=FALSE, warning=FALSE}
+my_title <- expression(paste("Predicted ",italic("L. minor")," survival at 37 °C"))
+library(ggeffects)
+ggpredict(exp.inc, "Treatment",colors = "Treatment") %>% plot(dot.size = 5,line.size = 2.5) + 
+  theme_bw(base_size=20) +
+  labs(title = my_title) +
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black")) +
+  labs(y = "Survival", x = "Treatment") +
+  scale_color_manual(values = c("grey37","#0072B2","#D55E00"))
+```
+
+## Post-hoc analyses
+```{r message=FALSE, include=FALSE}
+library(emmeans) #emmeans has been used for GLMER & binary data (internet forums)
+pairwise <- emmeans(exp.inc, list(pairwise ~ Treatment), lmer.df="satterthwaite")
+pairwise
+pairs <- as.data.frame(pairwise$`pairwise differences of Treatment`)
+pairs <- subset(pairs,p.value<=0.05)
+options(scipen = 999)
+knitr::kable(pairs,"simple",digits=4)
+```
+
+```{r echo=FALSE, message=FALSE}
+knitr::kable(pairs,"simple",digits=4)
+```
+
+## Including a comparison between species
+H4:	When the mean temperature is much greater than the optimal, the invasive species has smaller impacts to strongly autocorrelated temperatures due to a potentially higher physiological flexibility (Harvey et al., 2020)  
+  
+## General linear model, Poisson distribution (count data)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(lme4)
+datin <- subset(datin_species,Mean_temperature==37)
+datin$Frond_count <- datin$Frond_count_1 + datin$Frond_count_2 + datin$Frond_count_3
+
+datin <- within(datin, Treatment <- relevel(factor(Treatment), ref = "no autocorrelation"))
+
+mnb1 <- glmer(Frond_count ~ Treatment*Species + (1|Experiment_Number), data = datin, family = "poisson")
+simple <- glm(Frond_count ~ Treatment*Species,  data=datin, family = "poisson")
+exp_number <- glmer(Frond_count ~ Treatment*Species + (1|Experiment_Number),  data=datin, family = "poisson")
+incubator <- glmer(Frond_count ~ Treatment*Species + (1|Incubator),  data=datin, family = "poisson")
+exp_number_incub <- glmer(Frond_count ~ Treatment*Species + (1|Incubator)+(1|Experiment_Number),  data=datin, family = "poisson")
+exp.inc <- glmer(Frond_count ~  Treatment*Species + (1|Experiment_Number/Incubator),  data=datin, family = "poisson")
+
+
+##set up named list
+Cand.modsF <- list("no random effects" = simple,
+                   "experiment number" = exp_number,
+                   "incubator" = incubator, 
+                   "incubator and experiment number" = exp_number_incub,
+                   "incubator nested in experiment number" = exp.inc)
+
+library(performance)
+compareF <- compare_performance(Cand.modsF)
+knitr::kable(compareF[,c(1,2,3,4)],"simple", digits=2)
+```
+
+## Selected model
+The best model is the one including incubator number nested in experiment number as a random effect  
+  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+data <- summary(exp.inc)
+data["call"]
+```
+
+## Results from best model
+```{r include=FALSE}
+library(sjPlot)
+tab_model(exp.inc, digits = 3)
+```
+
+```{r, echo=FALSE, out.width="70%"}
+knitr::include_graphics("C:/Users/user/Desktop/committee_meeting_nov_2023/tabmodel3.jpg")
+```
+
+## Draft manuscript: predicting the distribution of an invasive duckweed species
+Draft title: Predicting the risk of range expansion for a newly established invasive duckweed species in Europe and Canada
+
+- *Landoltia punctata* is an invasive duckweed in the US: 
+  - dense mats: modifies habitats, suppresses other species  
+  - herbicide resistance  
+  - high management costs  
+  - loss of recreational areas  
+
+## Draft manuscript: predicting the distribution of an invasive duckweed species
+
+- Canada: distribution records approaching Great Lakes region (associated with climate change)
+- Europe: recent observations (preliminary studies: low risk; similar ecology)
+
+- New examination of risks: 
+  - continental invasion in the US
+  - similar recent invasion in Europe (*L. minuta*)
+
+## Methods
+- Predicting distribution of *L. punctata* in Europe and Canada: Maxent approach
+- Restricted set of predictors
+- 518 occurrence records and 3 bioclimatic variables related to life history
+- Satellite temperature measurements of surface lake water (more relevant to macrophytes)
+
+## Preliminary results and discussion
+- Best model: good predictive capability (training set AUC = 0.9; testing set AUC = 0.81)
+
+- Models based on water temperature are more accurate than the ones including air temperature
+
+- Restricted set of predictors resulted in unimodal response curves ressembling thermal performance curves
+
+- Model suggests high habitat suitability:
+  - Most Western Europe
+  - Western Canada
+  
+## Preliminary results and discussion
+```{r, echo=FALSE, out.width="115%"}
+knitr::include_graphics("C:/Users/user/Desktop/committee_meeting_nov_2023/distr1.jpg")
+```
+
+## Preliminary results and discussion 
+
+- Future temperature predictions (climate change): 
+  - Currently compatible areas will still be suitable in 2070
+  - Great Lakes region will become suitable for this species
+  
+- Preventive measures to avoid *L. punctata* further spread are recommended in these locations to avoid a similar invasion scenario as seen in a related duckweed species in Europe or in *L. punctata* in the US
+
+## Next steps 
+  
+- Complete surface area measurements and perform statistical analysis: 2023-2024  
+
+- Complete night warming experiment (effects of warmer nights in a hot summer): Feb, 2024
+
+- Complete distribution model manuscript and submit for publication: Dec, 2023
+
+- Conduct population experiments (several generations): 2024
+
+- Develop population models: 2024
+
+- Write night warming and autocorrelation manuscripts: 2024
