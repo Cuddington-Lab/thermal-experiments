@@ -15,7 +15,7 @@ Our previous experiments submitted duckweeds to springtime temperatures and test
 For this next experiment, my objective is to test the performance of duckweeds submitted to warmer nights during the summertime. Previous studies have shown negative effects of warmer nights, which provide little recovery windows for ectotherms exposed to stressful daytime temperatures. However, the organisms tested in these studies had narrow thermal performance curves in comparison with duckweeds, which can survive to temperatures higher than 40°C. In the case of duckweeds, I expect that night warming during the summertime will have a beneficial effect to the performance, due to 2 main factors: mean temperature increase and photosynthetic overcompensation (warmer nights trigger higher photosynthetic levels the next day).
 
 These are the treatments I propose:
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 treatments <- data.frame(Treatment=c("Control", "Night warming"), Mean=c("24°C","27.5°C"),
                          Min=c("13°C","20°C"), Max=c("35°C","35°C"))
 library(kableExtra)
@@ -31,6 +31,7 @@ My temperature treatments are based on [Ma et al. (2021)](https://besjournals.on
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(lubridate)
 
+# downloaded from Environment Canada on Wednesday, May 17, 2023, 11:26:27 AM
 reftemps <- read.csv("C:/Users/user/Desktop/waterloo_region_hourly_data_2012_2022.csv", 
                      header=TRUE, stringsAsFactors = TRUE)
 
@@ -69,7 +70,14 @@ weekly_data <- reftemps %>%
   summarise(mean = mean(temp, na.rm = TRUE),min = min(temp, na.rm = TRUE),max = max(temp, na.rm = TRUE),
             month = month(time))
 
+write.csv(weekly_data_july, "C:/Users/user/Desktop/weekly_temperatures.csv", row.names=FALSE)
+
+### I saved summary of data on our github repo (the raw file was too large)
+
+weekly_data <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/weekly_temperatures.csv",header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+
 weekly_data_july <- subset(weekly_data, month > 6 & month < 8)
+
 
 # https://coastadapt.com.au/sites/default/files/infographics/15-117-NCCARFINFOGRAPHICS-01-UPLOADED-WEB%2827Feb%29.pdf
 # https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/1365-2435.13833
@@ -157,32 +165,43 @@ nw <- sinusoidalArray(size,scenarios[1,7],scenarios[2,4])
 plot(control, type="l",ylim=c(10,35))
 lines(nw)
 
-thermalseq<- cbind(control,nw)
+thermalseq<- as.data.frame(cbind(control,nw))
 ```
+
+
+```{r include=FALSE}
+# setting the times in which these temperatures occur
+
+# get times in which min and max temperatures actually occur in July
+weekly_data_time <- subset(reftemps, month > 6 & month < 8)
+weekly_data_time1 <-aggregate(weekly_data_time$temp, by=list(weekly_data_time$hour), FUN=mean)
+
+with(weekly_data_time1, Group.1[which.min(x)])
+with(weekly_data_time1, Group.1[which.max(x)])
+#min = 5am
+#max = 3pm
+
+#my thermal cycle is symmetrical, so the closest max and min I could apply to my thermal sequence is: min at 4am and max at 4pm
+thermalseq$time <- c(23,24,seq(1,22)) #create a time column numbered according to min and max
+thermalseq$order <- c(seq(13,24),seq(1:12)) #create an order column so that experiment starts at the correct temperature for 11am
+thermalseq <- thermalseq[order(thermalseq$order),]
+
+thermalseq10 <- thermalseq[rep(seq_len(nrow(thermalseq)), 10), ] #repeat daily sequence to get a 10-day experimental period
+thermalseq10$order <- rep(1:240)
+```
+
 
 ## Thermal sequences for the night warming experiment
 ```{r echo=FALSE}
-#rep
-cols = c(1:ncol(thermalseq))
-times = 11
-thermalseq <- thermalseq[,rep(cols, times)]
-
-thermalseq3 <- thermalseq[rep(seq_len(nrow(thermalseq)), times),]
-
-#cut
-#thermalseq3 <- thermalseq3[,-(1:12)]
-thermalseq <- thermalseq[,-(242:264)]
-
 #ploting
-plot(thermalseq3[,1],type="l",col="black",ylim=c(10,35),
+plot(thermalseq10[,4],thermalseq10[,1],type="l",col="black",ylim=c(10,35),
      main="Night warming experiment treatments",
      xlab="Time (hours)", ylab="Temperature (°C)",lwd=2)
-lines(thermalseq3[,2],type="l",col="red",lwd=2)
+lines(thermalseq10[,4],thermalseq10[,2],type="l",col="red",lwd=2)
 legend("bottomright", legend=c("Control", "Night warming"),
        col=c("black", "red"), lty=1, cex=0.8)
 
-thermalseq <- thermalseq[rep(cols, times)]
-write.csv(thermalseq3*10, "C:/Users/user/Desktop/1/nightwarming.csv")
+write.csv(thermalseq10*10, "C:/Users/user/Desktop/nightwarming.csv")
 
 ```
 
@@ -195,3 +214,10 @@ stats <- stat.desc(thermalseq2)
 kable(x = round(stats[c(4,5,9,13),], 2)) %>%
    kable_material(full_width = FALSE, html_font = "Cambria", font_size=16)
 ```
+
+## Sunrise and sunset times
+Source: https://nrc.canada.ca/en/research-development/products-services/software-applications/sun-calculator/
+- based on July 15
+- Waterloo, ON
+Sunrise: 05:00 (15 hours light)
+Sunset: 20:00 (9 hours dark)
