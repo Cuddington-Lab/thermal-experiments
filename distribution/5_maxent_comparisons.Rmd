@@ -1,0 +1,414 @@
+---
+title: "Model comparisons (rmd file #5)"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+<style type="text/css">
+  body{
+  font-size: 15pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+Sys.setenv('R_MAX_VSIZE'=3200000000000)
+memory.limit(24000000)
+
+options(java.parameters="~xmx10g")
+library(raster)
+library(maptools)
+library(dismo)
+library(maps)
+library(rJava)
+library(ENMeval)
+library(maxnet)
+library(rTPC)
+library(nls.multstart)
+library(sp)
+library(kableExtra)
+library(ENMeval)
+
+.jinit()
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+### Load models obtained in previous steps of the analysis
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+setwd("C:/Users/user/Desktop/maxent_polished")
+
+e.mx.l.lake  <- readRDS("e.mx.l.lake.rds")
+e.mx.l.air.present  <- readRDS("e.mx.l.air.present.rds")
+e.mx.l.air.future  <- readRDS("e.mx.l.air.future.rds")
+model_list <- list(e.mx.l.lake,e.mx.l.air.present,e.mx.l.air.future)
+rm(e.mx.l.lake,e.mx.l.air.present,e.mx.l.air.future)
+```
+
+### Load bioclimatic variables obtained in previous steps of the analysis
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+## pegar rasters salvos no desktop
+pres_train <- read.csv('pres_train.csv')
+pres_test <- read.csv('pres_test.csv')
+pres_test_sure <- read.csv('pres_test_sure.csv')
+
+lake <- readRDS("lake_crop.rds")
+air_present <- readRDS("air_present_crop.rds")
+air_future <- readRDS("air_future_crop.rds")
+
+raster_list <- list(lake, air_present, air_future)
+rm(lake,air.present,air.future)
+```
+
+
+### Load background points previously obtained
+```{r}
+backg_train_lake <- read.csv("backg_train_lake.csv")
+backg_test_lake <- read.csv("backg_test_lake.csv")
+
+backg_train_air_present <- read.csv("backg_train_air_present.csv")
+backg_test_air_present <- read.csv("backg_test_air_present.csv")
+
+backg_train_air_future <- read.csv("backg_train_air_future.csv")
+backg_test_air_future <- read.csv("backg_test_air_future.csv")
+
+backg_train_list <- list(backg_train_lake,backg_train_air_present,backg_train_air_future)
+backg_test_list <- list(backg_test_lake,backg_test_air_present,backg_test_air_future)
+```
+
+
+### Calculate model performance metrics
+### Select models with lowest AICc and highest mean testing AUC. In this case, a single model has both features
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+results <- list()
+results_kable <- list()
+best_aic_list <- list()
+best_auc_list <- list()
+best_model_list <- list()
+best_aic_list2 <- list()
+count = 1
+for (i in model_list){
+  result <- eval.results(i)
+  result2 <- eval.results(i)
+  result <- result[,c(1,2,4,8,16,17,19)]
+  colnames(result) <- c("Features","Regularization.multiplier","Training.AUC","Mean.testing.AUC","AICc","Delta AICc","Parameters") 
+  result_kable <- knitr::kable(result, "simple", digits = 2)
+  results[[count]] = as.data.frame(result)
+  results_kable[[count]] = result_kable
+  
+  best_aic <- result[which.min(result$AICc),]
+  best_aic2 <- result2[which.min(result2$AICc),]
+  best_auc <- result[which.max(result$Mean.testing.AUC),]
+
+  model <- eval.models(i)[[best_aic2$tune.args]]
+  best_model_list[[count]] <- model
+  
+  best_aic_list[[count]] = as.data.frame(best_aic)
+  best_auc_list[[count]] = as.data.frame(best_auc)
+  best_aic_list2[[count]] = as.data.frame(best_aic2)
+  
+  count=count+1  
+}
+```
+
+Lake model
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+results_kable[[1]]
+```
+
+Current air temperature model
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+results_kable[[2]]
+```
+
+Future air temperature model
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+results_kable[[2]]
+```
+
+### Plot model predictions
+
+Lake model  
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#Inexact records obtained from published papers
+europe_lit_unreported <- data.frame(lon=c(4.47,0.11,12.57,12.57,6.14,24.94,18.3),lat=c(50.5,51.5,41.87,41.87,46.2,60.19,59.2))
+
+#cleaned records (before sampling)
+world <- read.csv("C:/Users/user/Desktop/maxent_polished/world.csv")
+europe_GBIF <- read.csv("C:/Users/user/Desktop/maxent_polished/europe_GBIF.csv")
+
+e.mx.l.lake <- model_list[[1]]
+best_aic2 <- best_aic_list2[[1]]
+pred.seq.lake <- eval.predictions(e.mx.l.lake)[[best_aic2$tune.args]]
+
+plot(pred.seq.lake, xlim=c(-20,31.5500), ylim=c(34.5000,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.5)
+  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
+        col=c("black", "#D55E00"), pch = 20, cex = 1)
+  points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
+  points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
+#map(add=T,labels=T)
+
+#my0 = getData('GADM', country="CAN", level=1)
+plot(pred.seq.lake, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude",cex.lab=1.5)
+  #legend("topleft", legend="Occurrence records", cex=1, pch = 20)
+  points(world$lon,world$lat, pch = 20, cex = 1.5)
+#plot(my0,add=T)
+```
+
+Current air temperature model
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+e.mx.l.air.present <- model_list[[2]]
+best_aic2 <- best_aic_list2[[2]]
+pred.seq.air.present <- eval.predictions(e.mx.l.air.present)[[best_aic2$tune.args]]
+
+plot(pred.seq.air.present, xlim=c(-20,31.5500), ylim=c(34.5000,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.5)
+  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
+        col=c("black", "#D55E00"), pch = 20, cex = 1)
+  points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
+  points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
+
+plot(pred.seq.air.present, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude",cex.lab=1.5)
+  #legend("topleft", legend="Occurrence records", cex=1, pch = 20)
+  points(world$lon,world$lat, pch = 20, cex = 1.5)
+```
+
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+#Future air temperature model
+e.mx.l.air.future <- model_list[[3]]
+best_aic2 <- best_aic_list2[[3]]
+pred.seq.future <- eval.predictions(e.mx.l.air.future)[[best_aic2$tune.args]]
+
+plot(pred.seq.future, xlim=c(-20,31.5500), ylim=c(34.5000,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.5)
+  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
+        col=c("black", "#D55E00"), pch = 20, cex = 1)
+  points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
+  points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
+
+plot(pred.seq.future, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude",cex.lab=1.5)
+  #legend("topleft", legend="Occurrence records", cex=1, pch = 20)
+  points(world$lon,world$lat, pch = 20, cex = 1.5)
+```
+
+# Compare TPC with response curves for BIO1
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(rTPC)
+library(nls.multstart)
+
+### L. minor
+datin1 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2022-2023.csv",
+                   header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+datin2 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2021-2022.csv",
+                   header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+datin <- rbind(datin1,datin2)
+
+datin$Frond_count <- datin$Frond_count_1 + datin$Frond_count_2 + datin$Frond_count_3
+
+datin <- subset(datin, Treatment == "constant")
+
+# remove failed experiments
+datin <- subset(datin, (!Errors == "y")|is.na(Errors))
+
+# remove latest experiments in which nutrients were not replaced 
+# (a lack of nutrients is probably causing small reproductive output)
+datin <- subset(datin, !(Species == "LP" & Mean_temperature == 24))
+datin <- subset(datin, !(Species == "Field_LM" & Mean_temperature == 24))
+datin <- subset(datin, !(Species == "LP" & Mean_temperature == 26 & Frond_count == 16))
+
+
+tpc_model <- subset(datin,!Species=="Lab_LM")
+
+tpc_model <- within(tpc_model, Species <- relevel(Species, ref = "Field_LM"))
+
+tpc_model$Frond_count[tpc_model$Frond_count == 0] <- 0.001
+tpc_model$r <- (log(tpc_model$Frond_count)- log(12)) / 5
+
+#removing outliers (as selected model was not passing shapiro test for normality when including all observations)
+outliers <- boxplot(tpc_model$r, plot=FALSE)$out
+tpc_model2<- tpc_model[-which(tpc_model$r %in% outliers),]
+
+tpc <- data.frame(temp=tpc_model2$Mean_temperature,frond=tpc_model2$r, Species=tpc_model2$Species)
+
+tpc$temp <- as.numeric(as.character(tpc$temp))
+
+mylist <- list()
+mylist[[1]] <- subset(tpc,Species=="Field_LM")
+mylist[[2]] <- subset(tpc,Species=="LP")
+
+
+# choose model
+mod = "ratkowsky_1983"
+
+new_data <- data.frame(temp = seq(min(datin$Mean_temperature), max(datin$Mean_temperature), 0.5))
+all_results <- list()
+count = 1
+for (i in mylist){
+  # get start vals
+  start_vals <- get_start_vals(i[, 1], i[, 2], model_name = mod)
+  # get limits
+  low_lims <- get_lower_lims(i[, 1], i[, 2], model_name = mod)
+  upper_lims <- get_upper_lims(i[, 1], i[, 2], model_name = mod)
+  # fit model
+  fit <- nls_multstart(frond~ratkowsky_1983(temp = temp, tmin, tmax, a, b),
+                       data = i[, 1:2],
+                       iter = 500,
+                       start_lower = start_vals - 10,
+                       start_upper = start_vals + 10,
+                       lower = low_lims,
+                       upper = upper_lims,
+                       supp_errors = 'Y')
+  
+  result <- predict(fit, newdata = new_data)
+  
+  all_results[[count]] = as.data.frame(result)
+  
+  count=count+1
+}  
+
+df <- as.data.frame(do.call(cbind, all_results))
+colnames(df)  <- c("tpc_fieldLM","tpc_LP")
+df$temp <- new_data$temp
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+### Plot response curves for best model
+model <- best_model_list[[1]]
+lake_response1 <- as.data.frame(dismo::response(model,var="bioclim_lakes_10km_1"))
+colnames(lake_response1) <- c("temp","pred")
+lake_response7 <- as.data.frame(dismo::response(model,var="bioclim_lakes_10km_7"))
+colnames(lake_response7) <- c("temp","pred")
+lake_response19 <- as.data.frame(dismo::response(model,var="bioclim_lakes_10km_19"))
+colnames(lake_response19) <- c("temp","pred")
+
+model <- best_model_list[[2]]
+air_response1 <- as.data.frame(dismo::response(model,var="bio1"))
+colnames(air_response1) <- c("temp","pred")
+air_response7 <- as.data.frame(dismo::response(model,var="bio7"))
+colnames(air_response7) <- c("temp","pred")
+air_response19 <- as.data.frame(dismo::response(model,var="bio19"))
+colnames(air_response19) <- c("temp","pred")
+
+model <- best_model_list[[3]]
+future_response1 <- as.data.frame(dismo::response(model,var="mi45bi701"))
+colnames(future_response1) <- c("temp","pred")
+future_response7 <- as.data.frame(dismo::response(model,var="mi45bi707"))
+colnames(future_response7) <- c("temp","pred")
+future_response19 <- as.data.frame(dismo::response(model,var="mi45bi7019"))
+colnames(future_response19) <- c("temp","pred")
+
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+### Scale RGR values to correspond to suitability values
+#define function to scale values between 0 and maximal response obtained in models
+scale_values <- function(tpc_LP){(tpc_LP-min(tpc_LP))/(max(tpc_LP)-min(tpc_LP))* (max(lake_response1$pred) - 0) + 0}
+df$scaled <- scale_values(df$tpc_LP)
+
+plot(df$temp,df$scaled,col="#E69F00",lwd=3, xlab="Mean temperature (°C)",ylab="Response",lty=3,
+     cex = 1.5,cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5,type = "l",xlim=c(0,40),ylim=c(0,0.7))
+lines(lake_response1$temp/10, lake_response1$pred,col="black",lwd=3)
+lines(air_response1$temp/10, air_response1$pred,lwd=3,col="grey")
+lines(future_response1$temp/10, future_response1$pred,lwd=3,col="pink")
+legend("topleft", legend=c("RGR (scaled)", "Lake", "Air current", "Air future"),
+       col=c("#E69F00", "black", "grey", "pink"), lty=c(3,1,1,1), cex=0.8, lwd=3)
+```
+
+
+### Plot response curves for best model using each of the 3 climatic data sources
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+par(mfrow=c(1,3))
+
+plot(df$temp,df$scaled,col="black",lwd=3, xlab="Mean temperature (°C)",ylab="Response",lty=3,
+     cex = 1.5,cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5,main="BIO 1",type = "l",xlim=c(-5,40))
+lines(lake_response1$temp/10, lake_response1$pred,col="#009E73",lwd=3,lty=1)
+lines(air_response1$temp/10, air_response1$pred,lwd=3,col="#56B4E9",lty=4)
+lines(future_response1$temp/10, future_response1$pred,lwd=3,col="#D55E00")
+
+plot(lake_response7$temp/10, lake_response7$pred, col="#009E73",
+     lwd=3, xlab="Annual variation (°C)", ylab="Response", main="BIO 7",lty=1,
+     cex = 1.5, cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5, type = "l",xlim=c(-1,50))
+lines(air_response7$temp/10, air_response7$pred, col="#56B4E9", lwd=3,lty=4,
+     cex = 1.5, type = "l")
+lines(future_response7$temp/10, future_response7$pred, col="#D55E00", lwd=3,
+     cex = 1.5, type = "l")
+
+plot(lake_response19$temp, lake_response19$pred, col="#009E73",lty=1,
+     lwd=3, xlab="Annual precip. (mm)", ylab="Response", main="BIO 19",
+     cex = 1.5, cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5, type = "l")
+lines(air_response19$temp, air_response19$pred, col="#56B4E9", lwd=3,lty=4,
+     cex = 1.5, type = "l")
+lines(future_response19$temp, future_response19$pred, col="#D55E00", lwd=3,
+     cex = 1.5, type = "l")
+legend("bottomleft", legend=c("RGR (scaled)","Lake", "Air current", "Air future"),col=c("black","#009E73", "#56B4E9", "#D55E00"), lty=c(3,1,4,1), cex=0.9, lwd=3)
+```
+
+# Get min and max climatic variable values in occurrence areas to check if response curves are realistic
+```{r message=FALSE, warning=FALSE, include=FALSE}
+lake_bio1 <- lake_response1
+lake_bio1$temp[which.max(lake_bio1$pred)]/10
+min(lake_bio1$temp)/10
+max(lake_bio1$temp)/10
+
+
+air_bio1 <- air_response1
+air_bio1$temp[which.max(air_bio1$pred)]/10
+min(air_bio1$temp)/10
+max(air_bio1$temp)/10
+
+future_bio1 <- future_response1
+future_bio1$temp[which.max(future_bio1$pred)]/10
+min(future_bio1$temp)/10
+max(future_bio1$temp)/10
+
+lake_bio7 <- lake_response7
+lake_bio7$temp[which.max(lake_bio7$pred)]/10
+min(lake_bio7$temp)/10
+max(lake_bio7$temp)/10
+
+air_bio7 <- air_response7
+air_bio7$temp[which.max(air_bio7$pred)]/10
+min(air_bio7$temp)/10
+max(air_bio7$temp)/10
+
+future_bio7 <- future_response7
+future_bio7$temp[which.max(future_bio7$pred)]/10
+min(future_bio7$temp)/10
+max(future_bio7$temp)/10
+
+lake_bio19 <- lake_response19
+lake_bio19$temp[which.max(lake_bio19$pred)]
+min(lake_bio19$temp)
+max(lake_bio19$temp)
+
+air_bio19 <- air_response19
+air_bio19$temp[which.max(air_bio19$pred)]
+min(air_bio19$temp)
+max(air_bio19$temp)
+
+future_bio19 <- future_response19
+future_bio19$temp[which.max(future_bio19$pred)]
+min(future_bio19$temp)
+max(future_bio19$temp)
+```
+
+### Get variable importance for best models
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+lake_model <- model_list[[1]]
+var.imp <- eval.variable.importance(lake_model)
+var.imp[[2]]
+
+air_model <- model_list[[2]]
+var.imp <- eval.variable.importance(air_model)
+var.imp[[2]]
+
+future_model <- model_list[[3]]
+var.imp <- eval.variable.importance(future_model)
+var.imp[[2]]
+```

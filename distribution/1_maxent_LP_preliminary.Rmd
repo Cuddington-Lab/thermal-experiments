@@ -1,0 +1,262 @@
+---
+title: "Dotted duckweed maxent study: Preliminary model run (rmd file #1)"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+<style type="text/css">
+  body{
+  font-size: 15pt;
+}
+</style>
+
+### Purpose: To create a preliminary model using pre-selected bioclimatic variables. I will check for correlations and importance of each variable to the model to perform a subsequent variable selection which will include the most important variables with the lowest levels of correlation between them.
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+Sys.setenv('R_MAX_VSIZE'=32000000000)
+memory.limit(240000)
+
+options(java.parameters="~xmx10g")
+library(raster)
+library(maptools)
+library(dismo)
+library(maps)
+library(rJava)
+.jinit()
+```
+
+### Obtain occurrence records from GBIF and remove duplicates and records missing information
+Downloaded from GBIF on Nov 29, 2023
+https://doi.org/10.15468/dl.x7svjw
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+setwd("C:/Users/user/Desktop/maxent_polished")
+
+lp <- read.csv("lp.csv")
+head(lp[,c(14,22,23)])
+```
+
+### Clean up dataset 
+(removing data without coordinates and duplicates)
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#removing data without geographic coordinates
+lp <- subset(lp, !is.na(lon) & !is.na(lat))
+
+#removing duplicates
+dups <- duplicated(lp[, 1:10])
+lp_clean  <-  lp[dups, ]
+```
+
+### Add occurrences from literature 
+(for cases where coordinates are not exact, coordinates of a given country's capital were used)
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#Exact records obtained from published papers
+europe_lit <- data.frame(lon=c(4.51,4.95,4.31,4.25,6.12,5.23,16.15,12.27,12.45),lat=c(52.18,52.23,52,52,51.31,51.48,28.28,43.56,41.9))
+
+#Inexact records obtained from published papers
+europe_lit_unreported <- data.frame(lon=c(4.47,0.11,12.57,12.57,6.14,24.94,18.3),lat=c(50.5,51.5,41.87,41.87,46.2,60.19,59.2))
+```
+
+### Create datasets for each geographic location
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#subsetting by geographical region
+world <- subset(lp_clean, continent != "EUROPE")
+world <- world[, c("lon", "lat")]
+
+europe_GBIF <- subset(lp_clean, continent == "EUROPE")
+europe_GBIF <- europe_GBIF[, c("lon", "lat")]
+
+#European dataset containing all records
+europe <- rbind(europe_GBIF,europe_lit,europe_lit_unreported)
+
+#European dataset including only exact records
+europe_sure <- rbind(europe_GBIF,europe_lit)
+```
+
+### Plot cleaned dataset of occurrences (GBIF and literature records)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+allrecords <- rbind(europe,world)
+data(wrld_simpl)
+plot(wrld_simpl, col = "light gray", axes = T, main = "L. punctata GBIF occurrences")
+points(allrecords$lon, allrecords$lat, col='orange', pch=20, cex=0.75)
+points(allrecords$lon, allrecords$lat, col='red', cex=0.75)
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+### Transform dataframe into spatial points dataframe
+coordinates(world) <- ~lon+lat
+crs(world) <- crs(wrld_simpl)
+
+coordinates(europe) <- ~lon+lat
+crs(europe) <- crs(wrld_simpl)
+
+coordinates(europe_sure) <- ~lon+lat
+crs(europe_sure) <- crs(wrld_simpl)
+```
+
+### Perform spatial thinning to reduce spatial autocorrelation
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+set.seed(2018)
+### To reduce sampling bias (disproportional reporting in some areas), a single observation was sampled 
+# by first creating a raster layer with the same extent as my environmental data
+r <- raster(world)
+# set resolution of cells (increased resolution enough to obtain ~30 observations)
+res(r) <- 0.026
+# sample 1 observation per area
+world_sampled <- gridSample(world, r, n=1)
+
+r <- raster(europe)
+res(r) <- 0.026
+europe_sampled <- gridSample(europe, r, n=1)
+
+r <- raster(europe_sure)
+res(r) <- 0.026
+europe_sure_sampled <- gridSample(europe_sure, r, n=1)
+
+world_sampled <- as.data.frame(world_sampled)
+europe_sampled <- as.data.frame(europe_sampled)
+europe_sure_sampled <- as.data.frame(europe_sure_sampled)
+
+plot(wrld_simpl, axes=TRUE, col="light yellow", main = "Sampled occurrences")
+legend("bottomright", legend=c("Training", "Testing"),
+       col=c("orange", "blue"), cex=0.8, pch = 19)
+# add observation points
+points(world_sampled$lon, world_sampled$lat, col='orange', pch=20, cex=0.75)
+points(europe_sampled$lon, europe_sampled$lat, col='blue', pch=20, cex=0.75)
+```
+
+### Divide dataset into training (world excluding Europe) and testing (Europe)
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+pres_train <- world_sampled
+pres_test <- europe_sampled
+pres_test_sure <- europe_sure_sampled
+write.csv(pres_train,"pres_train.csv",row.names=FALSE)
+write.csv(pres_test,"pres_test.csv",row.names=FALSE)
+write.csv(pres_test_sure,"pres_test_sure.csv",row.names=FALSE)
+```
+
+### Initial selection of bioclimatic variables
+
+- To reflect thermal dependency of duckweeds in terms of population growth:
+
+BIO 1 = Mean annual temperature (Armitage, 2022)
+
+BIO 7 = Annual range of temperature (Armitage, 2022)
+
+BIO 10 = Mean temperature of warmest quarter
+
+- To account for the dependency on precipitation (duckweeds are rare in places with high or very low precipitation; FNA, 2000):
+
+BIO17 = Precipitation of Driest Quarter
+
+BIO19 = Annual precipitation
+
+### Load lake water temperature raster
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#source for lake water temperature raster: https://onlinelibrary.wiley.com/doi/full/10.1111/ecog.06595#bib-0003
+envs_lake <- raster::brick('bioclim_lakes_10km.tif')
+```
+
+### Subset raster to correspond to the pre-selected bioclimatic variables
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+envs = envs_lake[[c(1,7,10,17,19)]] # pre-select bioclimatic variables
+```
+
+### Increase spatial resolution to correspond to resolution previously applied to raster of observation records
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+envs <- disaggregate(envs, fact=3.2) # adjust resolution to correspond to resolution used to sample observations
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(sp)
+coordinates(world_sampled) <- ~lon + lat
+coordinates(europe_sampled) <- ~lon + lat
+```
+
+### Crop environment to correspond to species distribution range
+```{r message=FALSE, warning=FALSE}
+full_dataset <- rbind(pres_train,pres_test)
+model.extent<-extent(min(full_dataset$lon)-10,max(full_dataset$lon)+10,
+                     min(full_dataset$lat)-10,max(full_dataset$lat)+10)
+modelEnv <- crop(envs,model.extent)
+```
+
+### Create buffer around occurrence area and create study area 
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+occ_buff <- buffer(world_sampled,600000, dissolve=TRUE) #width parameter=600000m = 600km
+
+# crop study area to buffer extent
+studyArea <- crop(envs,extent(occ_buff))  
+
+# mask the non buffer areas
+studyArea <- mask(studyArea,occ_buff)
+# output will still be a raster stack, just of the study area
+
+# check with plot
+plot(studyArea[[1]]/10, main="Buffer areas and observation points") 
+points(world_sampled$lon, world_sampled$lat, pch=1, cex=0.51, col="purple")
+legend("bottomright",legend=c("Buffer areas: annual mean temperature coloring", 
+                            "Occurrences: purple"))
+```
+
+### Randomly sample points 
+Sample same number as our observed points inside the buffer to create pseudo-absences, or hypothetical areas where species is not found
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+set.seed(2020)
+backg = randomPoints(studyArea, n=708, p=world_sampled, extf=1)
+colnames(backg) <- c("lon","lat")
+```
+
+### Divide background dataset into training and testing
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+group=kfold(backg, 5)
+backg_train <- backg[group!=1,]
+backg_test <- backg[group==1,]
+```
+
+### Run model and check variable contribution
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+xm <- maxent(modelEnv, pres_train, linear=true, quadratic=true, product=false, 
+              threshold=false, hinge=false)
+plot(xm)
+
+variable <- plot(xm)
+variable
+```
+
+
+### Check potential correlations between bioclimatic variables
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+stats <- layerStats(modelEnv, 'pearson', na.rm=T)
+corr_matrix <- stats$'pearson correlation coefficient'
+
+row.names(corr_matrix) <- c("BIO1", "BIO7", "BIO10", "BIO17", "BIO19")
+colnames(corr_matrix) <- c("BIO1", "BIO7", "BIO10", "BIO17", "BIO19")
+
+order <- c("BIO1", "BIO7", "BIO19", "BIO17", "BIO10")
+corr_matrix <- corr_matrix[order, order]
+    
+corr_stats <- data.frame("Preliminary variables"=c("BIO 1 (mean annual temperature)",
+                                                   "BIO 7 (annual range of temperature)",
+                                                   "BIO 19 (mean annual precipitation)",
+                                                   "BIO17 (precipitation of driest quarter)",
+                                                   "BIO 10 (mean temperature of the warmest quarter)"), 
+                         "Variable contribution"=rev(variable), "BIO 1"=as.numeric(c(corr_matrix[1:1],"","","","")), 
+                         "BIO 7"=as.numeric(c(corr_matrix[1:2,2],"","","")), 
+                         "BIO 19"=as.numeric(c(corr_matrix[1:3,3],"","")),
+                         "BIO 17"=as.numeric(c(corr_matrix[1:4,4],"")),
+                         "BIO 10"=as.numeric(c(corr_matrix[1:5,5])))
+
+
+opts <- options(knitr.kable.NA = "")
+table <- knitr::kable(corr_stats, "html", col.names = c('Preliminary variables', 'Variable contribution', 'BIO1', 'BIO7', 'BIO19', 'BIO17', 'BIO10'), digits = 2, row.names = FALSE)
+library(kableExtra)
+table <- add_header_above(table, header = c(" " = 2, "Bioclimatic variables" = 5))
+table
+```
+
+
+### Select variables which contribute the most and are unrelated to each other
+* BIO 1 = Mean annual temperature
+* BIO 7 = Annual range of temperature
+* BIO 19 = Mean annual temperature
