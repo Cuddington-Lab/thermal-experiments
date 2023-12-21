@@ -11,7 +11,7 @@
 
 <meta name="author" content="Debora" />
 
-<meta name="date" content="2023-12-08" />
+<meta name="date" content="2023-12-19" />
 
 <title>Dotted duckweed maxent study: Models using current air temperatures (rmd file #3)</title>
 
@@ -353,7 +353,7 @@ display: none;
 <h1 class="title toc-ignore">Dotted duckweed maxent study: Models using
 current air temperatures (rmd file #3)</h1>
 <h4 class="author">Debora</h4>
-<h4 class="date">2023-12-08</h4>
+<h4 class="date">2023-12-19</h4>
 
 </div>
 
@@ -461,9 +461,11 @@ write.csv(backg_test,&quot;backg_test_air_present.csv&quot;,row.names=FALSE)</co
   |==================================================================    |  94%
   |                                                                            
   |======================================================================| 100%</code></pre>
-<pre class="r"><code>saveRDS(e.mx.l.air.present,&quot;e.mx.l.air.present.rds&quot;)
-
-aic &lt;- eval.results(e.mx.l.air.present)
+<pre class="r"><code>saveRDS(e.mx.l.air.present,&quot;e.mx.l.air.present.rds&quot;)</code></pre>
+</div>
+<div id="calculate-tss-true-skill-statistic-tss-at-maxtpr-tnr" class="section level3">
+<h3>Calculate TSS (True Skill Statistic (TSS) at max[TPR + TNR])</h3>
+<pre class="r"><code>aic &lt;- eval.results(e.mx.l.air.present)
 res_best &lt;- aic[which.min(aic$AICc),]
 model1 &lt;- eval.models(e.mx.l.air.present)[[res_best$tune.args]]
 
@@ -483,14 +485,40 @@ e_2tss_train  </code></pre>
 <pre><code>## [1] 0.6186779</code></pre>
 <pre class="r"><code>e_2tss_test</code></pre>
 <pre><code>## [1] 0.726898</code></pre>
-<pre class="r"><code>e_europe_sure = evaluate(pres_test_sure, backg_test, model1, air_present)
+<pre class="r"><code>e_2europe_sure = evaluate(pres_test_sure, backg_test, model1, air_present)
 
-e_2auc_europe_sure &lt;- e_europe_sure@auc
+e_2auc_europe_sure &lt;- e_2europe_sure@auc
 e_2auc_europe_sure  </code></pre>
 <pre><code>## [1] 0.8736419</code></pre>
-<pre class="r"><code>e_2tss_europe_sure &lt;- max(e_europe_sure@TPR + e_europe_sure@TNR) - 1
+<pre class="r"><code>e_2tss_europe_sure &lt;- max(e_2europe_sure@TPR + e_2europe_sure@TNR) - 1
 e_2tss_europe_sure</code></pre>
 <pre><code>## [1] 0.7875252</code></pre>
+<pre class="r"><code>#threshold value maximizing TPR + TNR
+threshold_train &lt;- e_2train@t[which(e_2train@TPR+e_2train@TNR==max(e_2train@TPR+e_2train@TNR))]
+threshold_train</code></pre>
+<pre><code>## [1] 0.5983387</code></pre>
+<pre class="r"><code>threshold_test &lt;- e_2test@t[which(e_2test@TPR+e_2test@TNR==max(e_2test@TPR+e_2test@TNR))]
+threshold_test</code></pre>
+<pre><code>## [1] 0.6158076</code></pre>
+<pre class="r"><code>threshold_europe_sure &lt;- e_2europe_sure@t[which(e_2europe_sure@TPR+e_2europe_sure@TNR==max(e_2europe_sure@TPR+e_2europe_sure@TNR))]
+threshold_europe_sure</code></pre>
+<pre><code>## [1] 0.6158076</code></pre>
+<pre class="r"><code># test data TSS when using best training threshold
+threshold_test_train &lt;- e_2test@t[which(e_2test@TPR+e_2test@TNR==threshold_train)]
+threshold_test_train</code></pre>
+<pre><code>## numeric(0)</code></pre>
+</div>
+<div id="save-model-predictions" class="section level3">
+<h3>Save model predictions</h3>
+<pre class="r"><code>pred.seq.air &lt;- eval.predictions(e.mx.l.air.present)[[res_best$tune.args]]
+
+writeRaster(pred.seq.air, filename=&quot;predseqair&quot;,  format=&quot;GTiff&quot;, overwrite=TRUE)</code></pre>
+</div>
+<div id="calculate-tss-based-on-the-10-percentile-threshold-from-training-predictions" class="section level3">
+<h3>Calculate TSS based on the 10 percentile threshold from training
+predictions</h3>
+<pre class="r"><code>#p.train &lt;- dismo::predict(model1, pres_train)
+#ENMeval::calc.10p.trainThresh(p.train)</code></pre>
 </div>
 
 

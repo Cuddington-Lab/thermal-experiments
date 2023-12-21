@@ -113,34 +113,8 @@ e.mx.l.air.future <- ENMevaluate(occs = pres_train, envs = air_future, bg = back
                         tune.args = list(fc = c("L","LQ"), rm = seq(0.5, 4, by = 0.5)))
 
 saveRDS(e.mx.l.air.future,"e.mx.l.air.future.rds")
-```
-
-### Calculate TSS
-```{r}
 aic <- eval.results(e.mx.l.air.future)
 res_best <- aic[which.min(aic$AICc),]
-model1 <- eval.models(e.mx.l.air.future)[[res_best$tune.args]]
-
-e_2train = evaluate(pres_train, backg_train, model1, air_future)
-
-e_2test = evaluate(pres_test, backg_test, model1, air_future)
-
-e_2auc_train <- e_2train@auc
-e_2auc_test <- e_2test@auc
-e_2auc_train  
-e_2auc_test
-
-e_2tss_train <- max(e_2train@TPR + e_2train@TNR) - 1
-e_2tss_test <- max(e_2test@TPR + e_2test@TNR) - 1
-e_2tss_train  
-e_2tss_test
-
-e_europe_sure = evaluate(pres_test_sure, backg_test, model1, air_future)
-
-e_2auc_europe_sure <- e_europe_sure@auc
-e_2auc_europe_sure  
-e_2tss_europe_sure <- max(e_europe_sure@TPR + e_europe_sure@TNR) - 1
-e_2tss_europe_sure
 ```
 
 
@@ -161,4 +135,53 @@ legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"),
 plot(pred.seq.future, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude")
 legend("topleft", legend="Occurrence records", cex=1, pch = 20)
 points(world$lon,world$lat, pch = 20, cex = 1.5)
+```
+
+
+### Calculate TSS (True Skill Statistic (TSS) at max[TPR + TNR])
+```{r}
+
+
+model1 <- eval.models(e.mx.l.air.future)[[res_best$tune.args]]
+
+e_2train = evaluate(pres_train, backg_train, model1, air_future)
+
+e_2test = evaluate(pres_test, backg_test, model1, air_future)
+
+e_2auc_train <- e_2train@auc
+e_2auc_test <- e_2test@auc
+e_2auc_train  
+e_2auc_test
+
+e_2tss_train <- max(e_2train@TPR + e_2train@TNR) - 1
+e_2tss_test <- max(e_2test@TPR + e_2test@TNR) - 1
+e_2tss_train  
+e_2tss_test
+
+e_2europe_sure = evaluate(pres_test_sure, backg_test, model1, air_future)
+
+e_2auc_europe_sure <- e_2europe_sure@auc
+e_2auc_europe_sure  
+e_2tss_europe_sure <- max(e_2europe_sure@TPR + e_2europe_sure@TNR) - 1
+e_2tss_europe_sure
+
+#threshold value maximizing TPR + TNR
+threshold_train <- e_2train@t[which(e_2train@TPR+e_2train@TNR==max(e_2train@TPR+e_2train@TNR))]
+threshold_train
+threshold_test <- e_2test@t[which(e_2test@TPR+e_2test@TNR==max(e_2test@TPR+e_2test@TNR))]
+threshold_test
+threshold_europe_sure <- e_2europe_sure@t[which(e_2europe_sure@TPR+e_2europe_sure@TNR==max(e_2europe_sure@TPR+e_2europe_sure@TNR))]
+threshold_europe_sure
+
+# test data TSS when using best training threshold
+threshold_test_train <- e_2test@t[which(e_2test@TPR+e_2test@TNR==threshold_train)]
+threshold_test_train
+```
+
+
+### Save model predictions
+```{r}
+pred.seq.air.future <- eval.predictions(e.mx.l.air.future)[[res_best$tune.args]]
+
+writeRaster(pred.seq.air.future, filename="predseqairfuture",  format="GTiff", overwrite=TRUE)
 ```

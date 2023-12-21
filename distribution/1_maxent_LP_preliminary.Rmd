@@ -23,6 +23,7 @@ library(maptools)
 library(dismo)
 library(maps)
 library(rJava)
+library(ENMeval)
 .jinit()
 ```
 

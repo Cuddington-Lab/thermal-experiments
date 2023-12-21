@@ -11,7 +11,7 @@
 
 <meta name="author" content="Debora" />
 
-<meta name="date" content="2023-12-07" />
+<meta name="date" content="2023-12-19" />
 
 <title>Dotted duckweed maxent study: Models using current lake temperatures (rmd file #2)</title>
 
@@ -353,7 +353,7 @@ display: none;
 <h1 class="title toc-ignore">Dotted duckweed maxent study: Models using
 current lake temperatures (rmd file #2)</h1>
 <h4 class="author">Debora</h4>
-<h4 class="date">2023-12-07</h4>
+<h4 class="date">2023-12-19</h4>
 
 </div>
 
@@ -462,9 +462,11 @@ write.csv(backg_test,&quot;backg_test_lake.csv&quot;,row.names=FALSE)</code></pr
   |==================================================================    |  94%
   |                                                                            
   |======================================================================| 100%</code></pre>
-<pre class="r"><code>saveRDS(e.mx.l.lake,&quot;e.mx.l.lake.rds&quot;)
-
-aic &lt;- eval.results(e.mx.l.lake)
+<pre class="r"><code>saveRDS(e.mx.l.lake,&quot;e.mx.l.lake.rds&quot;)</code></pre>
+</div>
+<div id="calculate-tss-true-skill-statistic-tss-at-maxtpr-tnr" class="section level3">
+<h3>Calculate TSS (True Skill Statistic (TSS) at max[TPR + TNR])</h3>
+<pre class="r"><code>aic &lt;- eval.results(e.mx.l.lake)
 res_best &lt;- aic[which.min(aic$AICc),]
 model1 &lt;- eval.models(e.mx.l.lake)[[res_best$tune.args]]
 
@@ -484,14 +486,39 @@ e_2tss_train  </code></pre>
 <pre><code>## [1] 0.642768</code></pre>
 <pre class="r"><code>e_2tss_test</code></pre>
 <pre><code>## [1] 0.7994811</code></pre>
-<pre class="r"><code>e_europe_sure = evaluate(pres_test_sure, backg_test, model1, lake)
+<pre class="r"><code>e_2europe_sure = evaluate(pres_test_sure, backg_test, model1, lake)
 
-e_2auc_europe_sure &lt;- e_europe_sure@auc
+e_2auc_europe_sure &lt;- e_2europe_sure@auc
 e_2auc_europe_sure  </code></pre>
 <pre><code>## [1] 0.9441315</code></pre>
-<pre class="r"><code>e_2tss_europe_sure &lt;- max(e_europe_sure@TPR + e_europe_sure@TNR) - 1
+<pre class="r"><code>e_2tss_europe_sure &lt;- max(e_2europe_sure@TPR + e_2europe_sure@TNR) - 1
 e_2tss_europe_sure</code></pre>
 <pre><code>## [1] 0.8032864</code></pre>
+<pre class="r"><code>#threshold value maximizing TPR + TNR
+threshold_train &lt;- e_2train@t[which(e_2train@TPR+e_2train@TNR==max(e_2train@TPR+e_2train@TNR))]
+threshold_train</code></pre>
+<pre><code>## [1] 0.5581961</code></pre>
+<pre class="r"><code>threshold_test &lt;- e_2test@t[which(e_2test@TPR+e_2test@TNR==max(e_2test@TPR+e_2test@TNR))]
+threshold_test</code></pre>
+<pre><code>## [1] 0.5263241</code></pre>
+<pre class="r"><code>threshold_europe_sure &lt;- e_2europe_sure@t[which(e_2europe_sure@TPR+e_2europe_sure@TNR==max(e_2europe_sure@TPR+e_2europe_sure@TNR))]
+threshold_europe_sure</code></pre>
+<pre><code>## [1] 0.661762</code></pre>
+</div>
+<div id="plot-prediction-maps" class="section level3">
+<h3>Plot prediction maps</h3>
+<pre class="r"><code>europe_lit_unreported &lt;- data.frame(lon=c(4.47,0.11,12.57,12.57,6.14,24.94,18.3),lat=c(50.5,51.5,41.87,41.87,46.2,60.19,59.2))
+europe_GBIF &lt;- read.csv(&quot;europe_GBIF.csv&quot;)
+world &lt;- read.csv(&quot;world.csv&quot;)
+
+pred.seq.lake &lt;- eval.predictions(e.mx.l.lake)[[res_best$tune.args]]
+
+writeRaster(pred.seq.lake, filename=&quot;pred.seq.lake&quot;,  format=&quot;GTiff&quot;, overwrite=TRUE)</code></pre>
+</div>
+<div id="calculate-tss-based-on-the-10-percentile-threshold-from-training-predictions" class="section level3">
+<h3>Calculate TSS based on the 10 percentile threshold from training
+predictions</h3>
+<pre class="r"><code>#calc.10p.trainThresh(pred.seq.lake)</code></pre>
 </div>
 
 

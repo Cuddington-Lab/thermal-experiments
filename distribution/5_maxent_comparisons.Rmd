@@ -49,7 +49,7 @@ model_list <- list(e.mx.l.lake,e.mx.l.air.present,e.mx.l.air.future)
 rm(e.mx.l.lake,e.mx.l.air.present,e.mx.l.air.future)
 ```
 
-### Load bioclimatic variables obtained in previous steps of the analysis
+### Load bioclimatic variables and sampled datasets obtained in previous steps of the analysis
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 ## pegar rasters salvos no desktop
 pres_train <- read.csv('pres_train.csv')
@@ -127,8 +127,67 @@ results_kable[[2]]
 
 Future air temperature model
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-results_kable[[2]]
+results_kable[[3]]
 ```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+### Make contour corresponding to Lemna minor distribution
+lm <- read.csv("lm.csv")
+colnames(lm)[which(names(lm) == "decimalLongitude")] <- "lon"
+colnames(lm)[which(names(lm) == "decimalLatitude")] <- "lat"
+
+#removing data without geographic coordinates
+lm_clean <- subset(lm, !is.na(lon) & !is.na(lat))
+lm_clean <- lm_clean[, c("lon", "lat")]
+
+#these northern coordinate boundaries in NA correspond to sampled occurrence data in Armitage (2023), which excludes extreme occurrences in northern regions (a more conservative distribution)
+lm_clean_na <- lm_clean [((lm_clean$lon >= -135 & lm_clean$lon <= -50) & (lm_clean$lat >= 16 & lm_clean$lat <= 65)), ]
+coordinates(lm_clean_na) <- ~lon+lat
+crs(lm_clean_na) <- crs(lm_clean_na)
+
+lm_clean_europe <- lm_clean [((lm_clean$lon >= -12 & lm_clean$lon <= 31.55) & (lm_clean$lat >= 34.5 & lm_clean$lat <= 71.01)), ]
+coordinates(lm_clean_europe) <- ~lon+lat
+crs(lm_clean_europe) <- crs(lm_clean_europe)
+
+envs_lake <- raster::brick('bioclim_lakes_10km.tif')
+envs = envs_lake[[c(1)]]
+
+model.extent<-extent(min(lm_clean_na$lon),max(lm_clean_na$lon),
+                     min(lm_clean_na$lat),max(lm_clean_na$lat))
+modelEnv <- raster::crop(envs,model.extent)
+
+e <- extent(modelEnv)
+# coerce to a SpatialPolygons object
+p <- as(e, 'SpatialPolygons')  
+
+# make all values the same. Either do
+r <- modelEnv > -Inf
+# or alternatively
+# r <- reclassify(x, cbind(-Inf, Inf, 1))
+
+# convert to polygons (you need to have package 'rgeos' installed for this to work)
+pp_na <- rasterToPolygons(r, dissolve=TRUE)
+
+model.extent<-extent(min(lm_clean_europe$lon),max(lm_clean_europe$lon),
+                     min(lm_clean_europe$lat),max(lm_clean_europe$lat))
+modelEnv <- raster::crop(envs,model.extent)
+
+e <- extent(modelEnv)
+# coerce to a SpatialPolygons object
+p <- as(e, 'SpatialPolygons')  
+
+# make all values the same. Either do
+r <- modelEnv > -Inf
+# or alternatively
+# r <- reclassify(x, cbind(-Inf, Inf, 1))
+
+# convert to polygons (you need to have package 'rgeos' installed for this to work)
+pp_europe <- rasterToPolygons(r, dissolve=TRUE)
+```
+
+
+
 
 ### Plot model predictions
 
@@ -142,57 +201,58 @@ europe_lit_unreported <- data.frame(lon=c(4.47,0.11,12.57,12.57,6.14,24.94,18.3)
 world <- read.csv("C:/Users/user/Desktop/maxent_polished/world.csv")
 europe_GBIF <- read.csv("C:/Users/user/Desktop/maxent_polished/europe_GBIF.csv")
 
-e.mx.l.lake <- model_list[[1]]
-best_aic2 <- best_aic_list2[[1]]
-pred.seq.lake <- eval.predictions(e.mx.l.lake)[[best_aic2$tune.args]]
+pred.seq.lake <- raster("pred.seq.tif")
 
 plot(pred.seq.lake, xlim=c(-20,31.5500), ylim=c(34.5000,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.5)
-  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
-        col=c("black", "#D55E00"), pch = 20, cex = 1)
-  points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
-  points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
+  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences", "Common duckweed distribution"), 
+        col=c("black", "#D55E00", "#0072B2"), pch = c(20,20,NA), lty = c(NA,NA,1), cex = 0.9, lwd=2)
+points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
+points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
+plot(pp_europe, lwd=2, border='#0072B2', add=TRUE)
 #map(add=T,labels=T)
 
 #my0 = getData('GADM', country="CAN", level=1)
 plot(pred.seq.lake, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude",cex.lab=1.5)
-  #legend("topleft", legend="Occurrence records", cex=1, pch = 20)
-  points(world$lon,world$lat, pch = 20, cex = 1.5)
+#legend("topleft", legend=c("Occurrence records", "Common duckweed distribution"), pch = c(20,NA), lty = c(NA,1), cex = 0.9, lwd=2, col=c("black", "#0072B2"), )
+points(world$lon,world$lat, pch = 20, cex = 1.5)
+plot(pp_na, lwd=2, border='#0072B2', add=TRUE)
+
 #plot(my0,add=T)
 ```
 
 Current air temperature model
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-e.mx.l.air.present <- model_list[[2]]
-best_aic2 <- best_aic_list2[[2]]
-pred.seq.air.present <- eval.predictions(e.mx.l.air.present)[[best_aic2$tune.args]]
+pred.seq.air.present <- raster("predseqair.tif")
 
 plot(pred.seq.air.present, xlim=c(-20,31.5500), ylim=c(34.5000,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.5)
-  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
-        col=c("black", "#D55E00"), pch = 20, cex = 1)
-  points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
-  points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
+#legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
+#       col=c("black", "#D55E00"), pch = 20, cex = 1)
+points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
+points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
+plot(pp_europe, lwd=2, border='#0072B2', add=TRUE)
 
 plot(pred.seq.air.present, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude",cex.lab=1.5)
-  #legend("topleft", legend="Occurrence records", cex=1, pch = 20)
-  points(world$lon,world$lat, pch = 20, cex = 1.5)
+#legend("topleft", legend="Occurrence records", cex=1, pch = 20)
+points(world$lon,world$lat, pch = 20, cex = 1.5)
+plot(pp_na, lwd=2, border='#0072B2', add=TRUE)
 ```
 
 
-```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-#Future air temperature model
-e.mx.l.air.future <- model_list[[3]]
-best_aic2 <- best_aic_list2[[3]]
-pred.seq.future <- eval.predictions(e.mx.l.air.future)[[best_aic2$tune.args]]
+Future air temperature model
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+pred.seq.future <- raster("predseqairfuture.tif")
 
 plot(pred.seq.future, xlim=c(-20,31.5500), ylim=c(34.5000,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.5)
-  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
-        col=c("black", "#D55E00"), pch = 20, cex = 1)
-  points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
-  points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
+#  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
+#        col=c("black", "#D55E00"), pch = 20, cex = 1)
+points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
+points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
+plot(pp_europe, lwd=2, border='#0072B2', add=TRUE)
 
 plot(pred.seq.future, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude",cex.lab=1.5)
-  #legend("topleft", legend="Occurrence records", cex=1, pch = 20)
-  points(world$lon,world$lat, pch = 20, cex = 1.5)
+#legend("topleft", legend="Occurrence records", cex=1, pch = 20)
+points(world$lon,world$lat, pch = 20, cex = 1.5)
+plot(pp_na, lwd=2, border='#0072B2', add=TRUE)
 ```
 
 # Compare TPC with response curves for BIO1
@@ -214,7 +274,7 @@ datin <- subset(datin, Treatment == "constant")
 # remove failed experiments
 datin <- subset(datin, (!Errors == "y")|is.na(Errors))
 
-# remove latest experiments in which nutrients were not replaced 
+# remove experiments in which nutrients were not replaced 
 # (a lack of nutrients is probably causing small reproductive output)
 datin <- subset(datin, !(Species == "LP" & Mean_temperature == 24))
 datin <- subset(datin, !(Species == "Field_LM" & Mean_temperature == 24))
@@ -411,4 +471,114 @@ var.imp[[2]]
 future_model <- model_list[[3]]
 var.imp <- eval.variable.importance(future_model)
 var.imp[[2]]
+```
+
+### Percent omission rate (model accuracy metric)
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+lapply(best_aic_list2, '[[', 'or.10p.avg')
+```
+
+
+### Lake: 10th percentile training presence threshold
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+e.mx.l.lake <- model_list[[1]]
+
+# Extract the predicted values for all presence points
+pred.vals <- raster::extract(pred.seq.lake, e.mx.l.lake@occs[,1:2])
+
+# Impose the minimum presence point threshold
+or.min.threshold <- pred.seq.lake > min(pred.vals)
+
+# To impose the 10% presence threshold, first find how many records represent 10% of the records
+# ceiling: to round number
+n10 <- ceiling(length(pred.vals) * 0.1)
+
+lake_10_threshold <- sort(pred.vals)[n10]
+lake_10_threshold
+
+# Then impose the 10% threshold
+# sort(pred.vals)[n10]: sorting predictions from lowest to highest; selecting prediction value matching the
+# 50th smallest value (10% of training data points); then only keeping predictions above this value
+or.10.threshold <- pred.seq.lake > sort(pred.vals)[n10]
+
+# Plot to visualize
+par(mfrow=c(2,2))
+plot(pred.seq.lake, main='Continuous')
+points(e.mx.l.lake@occs[,c(1,2)], pch=16)
+
+plot(or.min.threshold, main='Min omission threshold')
+points(e.mx.l.lake@occs[,c(1,2)], pch=16)
+
+plot(or.10.threshold, main='10% omission threshold')
+points(e.mx.l.lake@occs[,c(1,2)], pch=16)
+```
+
+
+### Current air: 10th percentile training presence threshold
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+e.mx.l.air.present <- model_list[[2]]
+
+# Extract the predicted values for all presence points
+pred.vals <- raster::extract(pred.seq.air.present, e.mx.l.air.present@occs[,c(1,2)])
+
+# Impose the minimum presence point threshold
+or.min.threshold <- pred.seq.air.present > min(pred.vals)
+
+# To impose the 10% presence threshold, first find how many records represent 10% of the records
+# ceiling: to round number
+n10 <- ceiling(length(pred.vals) * 0.1)
+
+present_10_threshold <- sort(pred.vals)[n10]
+present_10_threshold
+
+# Then impose the 10% threshold
+# sort(pred.vals)[n10]: sorting predictions from lowest to highest; selecting prediction value matching the
+# 50th smallest value (10% of training data points); then only keeping predictions above this value
+or.10.threshold <- pred.seq.air.present > sort(pred.vals)[n10]
+
+# Plot to visualize
+par(mfrow=c(2,2))
+plot(pred.seq.lake, main='Continuous')
+points(e.mx.l.air.present@occs[,c(1,2)], pch=16)
+
+plot(or.min.threshold, main='Min omission threshold')
+points(e.mx.l.air.present@occs[,c(1,2)], pch=16)
+
+plot(or.10.threshold, main='10% omission threshold')
+points(e.mx.l.air.present@occs[,c(1,2)], pch=16)
+```
+
+
+### Future air: 10th percentile training presence threshold
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+e.mx.l.air.future <- model_list[[3]]
+
+# Extract the predicted values for all presence points
+pred.vals <- raster::extract(pred.seq.future, e.mx.l.air.future@occs[,c(1,2)])
+
+# Impose the minimum presence point threshold
+or.min.threshold <- pred.seq.future > min(pred.vals)
+
+# To impose the 10% presence threshold, first find how many records represent 10% of the records
+# ceiling: to round number
+n10 <- ceiling(length(pred.vals) * 0.1)
+
+future_10_threshold <- sort(pred.vals)[n10]
+future_10_threshold
+
+# Then impose the 10% threshold
+# sort(pred.vals)[n10]: sorting predictions from lowest to highest; selecting prediction value matching the
+# 50th smallest value (10% of training data points); then only keeping predictions above this value
+or.10.threshold <- pred.seq.future > sort(pred.vals)[n10]
+
+# Plot to visualize
+par(mfrow=c(2,2))
+plot(pred.seq.lake, main='Continuous')
+points(e.mx.l.air.future@occs[,c(1,2)], pch=16)
+
+plot(or.min.threshold, main='Min omission threshold')
+points(e.mx.l.air.future@occs[,c(1,2)], pch=16)
+
+plot(or.10.threshold, main='10% omission threshold')
+points(e.mx.l.air.future@occs[,c(1,2)], pch=16)
 ```

@@ -34,7 +34,7 @@ knitr::opts_chunk$set(
 
 ### Load occurrence datasets previously cleaned up and sampled
 ```{r include=FALSE}
-setwd("C:/Users/user/Desktop/maxent_polished")
+#setwd("C:/Users/user/Desktop/maxent_polished")
 
 pres_train <- read.csv("pres_train.csv") #training dataset (world records)
 pres_test <- read.csv("pres_test.csv") #testing dataset (Europe records: exact and inexact coordinates)
@@ -114,7 +114,11 @@ e.mx.l.lake <- ENMevaluate(occs = pres_train, envs = lake, bg = backg_train,
                         tune.args = list(fc = c("L","LQ"), rm = seq(0.5, 4, by = 0.5)))
 
 saveRDS(e.mx.l.lake,"e.mx.l.lake.rds")
+```
 
+
+### Calculate TSS (True Skill Statistic (TSS) at max[TPR + TNR])
+```{r}
 aic <- eval.results(e.mx.l.lake)
 res_best <- aic[which.min(aic$AICc),]
 model1 <- eval.models(e.mx.l.lake)[[res_best$tune.args]]
@@ -133,10 +137,33 @@ e_2tss_test <- max(e_2test@TPR + e_2test@TNR) - 1
 e_2tss_train  
 e_2tss_test
 
-e_europe_sure = evaluate(pres_test_sure, backg_test, model1, lake)
+e_2europe_sure = evaluate(pres_test_sure, backg_test, model1, lake)
 
-e_2auc_europe_sure <- e_europe_sure@auc
+e_2auc_europe_sure <- e_2europe_sure@auc
 e_2auc_europe_sure  
-e_2tss_europe_sure <- max(e_europe_sure@TPR + e_europe_sure@TNR) - 1
+e_2tss_europe_sure <- max(e_2europe_sure@TPR + e_2europe_sure@TNR) - 1
 e_2tss_europe_sure
+
+#threshold value maximizing TPR + TNR
+threshold_train <- e_2train@t[which(e_2train@TPR+e_2train@TNR==max(e_2train@TPR+e_2train@TNR))]
+threshold_train
+threshold_test <- e_2test@t[which(e_2test@TPR+e_2test@TNR==max(e_2test@TPR+e_2test@TNR))]
+threshold_test
+threshold_europe_sure <- e_2europe_sure@t[which(e_2europe_sure@TPR+e_2europe_sure@TNR==max(e_2europe_sure@TPR+e_2europe_sure@TNR))]
+threshold_europe_sure
+```
+
+
+### Save model predictions
+```{r}
+pred.seq.lake <- eval.predictions(e.mx.l.lake)[[res_best$tune.args]]
+
+writeRaster(pred.seq.lake, filename="pred.seq.lake",  format="GTiff", overwrite=TRUE)
+```
+
+
+### Calculate TSS based on the 10 percentile threshold from training predictions
+```{r}
+p.train <- dismo::predict(model1, pres_train)
+ENMeval::calc.10p.trainThresh(p.train)
 ```
