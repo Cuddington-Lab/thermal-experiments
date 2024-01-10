@@ -49,7 +49,8 @@ model_list <- list(e.mx.l.lake,e.mx.l.air.present,e.mx.l.air.future)
 rm(e.mx.l.lake,e.mx.l.air.present,e.mx.l.air.future)
 ```
 
-### Load bioclimatic variables and sampled datasets obtained in previous steps of the analysis
+### Load bioclimatic variables cropped to correspond to distribution extent + buffer
+### Load sampled datasets obtained in previous steps of the analysis
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 ## pegar rasters salvos no desktop
 pres_train <- read.csv('pres_train.csv')
@@ -203,20 +204,24 @@ europe_GBIF <- read.csv("C:/Users/user/Desktop/maxent_polished/europe_GBIF.csv")
 
 pred.seq.lake <- raster("pred.seq.tif")
 
-plot(pred.seq.lake, xlim=c(-20,31.5500), ylim=c(34.5000,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.5)
-  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences", "Common duckweed distribution"), 
-        col=c("black", "#D55E00", "#0072B2"), pch = c(20,20,NA), lty = c(NA,NA,1), cex = 0.9, lwd=2)
+#par(mfrow=c(1,2), oma=c(0,0,2,0))
+
+plot(pred.seq.lake, xlim=c(-40,40), ylim=c(36,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.3,
+     legend = FALSE)
+  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
+        col=c("black", "#D55E00"), pch = 19, cex = 0.9)
 points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
 points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
-plot(pp_europe, lwd=2, border='#0072B2', add=TRUE)
+#plot(pp_europe, lwd=2, border='#0072B2', add=TRUE)
 #map(add=T,labels=T)
 
 #my0 = getData('GADM', country="CAN", level=1)
-plot(pred.seq.lake, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude",cex.lab=1.5)
+plot(pred.seq.lake, xlim=c(-149,-41),ylim=c(21,71),xlab="Longitude",cex.lab=1.3)
 #legend("topleft", legend=c("Occurrence records", "Common duckweed distribution"), pch = c(20,NA), lty = c(NA,1), cex = 0.9, lwd=2, col=c("black", "#0072B2"), )
 points(world$lon,world$lat, pch = 20, cex = 1.5)
-plot(pp_na, lwd=2, border='#0072B2', add=TRUE)
+#plot(pp_na, lwd=2, border='#0072B2', add=TRUE)
 
+#mtext("Current predictions based on lake temperatures", line=0, side=3, outer=TRUE, cex=1.5)
 #plot(my0,add=T)
 ```
 
@@ -224,17 +229,18 @@ Current air temperature model
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 pred.seq.air.present <- raster("predseqair.tif")
 
-plot(pred.seq.air.present, xlim=c(-20,31.5500), ylim=c(34.5000,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.5)
+plot(pred.seq.air.present, xlim=c(-40,40), ylim=c(36,71.0500), xlab = "Longitude", ylab= "Latitude", cex.lab=1.3,
+     legend = FALSE)
 #legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
 #       col=c("black", "#D55E00"), pch = 20, cex = 1)
 points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
 points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
-plot(pp_europe, lwd=2, border='#0072B2', add=TRUE)
+#plot(pp_europe, lwd=2, border='#0072B2', add=TRUE)
 
-plot(pred.seq.air.present, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude",cex.lab=1.5)
+plot(pred.seq.air.present, xlim=c(-149,-41),ylim=c(21,71), xlab="Longitude", cex.lab=1.3)
 #legend("topleft", legend="Occurrence records", cex=1, pch = 20)
 points(world$lon,world$lat, pch = 20, cex = 1.5)
-plot(pp_na, lwd=2, border='#0072B2', add=TRUE)
+#plot(pp_na, lwd=2, border='#0072B2', add=TRUE)
 ```
 
 
@@ -242,17 +248,18 @@ Future air temperature model
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 pred.seq.future <- raster("predseqairfuture.tif")
 
-plot(pred.seq.future, xlim=c(-20,31.5500), ylim=c(34.5000,71.0500), xlab = "Longitude", ylab= "Latitude",cex.lab=1.5)
+plot(pred.seq.future, xlim=c(-40,40), ylim=c(36,71.0500), xlab = "Longitude", ylab= "Latitude", cex.lab=1.3, 
+     legend = FALSE)
 #  legend("topleft", legend=c("Exact occurrences", "Approximate occurrences"), 
 #        col=c("black", "#D55E00"), pch = 20, cex = 1)
 points(jitter(europe_GBIF$lon,200),jitter(europe_GBIF$lat,200), pch = 20, cex = 1.5)
 points(jitter(europe_lit_unreported$lon,2),jitter(europe_lit_unreported$lat,2), pch = 20, cex = 1.5, col="#D55E00")
-plot(pp_europe, lwd=2, border='#0072B2', add=TRUE)
+#plot(pp_europe, lwd=2, border='#0072B2', add=TRUE)
 
-plot(pred.seq.future, xlim=c(-135,-50),ylim=c(16,90),xlab="Longitude",ylab="Latitude",cex.lab=1.5)
+plot(pred.seq.future, xlim=c(-149,-41),ylim=c(21,71),xlab="Longitude", cex.lab=1.3)
 #legend("topleft", legend="Occurrence records", cex=1, pch = 20)
 points(world$lon,world$lat, pch = 20, cex = 1.5)
-plot(pp_na, lwd=2, border='#0072B2', add=TRUE)
+#plot(pp_na, lwd=2, border='#0072B2', add=TRUE)
 ```
 
 # Compare TPC with response curves for BIO1
