@@ -56,13 +56,13 @@
 82,3-Nov-22,8-Nov-22,simplelong20_1,20,constant,5,Field_LM,,,,13,7,10,0,0,1,,0,,,,20,20,0.1,0.1,NA,NA,,,
 82,3-Nov-22,8-Nov-22,simplelong20_1,20,constant,5,Lab_LM,,,,12,17,12,0,0,0,,0,,,,20,20,0.1,0.1,NA,NA,,,
 82,3-Nov-22,8-Nov-22,simplelong20_1,20,constant,5,LP,,,,20,13,16,0,1,0,,0,,,,20,20,0.1,0.1,NA,NA,,,
-83,10-Nov-22,15-Nov-22,simplelong37_095_3,37,0.95,2,LP,,,,1,0,3,7,5,3,,0,,,,,,,,,,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong37_095_3,37,0.95,2,Field_LM,,,,0,0,0,5,5,5,,0,,,,,,,,,,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong37_000_3,37,0,3,LP,,,,7,12,6,2,0,2,,0,,,,,,,,,,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong37_000_3,37,0,3,Field_LM,,,,4,1,5,1,1,1,,0,,,,,,,,,,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,Field_LM,,,,13,13,13,0,0,0,,0,,,,,,,,,,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,Lab_LM,,,,28,20,27,0,0,0,,0,,,,,,,,,,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
-83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,LP,,,,14,13,18,1,0,0,,0,,,,,,,,,,y,,Experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong37_095_3,37,0.95,2,LP,,,,1,0,3,7,5,3,,0,,,,,,,,,,y,,experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong37_095_3,37,0.95,2,Field_LM,,,,0,0,0,5,5,5,,0,,,,,,,,,,y,,experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong37_000_3,37,0,3,LP,,,,7,12,6,2,0,2,,0,,,,,,,,,,y,,experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong37_000_3,37,0,3,Field_LM,,,,4,1,5,1,1,1,,0,,,,,,,,,,y,,experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,Field_LM,,,,13,13,13,0,0,0,,0,,,,,,,,,,y,,experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,Lab_LM,,,,28,20,27,0,0,0,,0,,,,,,,,,,y,,experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
+83,10-Nov-22,15-Nov-22,simplelong30_1,30,constant,5,LP,,,,14,13,18,1,0,0,,0,,,,,,,,,,y,,experiment 83 experienced a computer failure after about 14.5 hours; experiment was not completed
 84,17-Nov-22,22-Nov-22,simplelong37_000_4,37,0,2,LP,0,0,0,5,7,10,1,0,0,0.344,0,0,0.00082,,36.952,36.896,2.466,2.534,0.022,-0.01,,,
 84,17-Nov-22,22-Nov-22,simplelong37_000_4,37,0,2,Field_LM,,,,11,9,12,0,0,0,0.531,0,0.00045,0.00087,,36.952,36.896,2.466,2.534,0.022,-0.01,,,
 84,17-Nov-22,22-Nov-22,simplelong37_095_4,37,0.95,3,LP,0,0,0,9,9,7,0,0,0,0.319,0,0,0.00049,P,36.956,36.912,2.496,2.497,0.958,0.956,,,
@@ -209,28 +209,28 @@
 107,21-Jun-23,26-Jun-23,simplelong15_1,15,constant,3,LP,,,,,,,,,,,,,,,,,,,,,y,,incubator failure
 107,21-Jun-23,26-Jun-23,simplelong26_1,26,constant,4,Field_LM,,,,8,11,12,,,,,,,,,25.987,25.983,0.147,0.172,,,,,
 107,21-Jun-23,26-Jun-23,simplelong26_1,26,constant,4,LP,,,,12,14,14,,,,,,,,,25.987,25.983,0.147,0.172,,,,,
-107,21-Jun-23,26-Jun-23,simplelong24_1,24,constant,6,Field_LM,,,,8,9,9,,,,,,,,,25.247,25.242,0.97,0.974,,,,,
-107,21-Jun-23,26-Jun-23,simplelong24_1,24,constant,6,LP,,,,4,6,5,,,,,,,,,25.247,25.242,0.97,0.974,,,,,
+107,21-Jun-23,26-Jun-23,simplelong24_1,24,constant,6,Field_LM,,,,8,9,9,,,,,,,,,25.247,25.242,0.97,0.974,,,y,,nutrient replacement was not done
+107,21-Jun-23,26-Jun-23,simplelong24_1,24,constant,6,LP,,,,4,6,5,,,,,,,,,25.247,25.242,0.97,0.974,,,y,,nutrient replacement was not done
 108,30-Jun-23,5-Jul-23,simplelong35_1,35,constant,2,Field_LM,,,,7,6,6,,,,,,,,,35,34.994,0,0.024,,,,,
 108,30-Jun-23,5-Jul-23,simplelong35_1,35,constant,2,LP,,,,8,10,6,,,,,,,,,35,34.994,0,0.024,,,,,
 108,30-Jun-23,5-Jul-23,simplelong40_1,40,constant,3,Field_LM,,,,0,0,0,,,,,,,,,40,39.996,0,0.02,,,,,
 108,30-Jun-23,5-Jul-23,simplelong40_1,40,constant,3,LP,,,,0,0,0,,,,,,,,,40,39.996,0,0.02,,,,,
-108,30-Jun-23,5-Jul-23,simplelong24_1,24,constant,4,Field_LM,,,,15,13,10,,,,,,,,,24,23.995,0,0.077,,,,,
-108,30-Jun-23,5-Jul-23,simplelong24_1,24,constant,4,LP,,,,6,8,9,,,,,,,,,24,23.995,0,0.077,,,,,
+108,30-Jun-23,5-Jul-23,simplelong24_1,24,constant,4,Field_LM,,,,15,13,10,,,,,,,,,24,23.995,0,0.077,,,y,,nutrient replacement was not done
+108,30-Jun-23,5-Jul-23,simplelong24_1,24,constant,4,LP,,,,6,8,9,,,,,,,,,24,23.995,0,0.077,,,y,,nutrient replacement was not done
 108,30-Jun-23,5-Jul-23,simplelong26_1,26,constant,6,Field_LM,,,,11,13,9,,,,,,,,,26,25.997,0,0.075,,,,,
-108,30-Jun-23,5-Jul-23,simplelong26_1,26,constant,6,LP,,,,4,5,7,,,,,,,,,26,25.997,0,0.075,,,,,
+108,30-Jun-23,5-Jul-23,simplelong26_1,26,constant,6,LP,,,,4,5,7,,,,,,,,,26,25.997,0,0.075,,,y,,nutrient replacement was not done
 109,5-Jul-23,10-Jul-23,simplelong35_1,35,constant,2,Field_LM,,,,4,6,7,,,,,,,,,35,34.992,0,0.028,,,,,
 109,5-Jul-23,10-Jul-23,simplelong35_1,35,constant,2,LP,,,,7,4,6,,,,,,,,,35,34.992,0,0.028,,,,,
-109,5-Jul-23,10-Jul-23,simplelong24_1,24,constant,3,Field_LM,,,,13,13,12,,,,,,,,,24,23.994,0,0.049,,,,,
-109,5-Jul-23,10-Jul-23,simplelong24_1,24,constant,3,LP,,,,9,7,13,,,,,,,,,24,23.994,0,0.049,,,,,
+109,5-Jul-23,10-Jul-23,simplelong24_1,24,constant,3,Field_LM,,,,13,13,12,,,,,,,,,24,23.994,0,0.049,,,y,,nutrient replacement was not done
+109,5-Jul-23,10-Jul-23,simplelong24_1,24,constant,3,LP,,,,9,7,13,,,,,,,,,24,23.994,0,0.049,,,y,,nutrient replacement was not done
 109,5-Jul-23,10-Jul-23,simplelong11_1,11,constant,4,Field_LM,,,,4,5,5,,,,,,,,,11,10.995,0,0.05,,,,,
 109,5-Jul-23,10-Jul-23,simplelong11_1,11,constant,4,LP,,,,4,4,4,,,,,,,,,11,10.995,0,0.05,,,,,
 109,5-Jul-23,10-Jul-23,simplelong30_1,30,constant,6,Field_LM,,,,11,16,11,,,,,,,,,30,30.003,0,0.022,,,,,
 109,5-Jul-23,10-Jul-23,simplelong30_1,30,constant,6,LP,,,,13,13,13,,,,,,,,,30,30.003,0,0.022,,,,,
-110,12-Jul-23,17-Jul-23,simplelong24_1,24,constant,2,Field_LM,,,,9,4,10,,,,,,,,,24,23.976,0,0.074,,,,,
-110,12-Jul-23,17-Jul-23,simplelong24_1,24,constant,2,LP,,,,4,5,5,,,,,,,,,24,23.976,0,0.074,,,,,
-110,12-Jul-23,17-Jul-23,simplelong24_1,24,constant,3,Field_LM,,,,6,10,5,,,,,,,,,24,23.993,0,0.053,,,,,
-110,12-Jul-23,17-Jul-23,simplelong24_1,24,constant,3,LP,,,,2,1,3,,,,,,,,,24,23.993,0,0.053,,,,,
+110,12-Jul-23,17-Jul-23,simplelong24_1,24,constant,2,Field_LM,,,,9,4,10,,,,,,,,,24,23.976,0,0.074,,,y,,nutrient replacement was not done
+110,12-Jul-23,17-Jul-23,simplelong24_1,24,constant,2,LP,,,,4,5,5,,,,,,,,,24,23.976,0,0.074,,,y,,nutrient replacement was not done
+110,12-Jul-23,17-Jul-23,simplelong24_1,24,constant,3,Field_LM,,,,6,10,5,,,,,,,,,24,23.993,0,0.053,,,y,,nutrient replacement was not done
+110,12-Jul-23,17-Jul-23,simplelong24_1,24,constant,3,LP,,,,2,1,3,,,,,,,,,24,23.993,0,0.053,,,y,,nutrient replacement was not done
 110,12-Jul-23,17-Jul-23,simplelong11_1,11,constant,4,Field_LM,,,,7,5,5,,,,,,,,,11,10.991,0,0.067,,,,,
 110,12-Jul-23,17-Jul-23,simplelong11_1,11,constant,4,LP,,,,5,5,5,,,,,,,,,11,10.991,0,0.067,,,,,
 110,12-Jul-23,17-Jul-23,simplelong11_1,11,constant,6,Field_LM,,,,5,6,4,,,,,,,,,11,10.983,0,0.095,,,,,
