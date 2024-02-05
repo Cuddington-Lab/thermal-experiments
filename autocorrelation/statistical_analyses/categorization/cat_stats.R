@@ -64,4 +64,4 @@ for (i in 1:length(files)){
 }
 
 #write file with results
-write.csv(cat_stats, file="cat_stats_PorN.csv")
+write.csv(cat_stats, file="p_value_thermal_regimes_strong_autocorrelation.csv")
