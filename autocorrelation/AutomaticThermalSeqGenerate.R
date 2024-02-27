@@ -1,6 +1,7 @@
 # withinRange is used like a boolean, and while withinRange? is evalulated as no, reruns the loop 
 withinRange = "no"
 # iterator is used to provide the number of loops to the user
+b="no"
 iterator = 0
 while(b=="no"){
 iterator = iterator+1
