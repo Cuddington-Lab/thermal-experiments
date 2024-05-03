@@ -1,0 +1,929 @@
+---
+title: 'Model comparisons (rmd file #5)'
+author: "Debora"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+---
+
+<style type="text/css">
+  body{
+  font-size: 15pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+Sys.setenv('R_MAX_VSIZE'=3200000000000)
+memory.limit(24000000)
+
+options(java.parameters="~xmx10g")
+library(geodata)
+library(raster)
+library(dismo)
+library(maps)
+library(rJava)
+library(ENMeval)
+library(maxnet)
+library(rTPC)
+library(nls.multstart)
+library(sp)
+library(kableExtra)
+library(ENMeval)
+library(viridis)
+library(ggplot2)
+library(maps)
+
+.jinit()
+
+knitr::opts_chunk$set(
+	message = FALSE,
+	warning = FALSE,
+	include = FALSE
+)
+```
+
+### Download environmental predictors
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Lake water temperature raster based on satellite measurements (Armitage, 2023; https://onlinelibrary.wiley.com/doi/full/10.1111/ecog.06595#bib-0003)
+lake <- raster::brick("C:/Users/user/OneDrive - University of Waterloo/Desktop/uWaterloo/paper_maxent_dotted_duckweed/maxent_published_analyses/review_analyses/bioclim_lakes_10km.tif")
+
+air <- geodata::worldclim_global(var = 'bio', res = 5, download = T, path = 'data')
+air <- as(air, "Raster")
+air <- brick(air)
+```
+
+Future air temperature model (ACCESS)
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Future climate scenario from 'ACCESS-ESM1-5' climate model
+clim_fut_access <- geodata::cmip6_world(model='ACCESS-ESM1-5', ssp='245', time='2041-2060', var='bioc', download=T, res=5, path='data')
+clim_fut_access <- as(clim_fut_access, "Raster")
+```
+
+Future air temperature model (MIROC)
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Future climate scenario from 'MIROC-ES2L' climate model
+clim_fut_miroc <- geodata::cmip6_world(model='MIROC-ES2L', ssp='245', time='2041-2060', var='bioc', download=T, res=5, path='data')
+clim_fut_miroc <- as(clim_fut_miroc, "Raster")
+```
+
+
+```{r echo=FALSE}
+### Raster alignment
+# https://gist.github.com/dbaston/767e9a2d7f2e4c20c6ea1305a7351c5e
+
+e <- as(extent(-179.8668, 180, -60.73347, 83.59986), 'SpatialPolygons')
+crs(e) <- "+proj=longlat +datum=WGS84 +no_defs"
+air_crop <- crop(air, e, snap="near")
+lake_crop <- crop(lake, e, snap="near")
+clim_fut_access_crop <- crop(clim_fut_access, e, snap="near")
+clim_fut_miroc_crop <- crop(clim_fut_miroc, e, snap="near")
+
+# round resolution to nearest arc second
+snap_res <- function(r) {
+  round(res(r)*3600)/3600
+}
+
+# make sure extent fits cleanly onto a grid
+# having its origin at -180, -90
+snap_extent <- function(r) {
+  origin <- c(-180, -90)
+  
+  ll <- origin - round((origin - extent(r)[c(1, 3)])/res(r))*res(r)
+  ur <- ll + res(r)*dim(r)[c(2, 1)]
+  
+  raster::extent(c(ll[1], ur[1], ll[2], ur[2]))
+}
+
+
+res(lake_crop) <- snap_res(lake_crop)
+res(air_crop) <- snap_res(air_crop)
+
+res(clim_fut_access_crop) <- snap_res(clim_fut_access_crop)
+res(clim_fut_miroc_crop) <- snap_res(clim_fut_miroc_crop)
+
+stopifnot(res(lake_crop) == res(air_crop))
+
+stopifnot(res(lake_crop) == res(clim_fut_access_crop))
+stopifnot(res(lake_crop) == res(clim_fut_miroc_crop))
+
+extent(lake_crop) <- snap_extent(lake_crop)
+extent(air_crop) <- snap_extent(air_crop)
+
+extent(clim_fut_access_crop) <- snap_extent(clim_fut_miroc_crop)
+extent(clim_fut_miroc_crop) <- snap_extent(clim_fut_miroc_crop)
+
+combined_extent <- merge(extent(lake_crop), extent(air_crop))
+
+lake_crop <- extend(lake_crop, combined_extent)
+air_crop <- extend(air_crop, combined_extent)
+
+combined_extent <- merge(extent(lake_crop), extent(clim_fut_access_crop))
+clim_fut_access_crop <- extend(clim_fut_access_crop, combined_extent)
+
+combined_extent <- merge(extent(lake_crop), extent(clim_fut_miroc_crop))
+clim_fut_miroc_crop <- extend(clim_fut_miroc_crop, combined_extent)
+
+stk <- stack(lake_crop, air_crop, clim_fut_access_crop, clim_fut_miroc_crop)
+
+masked <- mask(x = air_crop, mask = lake_crop)
+air_crop <- crop(x = masked, y = extent(lake_crop))
+
+masked <- mask(x = clim_fut_access_crop, mask = lake_crop)
+clim_fut_access_crop <- crop(x = masked, y = extent(lake_crop))
+
+masked <- mask(x = clim_fut_miroc_crop, mask = lake_crop)
+clim_fut_miroc_crop <- crop(x = masked, y = extent(lake_crop))
+
+
+
+
+### Printing tip of South America to check if mask/crop worked correctly
+# air1_crop_na_map <- crop(air1_crop_na,c(-100,-50,-55,-35))
+# lake1_crop_map <- crop(lake1_crop,c(-100,-50,-55,-35))
+# air1_crop_map_original <- crop(air1_crop,c(-100,-50,-55,-35))
+
+# par(mfrow=c(1,3))
+# plot(lake1_crop_map[[1]])
+# plot(air1_crop_map_original[[1]])
+# plot(air1_crop_na_map[[1]])
+```
+
+### Select bioclimatic variables
+```{r}
+# Showing code for a single environmental predictor source 
+# (the same selection is done for all environmental rasters)
+air_crop1 <- air_crop[[c(1,7,15)]]
+```
+
+```{r include=FALSE}
+air_crop1 <- brick(air_crop1)
+
+lake_crop1 <- lake_crop[[c(1,7,15)]]
+lake_crop1 <- brick(lake_crop1)
+
+air_crop11 <- air_crop[[c(10,11,15)]]
+air_crop11 <- brick(air_crop11)
+
+lake_crop11 <- lake_crop[[c(10,11,15)]]
+lake_crop11 <- brick(lake_crop11)
+
+names(clim_fut_access_crop) <- names(air_crop)
+names(clim_fut_miroc_crop) <- names(air_crop)
+
+clim_fut_access_crop1 <- clim_fut_access_crop[[c(1,7,15)]]
+clim_fut_access_crop1 <- brick(clim_fut_access_crop1)
+
+clim_fut_miroc_crop1 <- clim_fut_miroc_crop[[c(1,7,15)]]
+clim_fut_miroc_crop1 <- brick(clim_fut_miroc_crop1)
+
+clim_fut_access_crop11 <- clim_fut_access_crop[[c(10,11,15)]]
+clim_fut_access_crop11 <- brick(clim_fut_access_crop11)
+
+clim_fut_miroc_crop11 <- clim_fut_miroc_crop[[c(10,11,15)]]
+clim_fut_miroc_crop11 <- brick(clim_fut_miroc_crop11)
+```
+
+### Load sampled datasets obtained in previous steps of the analysis
+Training dataset (global records except Europe)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Sampled records
+pres_train <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/distribution/pres_train.csv", header=TRUE, stringsAsFactors = TRUE, fileEncoding="UTF-8-BOM")
+pres_test <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/distribution/pres_test.csv", header=TRUE, stringsAsFactors = TRUE, fileEncoding="UTF-8-BOM")
+
+head(pres_train)
+```
+
+Testing dataset (European records)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+head(pres_test)
+
+# Transform dataframe into spatial points dataframe
+coordinates(pres_train) <- ~lon+lat
+coordinates(pres_test) <- ~lon+lat
+
+myCRS <- CRS("+init=epsg:4326") # WGS 84
+crs(pres_train) <- myCRS
+crs(pres_test) <- myCRS
+```
+
+
+### Create study area, sample background points, and run models
+```{r echo=TRUE, message=TRUE, warning=TRUE}
+raster_list <- list(lake_crop1, air_crop1, lake_crop11, air_crop11)
+crop_raster_list <- list()
+backg_train_list <- list()
+maxent_output_list <- list()
+
+count = 1
+for (i in raster_list){
+# Crop environment to correspond to species distribution range
+model.extent<-extent(min(pres_train$lon)-10,max(pres_train$lon)+10,
+                     min(pres_train$lat)-10,max(pres_train$lat)+10)
+
+crop_raster <- crop(i,model.extent)
+
+crop_raster_list[[count]] <- crop_raster
+
+occ_buff <- buffer(pres_train, 600000, dissolve=TRUE) # width parameter = 600000m (600km)
+
+# crop study area to buffer extent
+studyArea <- crop(crop_raster, extent(occ_buff))  
+
+# mask the non buffer areas
+studyArea <- mask(studyArea, occ_buff)
+# output will still be a raster stack, just of the study area
+
+# Randomly sample points 
+# Sample same number as our observed points inside the buffer 
+# to create pseudo-absences, or hypothetical areas where species 
+# could either be found or not
+
+set.seed(2022)
+backg_train = randomPoints(studyArea, n=length(pres_train$lon), p=pres_train, extf=1)
+colnames(backg_train) <- c("lon","lat")
+
+backg_train_list[[count]] <- backg_train 
+
+# Run candidate models
+e.mx.l <- ENMevaluate(occs = pres_train, envs = crop_raster, bg = backg_train,
+                                  algorithm = 'maxent.jar', partitions = 'block', 
+                                  tune.args = list(fc = c("L","LQ"),             
+                                  rm = seq(0.5, 4, by = 0.5)))
+
+maxent_output_list[[count]] <- e.mx.l
+
+
+count=count+1  
+}
+
+```
+
+
+### Calculate model performance metrics
+### Select models with lowest AICc
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+results <- list()
+results_kable <- list()
+best_aic_list <- list()
+best_auc_list <- list()
+best_model_list <- list()
+best_aic_list2 <- list()
+model_predictions_list <- list()
+
+count = 1
+for (i in maxent_output_list){
+  result <- eval.results(i)
+  result2 <- eval.results(i)
+  result <- result[,c(1,2,4,8,16,17,19)]
+  colnames(result) <- c("Features","Regularization.multiplier","Training.AUC","Mean.testing.AUC","AICc","Delta AICc","Parameters") 
+  result_kable <- knitr::kable(result, "simple", digits = 2)
+  results[[count]] = as.data.frame(result)
+  results_kable[[count]] = result_kable
+  
+  best_aic <- result[which.min(result$AICc),]
+  best_aic2 <- result2[which.min(result2$AICc),]
+  best_auc <- result[which.max(result$Mean.testing.AUC),]
+
+  model <- eval.models(i)[[best_aic2$tune.args]]
+  best_model_list[[count]] <- model
+  
+  best_aic_list[[count]] = as.data.frame(best_aic)
+  best_auc_list[[count]] = as.data.frame(best_auc)
+  best_aic_list2[[count]] = as.data.frame(best_aic2)
+  
+   ### Save model predictions
+  pred_seq <- eval.predictions(i)[[best_aic2$tune.args]]
+  model_predictions_list[[count]] <- pred_seq
+  
+  count=count+1  
+}
+```
+
+Lake model (Bio 1,7,15)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+results_kable[[1]]
+```
+
+Air temperature model (Bio 1,7,15)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+results_kable[[2]]
+```
+
+Lake model (Bio 10,11,15)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+results_kable[[3]]
+```
+
+Air temperature model (Bio 10,11,15)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+results_kable[[4]]
+```
+
+### Obtain background points for the testing region (Europe)
+Here we followed the same process as shown for the training region
+```{r message=TRUE, warning=TRUE, include=FALSE}
+europe_backg_list <- list()
+crop_raster_europe_list <- list()
+
+count = 1
+for (i in raster_list){
+  
+  model.extent<-extent(min(pres_test$lon)-10,max(pres_test$lon)+10,
+                     min(pres_test$lat)-10,max(pres_test$lat)+10)
+
+  crop_raster_europe <- crop(i,model.extent)
+
+  crop_raster_europe_list[[count]] <- crop_raster_europe
+
+  # Crop environment to correspond to species distribution range in invaded region
+  occ_buff <- buffer(pres_test, 600000, dissolve=TRUE) # width parameter = 600000m (600km)
+  
+  # crop study area to buffer extent
+  studyArea <- crop(crop_raster_europe, extent(occ_buff))  
+  
+  # mask the non buffer areas
+  studyArea <- mask(studyArea, occ_buff)
+  
+  set.seed(2024)
+  europe_backg = randomPoints(studyArea, n=length(pres_test$lon), p=pres_test, extf=1)
+  colnames(europe_backg) <- c("lon","lat")
+  
+  europe_backg_list[[count]] <- europe_backg
+  
+  count=count+1  
+}
+```
+
+### Evaluate models
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+metrics <- data.frame(matrix(nrow = 4, ncol = 7)) 
+names(metrics) <- c("Model","AUC_train", "AUC_test", "TSS_train", "TSS_test", "Thresh_train", "Thresh_test")
+metrics$Model <- c("Lake_BIO1,7,15", "Air_BIO1,7,15","Lake_BIO10,11,15", "Air_BIO10,11,15")
+model_predictions_list <- list()
+
+count=1
+
+for (i in maxent_output_list){
+  best_aic2 <- best_aic_list2[[count]]
+  model_eval <- eval.models(i)[[best_aic2$tune.args]]
+  crop_raster <- crop_raster_list[[count]]
+  
+  e_2train <- evaluate(pres_train, backg_train, model_eval, crop_raster)
+  e_2test <- evaluate(pres_test, europe_backg, model_eval, crop_raster)
+  
+  e_2auc_train <- e_2train@auc
+  e_2auc_test <- e_2test@auc
+  metrics$auc_train[count] <- e_2auc_train  
+  metrics$auc_test[count] <- e_2auc_test
+  
+  e_2tss_train <- max(e_2train@TPR + e_2train@TNR) - 1
+  e_2tss_test <- max(e_2test@TPR + e_2test@TNR) - 1
+  metrics$tss_train[count] <- e_2tss_train  
+  metrics$tss_test[count] <- e_2tss_test
+  
+  #threshold value maximizing TPR + TNR
+  threshold_train <- e_2train@t[which(e_2train@TPR+e_2train@TNR==max(e_2train@TPR+e_2train@TNR))]
+  metrics$threshold_train[count] <- threshold_train
+  threshold_test <- e_2test@t[which(e_2test@TPR+e_2test@TNR==max(e_2test@TPR+e_2test@TNR))]
+  metrics$threshold_test[count] <- threshold_test
+
+  ### Save model predictions
+  pred_seq <- eval.predictions(i)[[best_aic2$tune.args]]
+  model_predictions_list[[count]] <- pred_seq
+  
+  count=count+1 
+}
+
+knitr::kable(metrics, "simple", digits = 2)
+```
+
+
+### Plot model predictions for Europe
+```{r message=FALSE, warning=FALSE, include=FALSE}
+pres_test <- as.data.frame(pres_test)
+europe_plot_list <- list()
+
+count = 1
+for (i in maxent_output_list){
+  
+  model_plot <- i
+  best_aic2 <- best_aic_list2[[count]]
+  eval_model_plot <- eval.models(model_plot)[[best_aic2$tune.args]]
+  plot.extent<-extent(-20,65,31,70)
+  raster_plot <- crop(raster_list[[count]],plot.extent)
+  predictions_plot <- predict(raster_plot, eval_model_plot, type = 'cloglog')
+  predictions_plot <- as.data.frame(predictions_plot, xy=T)
+
+  pred_plot <- ggplot() +
+  geom_raster(data = predictions_plot, aes(x = x, y = y, fill = layer)) +
+  coord_map(xlim=c(-20,65),ylim=c(31,70)) +
+  borders("world", xlim=c(-20,65),ylim=c(31,70)) + 
+  geom_point(data=pres_test, aes(x=lon, y=lat), col='red', cex=1) +
+  scale_size_area() +
+  coord_quickmap(xlim=c(-20,65),ylim=c(31,70)) +
+  scale_fill_gradientn(colours=rev(terrain.colors(255))) +
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank(), 
+                     axis.line = element_line(colour = "black")) + 
+  scale_y_continuous(expand = c(0, 0) ) +
+  scale_x_continuous(expand = c(0, 0) ) +
+  xlab("Longitude") + ylab("Latitude") + labs(fill = "Habitat suitability") + 
+  theme(text=element_text(size=20))
+  
+  europe_plot_list[[count]] <- pred_plot
+  
+  count=count+1  
+}
+```
+
+### Plot model predictions for North America
+```{r message=FALSE, warning=FALSE, include=FALSE}
+pres_train <- as.data.frame(pres_train)
+na_plot_list <- list()
+
+count = 1
+for (i in maxent_output_list){
+  
+  model_plot <- i
+  best_aic2 <- best_aic_list2[[count]]
+  eval_model_plot <- eval.models(model_plot)[[best_aic2$tune.args]]
+  plot.extent<-extent(-130,-55,21,60)
+  raster_plot <- crop(raster_list[[count]],plot.extent)
+  predictions_plot <- predict(raster_plot, eval_model_plot, type = 'cloglog')
+  predictions_plot <- as.data.frame(predictions_plot, xy=T)
+  
+  pred_plot <- ggplot() +
+  geom_raster(data = predictions_plot, aes(x = x, y = y, fill = layer)) +
+  coord_map(xlim=c(-130,-55),ylim=c(21,60)) +
+  borders("world", xlim=c(-130,-55),ylim=c(21,60)) + 
+  geom_point(data=pres_train, aes(x=lon, y=lat), col='red', cex=1) +
+  scale_size_area() +
+  coord_quickmap(xlim=c(-130,-55),ylim=c(21,60)) +
+  scale_fill_gradientn(colours=rev(terrain.colors(255))) +
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank(), 
+                     axis.line = element_line(colour = "black")) + 
+  scale_y_continuous(expand = c(0, 0) ) +
+  scale_x_continuous(expand = c(0, 0) ) +
+  xlab("Longitude") + ylab("Latitude") + labs(fill = "Habitat suitability") + 
+  theme(text=element_text(size=20))
+  
+  na_plot_list[[count]] <- pred_plot
+  
+  count=count+1  
+}
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+### Checking Australia
+pres_train <- as.data.frame(pres_train)
+aust_plot_list <- list()
+
+count = 1
+for (i in maxent_output_list){
+  
+  model_plot <- i
+  best_aic2 <- best_aic_list2[[count]]
+  eval_model_plot <- eval.models(model_plot)[[best_aic2$tune.args]]
+  plot.extent<-extent(105,160,-40,-10)
+  raster_plot <- crop(raster_list[[count]],plot.extent)
+  predictions_plot <- predict(raster_plot, eval_model_plot, type = 'cloglog')
+  predictions_plot <- as.data.frame(predictions_plot, xy=T)
+  
+  pred_plot <- ggplot() +
+  geom_raster(data = predictions_plot, aes(x = x, y = y, fill = layer)) +
+  coord_map(xlim=c(105,160),ylim=c(-40,-10)) +
+  borders("world", xlim=c(105,160),ylim=c(-40,-10)) + 
+  geom_point(data=pres_train, aes(x=lon, y=lat), col='red', cex=1) +
+  scale_size_area() +
+  coord_quickmap(xlim=c(105,160),ylim=c(-40,-10)) +
+  scale_fill_gradientn(colours=rev(terrain.colors(255))) +
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank(), 
+                     axis.line = element_line(colour = "black")) + 
+  scale_y_continuous(expand = c(0, 0) ) +
+  scale_x_continuous(expand = c(0, 0) ) +
+  xlab("Longitude") + ylab("Latitude") + labs(fill = "Habitat suitability") + 
+  theme(text=element_text(size=20))
+  
+  aust_plot_list[[count]] <- pred_plot
+  
+  count=count+1  
+}
+
+aust_plot_list[[1]]
+aust_plot_list[[2]]
+
+```
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(patchwork)
+na_plot_list[[1]]+ theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                         legend.position = "NULL", axis.text.x=element_blank(), 
+                         plot.title = element_text(size=15)) +
+  ggtitle("Lake BIO 1,7,15") +
+  guides(shape = guide_legend(override.aes = list(size = 0.4)),
+         color = guide_legend(override.aes = list(size = 0.4))) +
+  europe_plot_list[[1]]+ theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                               axis.text.x=element_blank(), 
+                               plot.title = element_text(size=15),
+                               legend.title = element_text(size=13), 
+                               legend.text = element_text(size = 12)) +  
+  na_plot_list[[2]]+ theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                           legend.position = "NULL", axis.text.x=element_blank(), 
+                           plot.title = element_text(size=15)) +
+  ggtitle("Air BIO 1,7,15") +
+  europe_plot_list[[2]]+ theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                               legend.position = "NULL", axis.text.x=element_blank(), 
+                               plot.title = element_text(size=15)) + 
+  na_plot_list[[3]]+ theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                           legend.position = "NULL", axis.text.x=element_blank(), 
+                           plot.title = element_text(size=15)) + 
+  ggtitle("Lake BIO 10,11,15") +
+  europe_plot_list[[3]]+ theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                               legend.position = "NULL", axis.text.x=element_blank(), 
+                               plot.title = element_text(size=15)) + 
+  na_plot_list[[4]]+theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                          plot.title = element_text(size=15))+
+  theme(legend.position = "NULL") +
+  ggtitle("Air BIO 10,11,15") +
+  europe_plot_list[[4]]+theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                              plot.title = element_text(size=15))+
+  theme(legend.position = "NULL") +  plot_layout(ncol = 2) 
+```
+
+Difference between model predictions using lake vs air temperature predictors (BIO 1,7,15)
+In yellow we see areas where the 2 models differ the most (the lake model estimates more suitability)
+
+North America
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+a <- model_predictions_list[[1]]
+b <- model_predictions_list[[2]]
+
+difference <- a-b
+# a= lake - b=air
+# 0.7     - 0.4  = 0.3 (difference)
+
+plot.extent<-extent(-20,65,31,80)
+difference_europe <- crop(difference,plot.extent)
+plot.extent<-extent(-130,-55,21,60)
+difference_na <- crop(difference,plot.extent)
+  
+plot(difference_na, breaks = c(-0.25, 0.2,0.65), 
+     col = c("#999999","#F0E442"),
+     xlab="Longitude", ylab= "", cex.lab=1.3)
+points(pres_train$lon, pres_train$lat, pch = 16, col = "red", cex = 0.5)
+```
+
+Europe
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+plot(difference_europe, breaks = c(-0.25, 0.2,0.65), 
+     col = c("#999999","#F0E442"),
+     xlab="Longitude", ylab= "Latitude", cex.lab=1.3,legend = FALSE)
+points(pres_test$lon, pres_test$lat, pch = 16, col = "red", cex = 0.5)
+```
+
+### Making future predictions based on best air temperature model
+Future air temperature model (ACCESS)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+model_air_present <- maxent_output_list[[2]]
+best_aic2 <- best_aic_list2[[2]]
+eval_model_air_present <- eval.models(model_air_present)[[best_aic2$tune.args]]
+
+predictions_access <- predict(clim_fut_access_crop1, eval_model_air_present, type = 'cloglog')
+```
+
+Future air temperature model (MIROC)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+predictions_miroc <- predict(clim_fut_miroc_crop1, eval_model_air_present, type = 'cloglog')
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+predictions_access_plot <- as.data.frame(predictions_access, xy=T)
+
+europe_plot_access <- ggplot() +
+  geom_raster(data = predictions_access_plot, aes(x = x, y = y, fill = layer)) +
+  coord_map(xlim=c(-20,65),ylim=c(31,70)) +
+  borders("world", xlim=c(-20,65),ylim=c(31,70)) + 
+  geom_point(data=pres_test, aes(x=lon, y=lat), col='red', cex=1) +
+  scale_size_area() +
+  coord_quickmap(xlim=c(-20,65),ylim=c(31,70)) +
+  scale_fill_gradientn(colours=viridis::viridis(99)) +
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank(), 
+                     axis.line = element_line(colour = "black")) + 
+  scale_y_continuous(expand = c(0, 0) ) +
+  scale_x_continuous(expand = c(0, 0) ) +
+  xlab("Longitude") + ylab("Latitude") + labs(fill = "Habitat suitability") + 
+  theme(text=element_text(size=20))
+
+na_plot_access <- ggplot() +
+  geom_raster(data = predictions_access_plot, aes(x = x, y = y, fill = layer)) +
+  coord_map(xlim=c(-130,-55),ylim=c(21,60)) +
+  borders("world", xlim=c(-130,-55),ylim=c(21,60)) + 
+  geom_point(data=pres_train, aes(x=lon, y=lat), col='red', cex=1) +
+  scale_size_area() +
+  coord_quickmap(xlim=c(-130,-55),ylim=c(21,60)) +
+  scale_fill_gradientn(colours=viridis::viridis(99)) +
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank(), 
+                     axis.line = element_line(colour = "black")) + 
+  scale_y_continuous(expand = c(0, 0) ) +
+  scale_x_continuous(expand = c(0, 0) ) +
+  xlab("Longitude") + ylab("Latitude") + labs(fill = "Habitat suitability") + 
+  theme(text=element_text(size=20))
+```
+
+Miroc model predictions 
+  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+predictions_miroc_plot <- as.data.frame(predictions_miroc, xy=T)
+
+europe_plot_miroc <- ggplot() +
+  geom_raster(data = predictions_miroc_plot, aes(x = x, y = y, fill = layer)) +
+  coord_map(xlim=c(-20,65),ylim=c(31,70)) +
+  borders("world", xlim=c(-20,65),ylim=c(31,70)) + 
+  geom_point(data=pres_test, aes(x=lon, y=lat), col='red', cex=1) +
+  scale_size_area() +
+  coord_quickmap(xlim=c(-20,65),ylim=c(31,70)) +
+  scale_fill_gradientn(colours=viridis::viridis(99)) +
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank(), 
+                     axis.line = element_line(colour = "black")) + 
+  scale_y_continuous(expand = c(0, 0) ) +
+  scale_x_continuous(expand = c(0, 0) ) +
+  xlab("Longitude") + ylab("Latitude") + labs(fill = "Habitat suitability") + 
+  theme(text=element_text(size=20))
+
+na_plot_miroc <- ggplot() +
+  geom_raster(data = predictions_miroc_plot, aes(x = x, y = y, fill = layer)) +
+  coord_map(xlim=c(-130,-55),ylim=c(21,60)) +
+  borders("world", xlim=c(-130,-55),ylim=c(21,60)) + 
+  geom_point(data=pres_train, aes(x=lon, y=lat), col='red', cex=1) +
+  scale_size_area() +
+  coord_quickmap(xlim=c(-130,-55),ylim=c(21,60)) +
+  scale_fill_gradientn(colours=viridis::viridis(99)) +
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank(), 
+                     axis.line = element_line(colour = "black")) + 
+  scale_y_continuous(expand = c(0, 0) ) +
+  scale_x_continuous(expand = c(0, 0) ) +
+  xlab("Longitude") + ylab("Latitude") + labs(fill = "Habitat suitability") + 
+  theme(text=element_text(size=20))
+
+
+na_plot_access + theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                                 legend.position = "NULL", axis.text.x=element_blank(), 
+                                 plot.title = element_text(size=15)) +
+  ggtitle("Access model") +
+  europe_plot_access + theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                               axis.text.x=element_blank(), 
+                               plot.title = element_text(size=15),
+                               legend.title = element_text(size=13), 
+                               legend.text = element_text(size = 12)) +  
+  na_plot_miroc + theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                           legend.position = "NULL",  
+                           plot.title = element_text(size=15)) +
+  ggtitle("Miroc model") +
+  europe_plot_miroc + theme(axis.title.x = element_blank(),axis.title.y = element_blank(), 
+                               legend.position = "NULL",  
+                               plot.title = element_text(size=15)) +  plot_layout(ncol = 2) 
+```
+
+# Compare TPC with response curves for BIO1
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(rTPC)
+library(nls.multstart)
+
+### L. minor
+datin1 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2022-2023.csv",
+                   header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+datin2 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2021-2022.csv",
+                   header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+datin <- rbind(datin1,datin2)
+
+datin$Frond_count <- datin$Frond_count_1 + datin$Frond_count_2 + datin$Frond_count_3
+
+datin <- subset(datin, Treatment == "constant")
+
+# remove failed experiments
+datin <- subset(datin, (!Errors == "y")|is.na(Errors))
+
+datin <- subset(datin, Species=="LP")
+
+datin$Frond_count[datin$Frond_count == 0] <- 0.001
+datin$rate <- (log(datin$Frond_count)- log(12)) / 5
+
+datin_fit <- data.frame(temp=datin$Mean_temperature, rate=datin$rate)
+
+### Modelling thermal performance via a Ratkowsky thermal performance curve
+
+# choose model
+mod = "ratkowsky_1983"
+
+new_data <- data.frame(temp = seq(min(datin_fit$temp), max(datin_fit$temp), 0.5))
+
+# get start vals
+start_vals <- get_start_vals(datin_fit$temp, datin_fit$rate, model_name = mod)
+
+# get limits
+low_lims <- get_lower_lims(datin_fit$temp, datin_fit$rate, model_name = mod)
+upper_lims <- get_upper_lims(datin_fit$temp, datin_fit$rate, model_name = mod)
+
+# fit model
+fit <- nls_multstart(rate~ratkowsky_1983(temp = temp, tmin, tmax, a, b),
+                       data = datin_fit,
+                       iter = 500,
+                       start_lower = start_vals - 10,
+                       start_upper = start_vals + 10,
+                       lower = low_lims,
+                       upper = upper_lims,
+                       supp_errors = 'Y')
+
+new_data$rates <- predict(fit, newdata = new_data)
+
+par(mar=c(5,6,4,1)+.1)
+plot(datin_fit$temp,datin_fit$rate, pch = 19, ylim = c(0,0.3),
+     cex=1.3,cex.lab=1.4, cex.axis=1.4, cex.main=1.4, cex.sub=1.4, col= "#999999", 
+     xlab="Temperature (C)", 
+     main = "Dotted duckweed reproduction across temperatures",
+     ylab=(expression(paste("Relative growth rate (",Delta, " frond day"^"-1", ")"))))
+lines(new_data$temp,new_data$rate,col="#56B4E9",lwd=4)
+
+
+# Reference:
+# Ratkowsky, D.A., Lowry, R.K., McMeekin, T.A., Stokes, A.N., & Chandler, R.E. 
+# (1983). Model for bacterial culture growth rate throughout the entire 
+# biokinetic temperature range. J. Bacteriol. 154, 1222-1226.
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+### Plot response curves for best model
+model <- best_model_list[[1]]
+lake_response1 <- as.data.frame(dismo::response(model,var="bioclim_lakes_10km_1"))
+colnames(lake_response1) <- c("temp","pred")
+lake_response7 <- as.data.frame(dismo::response(model,var="bioclim_lakes_10km_7"))
+colnames(lake_response7) <- c("temp","pred")
+lake_response15 <- as.data.frame(dismo::response(model,var="bioclim_lakes_10km_15"))
+colnames(lake_response15) <- c("temp","pred")
+
+model <- best_model_list[[2]]
+air_response1 <- as.data.frame(dismo::response(model,var="wc2.1_5m_bio_1"))
+colnames(air_response1) <- c("temp","pred")
+air_response7 <- as.data.frame(dismo::response(model,var="wc2.1_5m_bio_7"))
+colnames(air_response7) <- c("temp","pred")
+air_response15 <- as.data.frame(dismo::response(model,var="wc2.1_5m_bio_15"))
+colnames(air_response15) <- c("temp","pred")
+
+model <- best_model_list[[3]]
+lake_response10 <- as.data.frame(dismo::response(model,var="bioclim_lakes_10km_10"))
+colnames(lake_response10) <- c("temp","pred")
+lake_response11 <- as.data.frame(dismo::response(model,var="bioclim_lakes_10km_11"))
+colnames(lake_response11) <- c("temp","pred")
+lake_response15_2 <- as.data.frame(dismo::response(model,var="bioclim_lakes_10km_15"))
+colnames(lake_response15_2) <- c("temp","pred")
+
+model <- best_model_list[[4]]
+air_response10 <- as.data.frame(dismo::response(model,var="wc2.1_5m_bio_10"))
+colnames(air_response10) <- c("temp","pred")
+air_response11 <- as.data.frame(dismo::response(model,var="wc2.1_5m_bio_11"))
+colnames(air_response11) <- c("temp","pred")
+air_response15_2 <- as.data.frame(dismo::response(model,var="wc2.1_5m_bio_15"))
+colnames(air_response15_2) <- c("temp","pred")
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+### Scale RGR values to correspond to suitability values
+#define function to scale values between 0 and maximal response obtained in models
+scale_values <- function(rates){(rates-min(rates))/(max(rates)-min(rates))* (max(lake_response1$pred) - 0) + 0}
+new_data$scaled <- scale_values(new_data$rates)
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+par(mfrow=c(2,3))
+
+plot(new_data$temp,new_data$scaled, col="black",xlab="Mean temperature (\u00B0C)",ylab="Response",
+     main="BIO 1",ylim=c(0,1),lwd=3,lty=4,
+     xlim=c(0,33),cex = 1.5, cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5, type = "l")
+lines(lake_response1$temp/10, lake_response1$pred,col="#009E73",lwd=3,lty=1)
+lines(air_response1$temp, air_response1$pred,lwd=3,col="#56B4E9",lty=4)
+#axis(4,cex.axis=1.5)
+
+plot(lake_response7$temp/10, lake_response7$pred, col="#009E73",
+     lwd=3, xlab="Annual variation (\u00B0C)", ylab="", main="BIO 7",lty=1,ylim=c(0,1),
+     xlim=c(7,40),
+     cex = 1.5, cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5, type = "l",yaxt="n")
+lines(air_response7$temp, air_response7$pred, col="#56B4E9", lwd=3,lty=4,
+      cex = 1.5, type = "l")
+
+plot(lake_response15$temp, lake_response15$pred, col="#009E73",lty=1, ylim=c(0,1),xlim=c(0,100),
+     lwd=3, xlab="Precipitation seasonality (CV)", main="BIO 15",ylab="", 
+     cex = 1.5, cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5, type = "l",yaxt="n")
+lines(air_response15$temp, air_response15$pred, col="#56B4E9", lwd=3,lty=4,
+      cex = 1.5, type = "l")
+legend("bottomleft", legend=c("RGR", "Lake", "Air"),
+       col=c("black", "#009E73", "#56B4E9"), lty=c(3,1,4,1), cex=1, lwd=3)
+
+plot(lake_response10$temp/10, lake_response10$pred, col="#009E73",ylim=c(0,1),
+     lwd=3, xlab="Mean temp. warmest quarter (\u00B0C)",ylab="Response", main="BIO 10",lty=1,
+     cex = 1.5, cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5, type = "l",
+     xlim=c(5,35))
+lines(air_response10$temp, air_response10$pred, col="#56B4E9", lwd=3,lty=4,
+      cex = 1.5, type = "l")
+
+plot(lake_response11$temp/10, lake_response11$pred, col="#009E73",ylim=c(0,1),
+     lwd=3, xlab="Mean temp. coldest quarter (\u00B0C)", ylab="", main="BIO 11",lty=1,
+     cex = 1.5, cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5, type = "l",yaxt="n",
+     xlim=c(-10,30))
+lines(air_response11$temp, air_response11$pred, col="#56B4E9", lwd=3,lty=4,
+      cex = 1.5, type = "l")
+
+plot(lake_response15_2$temp, lake_response15_2$pred, col="#009E73",lty=1,ylim=c(0,1),xlim=c(0,100),
+     lwd=3, xlab="Precipitation seasonality (CV)", main="BIO 15",ylab="",
+     cex = 1.5, cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5, type = "l", yaxt="n")
+lines(air_response15_2$temp, air_response15_2$pred, col="#56B4E9", lwd=3,lty=4,
+      cex = 1.5, type = "l")
+```
+
+
+# Get min and max climatic variable values in occurrence areas to check if response curves are realistic
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+response_list <- list(lake_response1,lake_response7,lake_response15,
+                      air_response1,air_response7,air_response15,
+                      lake_response10,lake_response11,lake_response15_2,
+                      air_response10,air_response11,air_response15_2)
+
+curve_values <- data.frame(matrix(nrow = 12, ncol = 4)) 
+names(curve_values) <- c("Predictor","Minimum", "Optimum", "Maximum")
+curve_values$Predictor <- c("Lake_BIO1", "Lake_BIO7","Lake_BIO15",
+                   "Air_BIO1", "Air_BIO7","Air_BIO15",
+                   "Lake_BIO10", "Lake_BIO11","Lake_BIO15_2",
+                   "Air_BIO10", "Air_BIO11","Air_BIO15_2")
+
+count=1
+
+for (i in response_list){
+  
+  response <- i
+  
+  if (count==1|count==2|count==7|count==8) {
+  curve_values$Minimum[count] <- round(min(response$temp)/10, digits = 2)
+  curve_values$Optimum[count] <- round(response$temp[which.max(response$pred)]/10, digits = 2)
+  curve_values$Maximum[count] <- round(max(response$temp)/10, digits = 2)
+  
+  
+} else {
+  curve_values$Minimum[count] <- round(min(response$temp), digits = 2)
+  curve_values$Optimum[count] <- round(response$temp[which.max(response$pred)], digits = 2)
+  curve_values$Maximum[count] <- round(max(response$temp), digits = 2)
+
+}
+  count=count+1
+}
+
+
+knitr::kable(curve_values, "simple", digits = 2)
+
+# about 5% of cells have CV>1 for BIO 15 (I am not plotting these in the response curves)
+air <- crop_raster_list[[4]]
+length(air[[3]][air[[3]]>100])/length(air[[3]])*100
+lake <- crop_raster_list[[3]]
+length(lake[[3]][lake[[3]]>100])/length(lake[[3]])*100
+
+
+# checking average value of raster
+x <- crop_raster_list[[3]][[2]]/10
+lake.stats <- data.frame(x.mean=cellStats(x, "mean"))
+x <- crop_raster_list[[1]][[3]]
+air.stats <- data.frame(x.mean=cellStats(x, "mean"))
+```
+
+### Get variable importance for best models
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+lake_model1 <- maxent_output_list[[1]]
+best_aic2 <- best_aic_list2[[1]]
+var.imp <- eval.variable.importance(lake_model1)[[best_aic2$tune.args]]
+
+knitr::kable(var.imp, "simple", digits = 2, caption = "Lake model (BIO 1,7,15)")
+
+air_model1 <- maxent_output_list[[2]]
+best_aic2 <- best_aic_list2[[2]]
+var.imp <- eval.variable.importance(air_model1)[[best_aic2$tune.args]]
+knitr::kable(var.imp, "simple", digits = 2, caption = "Air model (BIO 1,7,15)")
+
+lake_model11 <- maxent_output_list[[3]]
+best_aic2 <- best_aic_list2[[3]]
+var.imp <- eval.variable.importance(lake_model11)[[best_aic2$tune.args]]
+knitr::kable(var.imp, "simple", digits = 2, caption = "Lake model (BIO 10,11,15)")
+
+air_model11 <- maxent_output_list[[4]]
+best_aic2 <- best_aic_list2[[4]]
+var.imp <- eval.variable.importance(air_model11)[[best_aic2$tune.args]]
+knitr::kable(var.imp, "simple", digits = 2, caption = "Air model (BIO 1,11,15)")
+```

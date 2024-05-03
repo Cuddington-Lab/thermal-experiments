@@ -1,0 +1,444 @@
+---
+title: 'Dotted duckweed maxent study: Preliminary model run (rmd file #1)'
+author: "Debora"
+date: "`r Sys.Date()`"
+always_allow_html: true
+output:
+  pdf_document: default
+---
+
+<style type="text/css">
+  body{
+  font-size: 15pt;
+}
+</style>
+
+### Purpose: To create a preliminary model using pre-selected bioclimatic variables. I will check for correlations and importance of each variable to the model to perform a subsequent variable selection which will include the most important variables with the lowest levels of correlation between them.
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+Sys.setenv('R_MAX_VSIZE'=32000000000)
+memory.limit(240000)
+
+options(java.parameters="~xmx10g")
+library(raster)
+library(sf)
+library(dismo)
+library(maps)
+library(rJava)
+library(ENMeval)
+library(maxnet)
+library(rTPC)
+library(nls.multstart)
+library(sp)
+library(kableExtra)
+library(ggplot2)
+library(ENMTools)
+.jinit()
+```
+
+### Initial selection of bioclimatic variables
+
+- Reflect thermal dependency of duckweeds in terms of population growth
+
+- Account for the dependency on moderate precipitation
+
+### Load lake water temperature and air temperature rasters
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Lake water temperature raster based on satellite measurements (Armitage, 2023; https://onlinelibrary.wiley.com/doi/full/10.1111/ecog.06595#bib-0003)
+options(timeout=600)
+url <- "https://datadryad.org/stash/downloads/file_stream/1895801"
+temp_file <- tempfile()
+temp_unzipped1 <- tempfile()
+temp_unzipped2 <- tempfile()
+download.file(url, destfile = temp_file, mode="wb")
+unzip(temp_file, exdir = temp_unzipped1)
+unzip(paste0(temp_unzipped1,"/LakeTemps_Code/rasters.zip"), exdir = temp_unzipped2)
+lake <- raster::brick(paste0(temp_unzipped2,"/rasters/bioclim_lakes_10km.tif"))
+
+air <- geodata::worldclim_global(var = 'bio', res = 5, download = T, path = 'data')
+air <- as(air, "Raster")
+air <- brick(air)
+```
+
+```{r include=FALSE}
+### Ensure resolution, dimension, and extent are matching across environmental predictor types
+
+# Reference for this method: https://gist.github.com/dbaston/767e9a2d7f2e4c20c6ea1305a7351c5e
+
+e <- as(extent(-179.8668, 180, -60.73347, 83.59986), 'SpatialPolygons')
+# this extent corresponds to the smaller raster based on lake water temperatures
+crs(e) <- "+proj=longlat +datum=WGS84 +no_defs"
+air_crop <- crop(air, e, snap="near")
+lake_crop <- crop(lake, e, snap="near")
+
+# round resolution to nearest arc second
+snap_res <- function(r) {
+  round(res(r)*3600)/3600
+}
+
+# make sure extent fits cleanly onto a grid
+# having its origin at -180, -90
+snap_extent <- function(r) {
+  origin <- c(-180, -90)
+  
+  ll <- origin - round((origin - extent(r)[c(1, 3)])/res(r))*res(r)
+  ur <- ll + res(r)*dim(r)[c(2, 1)]
+  
+  raster::extent(c(ll[1], ur[1], ll[2], ur[2]))
+}
+
+
+res(lake_crop) <- snap_res(lake_crop)
+res(air_crop) <- snap_res(air_crop)
+
+stopifnot(res(lake_crop) == res(air_crop))
+
+extent(lake_crop) <- snap_extent(lake_crop)
+extent(air_crop) <- snap_extent(air_crop)
+
+combined_extent <- merge(extent(lake_crop), extent(air_crop))
+
+lake_crop <- extend(lake_crop, combined_extent)
+air_crop <- extend(air_crop, combined_extent)
+
+stk <- stack(lake_crop, air_crop)
+
+masked <- mask(x = air_crop, mask = lake_crop)
+air_crop <- crop(x = masked, y = extent(lake_crop))
+
+air_crop <- air_crop[[c(1,2,3,7,10,11,12,15,17,18)]]
+air_crop <- brick(air_crop)
+lake_crop <- lake_crop[[c(1,2,3,7,10,11,12,15,17,18)]]
+lake_crop <- brick(lake_crop)
+
+```
+
+### Obtain occurrence records from GBIF and remove duplicates and records missing information
+Downloaded from GBIF on Mar 28, 2024
+https://doi.org/10.15468/dl.7uqs9k
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+temp <- tempfile()
+download.file("https://api.gbif.org/v1/occurrence/download/request/0049626-240321170329656.zip",temp)
+lp <- read.csv(unz(temp, "occurrence.txt"), head = TRUE, sep="\t")
+```
+
+### Clean up dataset
+(removing data without coordinates and duplicates)
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# relabel latitude and longitude columns
+colnames(lp)[c(98,99)] = c("lat","lon")
+
+# removing data without geographic coordinates
+lp <- subset(lp, !is.na(lon) & !is.na(lat))
+
+# removing duplicates
+lp_clean  <-  lp[!duplicated(lp[c("lat","lon")]),]
+```
+
+### Add occurrences from literature 
+- The references for each of these coordinates are in Appendix 3
+- For cases where coordinates are not exact, coordinates of a given country's capital were used
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# exact records obtained from published papers
+europe_lit <- data.frame(lon=c(4.51,4.95,4.31,4.25,6.12,5.23,12.27,12.45,25.15,12.97),
+                         lat=c(52.18,52.23,52,52,51.31,51.48,43.56,41.9,60.27,56.25))
+
+# inexact records obtained from published papers
+europe_lit_unreported <- data.frame(lon=c(4.47,0.11,12.57,12.57,6.14),
+                                    lat=c(50.5,51.5,41.87,41.87,46.2))
+
+lp_clean <- lp_clean[c("lon","lat")]
+lp_clean_all <- rbind(lp_clean, europe_lit, europe_lit_unreported)
+```
+
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+### Plot North America invasion map
+library(ggplot2)
+library(ggspatial)
+library(sf)
+library(rnaturalearth)
+lakes <- rnaturalearth::ne_download(scale = 110, 
+                                    type = 'lakes', 
+                                    category = 'physical') %>% 
+sf::st_as_sf(lakes110, crs = 4269)
+greatlakes <- subset(lakes,name_alt=="Great Lakes")
+
+
+
+ggplot() +
+  borders("world", xlim=c(-130,-55),ylim=c(21,60)) + 
+  geom_point(data=lp_clean_all, aes(x=lon, y=lat, col='red'), cex=1) +
+  scale_size_area() +
+  coord_quickmap(xlim=c(-130,-55),ylim=c(21,60)) +
+  scale_fill_gradientn(colours=rev(terrain.colors(255))) +
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank(), 
+                     axis.line = element_line(colour = "black")) + 
+  scale_y_continuous(expand = c(0, 0) ) +
+  scale_x_continuous(expand = c(0, 0) ) +
+  xlab("Longitude") + ylab("Latitude") + 
+  theme(text=element_text(size=20)) +
+  geom_sf(data = greatlakes,
+          mapping = aes(geometry = geometry),
+          color = "black",
+          fill = "lightblue") +
+  coord_sf(xlim=c(-130,-55),ylim=c(21,60)) +
+  scale_x_continuous(labels = scales::label_number(accuracy = 1)) +
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  scale_color_identity(name = "",
+                       labels = c("Dotted duckweed\noccurrence records (GBIF)"),
+                       guide = "legend") +
+  theme(legend.text = element_text(size = 11),
+        legend.position= c(0,1) , 
+        legend.justification='left',
+        legend.background=element_blank())
+```
+
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+### Plot L. minuta invasion map
+#get data from gbif
+lm <- gbif("Lemna", "minuta", geo = T)
+
+#removing data without geographic coordinates
+lm <- subset(lm, !is.na(lon) & !is.na(lat))
+
+#removing duplicates
+dups <- duplicated(lm[, 1:10])
+lm_clean  <-  lm[dups, ]
+
+lm_clean <- subset(lm_clean, !lm_clean$eventDate == "NA")
+lm_clean <- subset(lm_clean, lon > -30.1 & lon < 34.51)
+lm_clean <- subset(lm_clean, lat > 31.54 & lat < 71.06)
+
+lm1970 <- subset(lm_clean, year < 1971)
+lm1990 <- subset(lm_clean, year < 1991)
+lm2023 <- subset(lm_clean, year < 2023)
+
+lm2023plot <- ggplot() +
+  borders("world", xlim=c(-30,34.50),ylim=c(31.55,71.05)) + 
+  geom_point(data=lm2023, aes(x=lon, y=lat, col='#E69F00'), cex=1) +
+  scale_size_area() +
+  coord_quickmap(xlim=c(-30,34.50),ylim=c(31.55,71.05)) +
+  scale_fill_gradientn(colours=rev(terrain.colors(255))) +
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank(), 
+                     axis.line = element_line(colour = "black")) + 
+  scale_y_continuous(expand = c(0, 0) ) +
+  scale_x_continuous(expand = c(0, 0) ) +
+  xlab("Longitude") + ylab("Latitude") + 
+  theme(text=element_text(size=20)) +
+  scale_x_continuous(labels = scales::label_number(accuracy = 1)) +
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  scale_color_identity(name = "",
+                       labels = c("Records up to 2023"),
+                       guide = "legend") +
+  theme(legend.text = element_text(size = 11),
+        legend.position= c(0.2,1) , 
+        legend.justification='left',
+        legend.background=element_blank())
+```
+
+### Remove observations landing on NA predictor values
+(based on lake raster, which has less observations)
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+v <- raster::extract(lake_crop, lp_clean_all)
+
+# which points have NA values?
+i <- which(apply(is.na(v), 1,  sum) > 0)
+
+# remove these from dataset
+lp_clean_all <- lp_clean_all[-i, ]
+```
+
+### Create datasets for each geographic location
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#subsetting by geographical region
+world <- lp_clean_all [!(lp_clean_all$lon >= -50 & lp_clean_all$lon <= 66 
+                         & lp_clean_all$lat >= 20 & lp_clean_all$lat <= 72.01), ]
+
+europe <- lp_clean_all [(lp_clean_all$lon >= -50 & lp_clean_all$lon <= 66 
+                         & lp_clean_all$lat >= 20 & lp_clean_all$lat <= 72.01), ]
+```
+
+### Plot cleaned dataset of occurrences (GBIF and literature records)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+allrecords <- rbind(europe,world)
+
+mp <- NULL
+mapWorld <- borders("world", colour="gray50", fill="gray50") # create a layer of borders
+mp <- ggplot() +   mapWorld
+mp <- mp + geom_point(aes(x=allrecords$lon, y=allrecords$lat) ,color="#E69F00", size=2, shape=1) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+mp
+```
+
+### Perform spatial thinning to reduce spatial autocorrelation
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# transform dataframe into spatial points dataframe
+coordinates(world) <- ~lon+lat
+coordinates(europe) <- ~lon+lat
+
+set.seed(2018)
+# to reduce sampling bias (disproportional reporting in some areas), a single observation was sampled using the same spatial resolution as my environmental data
+
+world_sampled <- gridSample(world, lake_crop, n=1) # sample 1 observation per area
+world_sampled <- world_sampled[!duplicated(world_sampled), ]
+
+europe_sampled <- gridSample(europe, lake_crop, n=2) # sample 2 observations per area
+# this is the minimum sampling allowing for a final testing dataset > 30 observations
+europe_sampled <- europe_sampled[!duplicated(europe_sampled), ]
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+world_sampled <- as.data.frame(world_sampled)
+europe_sampled <- as.data.frame(europe_sampled)
+
+mp <- NULL
+mapWorld <- borders("world", colour="gray50", fill="gray50") # create a layer of borders
+mp <- ggplot() +   mapWorld
+mp <- mp + geom_point(aes(x=world_sampled$lon, y=world_sampled$lat, colour = 'Training'), size=2, shape=1) + geom_point(aes(x=europe_sampled$lon, y=europe_sampled$lat,colour = 'Testing'), size=2, shape=1) + labs(x="Longitude", y="Latitude", color = "Legend") +
+  theme(legend.text = element_text(size=13), legend.title=element_blank(),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  scale_color_manual(values=c("orange", "blue"))
+mp
+
+library(sp)
+coordinates(world_sampled) <- ~lon + lat
+coordinates(europe_sampled) <- ~lon + lat
+```
+
+### Relabel dataset as training (world excluding Europe) and testing (Europe)
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+pres_train <- world_sampled
+pres_test <- europe_sampled
+```
+
+### Create study area, sample background points, and run models
+```{r echo=TRUE, message=TRUE, warning=TRUE}
+raster_list <- list(lake_crop,air_crop)
+backg_train_list <- list()
+maxent_output_list <- list()
+best_aic_list <- list()
+best_auc_list <- list()
+best_model_list <- list()
+importance_list <- list()
+correl_list <- list()
+  
+count = 1
+for (i in raster_list){
+# Crop environment to correspond to species distribution range (+/- 2 degrees)
+model.extent<-extent(min(pres_train$lon)-10,max(pres_train$lon)+10,
+                     min(pres_train$lat)-10,max(pres_train$lat)+10)
+
+crop_raster <- crop(i,model.extent)
+
+rm(lake,air,lake_crop,air_crop,stk)
+
+occ_buff <- buffer(pres_train, 600000, dissolve=TRUE) # width parameter = 600000m (600km)
+# Reference for selecting buffer extent: 
+# https://www.sciencedirect.com/science/article/pii/S0304380023001850
+
+# crop study area to buffer extent
+studyArea <- crop(crop_raster, extent(occ_buff))  
+
+# mask the non buffer areas
+studyArea <- mask(studyArea, occ_buff)
+# output will still be a raster stack, just of the study area
+
+# Randomly sample points 
+# Sample same number as our observed points inside the buffer 
+# to create background points, or hypothetical areas where species 
+# could either be found or not
+
+set.seed(2022)
+backg_train <- randomPoints(studyArea, n=length(pres_train$lon), p=pres_train, extf=1)
+colnames(backg_train) <- c("lon","lat")
+
+backg_train_list[[count]] <- backg_train
+
+# Run candidate models
+e.mx.l <- ENMevaluate(occs = pres_train, envs = crop_raster, bg = backg_train,
+                                  algorithm = 'maxent.jar', partitions = 'block', 
+                                  tune.args = list(fc = c("L","LQ"),             
+                                  rm = seq(0.5, 4, by = 0.5)))
+
+maxent_output_list[[count]] <- e.mx.l
+
+  result <- eval.results(e.mx.l)
+  
+  best_aic <- result[which.min(result$AICc),]
+  best_auc <- result[which.max(result$Mean.testing.AUC),]
+
+  model <- eval.models(e.mx.l)[[best_aic$tune.args]]
+  best_model_list[[count]] <- model
+  
+  best_aic_list[[count]] = as.data.frame(best_aic)
+  best_auc_list[[count]] = as.data.frame(best_auc)
+  
+  importance <- eval.variable.importance(e.mx.l)[[best_aic$tune.args]]
+  
+  importance_list[[count]] <- importance
+  
+  correl <- ENMTools::raster.cor.matrix(crop_raster, method = "pearson")
+
+  correl_list[[count]] <- correl
+  
+count=count+1  
+}
+```
+
+### Select variables which contribute the most and have the lowest correlations
+Criteria: 
+- BIO1 is always selected (for response curve comparison with thermal performance)  
+- At least one variable related to precipitation is selected  
+- cutoff: permutation importance >5%  
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+importance <- as.data.frame(importance_list[[1]])
+
+importance <- importance[order(importance$percent.contribution, decreasing = TRUE),]
+
+knitr::kable(importance, "simple", digits = 2, caption = "Lake temperature preliminary model")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+importance <- as.data.frame(importance_list[[2]])
+
+importance <- importance[order(importance$percent.contribution, decreasing = TRUE),]
+
+knitr::kable(importance, "simple", digits = 2, caption = "Air temperature preliminary model")
+```
+
+- cutoff: correlation coefficient <0.8 (Elith et al. 2010)
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+corr_matrix <- as.data.frame(correl_list[[1]])
+corr_matrix <- format(round(corr_matrix,2),nsmall=2)
+
+row.names(corr_matrix) <- c("BIO1", "BIO2", "BIO3", "BIO7", "BIO10","BIO11", "BIO12", "BIO15", "BIO17", "BIO18")
+colnames(corr_matrix) <- c("BIO1", "BIO2", "BIO3", "BIO7", "BIO10","BIO11", "BIO12", "BIO15", "BIO17", "BIO18")
+
+order <- c('BIO15','BIO7','BIO11','BIO3','BIO10','BIO2','BIO1','BIO12','BIO18','BIO17')
+corr_matrix <- corr_matrix[order, order]
+
+corr_matrix[lower.tri(corr_matrix)] <- "" 
+
+knitr::kable(corr_matrix, "simple", digits = 2, caption = "Correlation matrix: lake-based bioclimatic variables")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+corr_matrix <- as.data.frame(correl_list[[2]])
+corr_matrix <- format(round(corr_matrix,2),nsmall=2)
+
+row.names(corr_matrix) <- c("BIO1", "BIO2", "BIO3", "BIO7", "BIO10","BIO11", "BIO12", "BIO15", "BIO17", "BIO18")
+colnames(corr_matrix) <- c("BIO1", "BIO2", "BIO3", "BIO7", "BIO10","BIO11", "BIO12", "BIO15", "BIO17", "BIO18")
+
+order <- c('BIO15','BIO7','BIO11','BIO3','BIO10','BIO2','BIO1','BIO12','BIO18','BIO17')
+corr_matrix <- corr_matrix[order, order]
+
+corr_matrix[lower.tri(corr_matrix)] <- "" 
+
+knitr::kable(corr_matrix, "simple", digits = 2, caption = "Correlation matrix: air-based bioclimatic variables")
+```
