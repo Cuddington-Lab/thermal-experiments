@@ -1,1 +1,4 @@
 1
+
+
+url <- "https://dryad-assetstore-merritt-west.s3.us-west-2.amazonaws.com/ark%3A/13030/m5p91m5r%7C5%7Cproducer/LakeTemps_Code.zip?response-content-disposition=attachment%3B%20filename%3DLakeTemps_Code.zip&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA2KERHV5E3OITXZXC%2F20240506%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240506T134419Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=85133897c781abe4127563dc3335003581278f067b39914e335e0e7fcf7adf02"
