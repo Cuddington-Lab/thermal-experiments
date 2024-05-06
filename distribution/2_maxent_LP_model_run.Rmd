@@ -45,7 +45,15 @@ knitr::opts_chunk$set(
 ### Download environmental predictors
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 # Lake water temperature raster based on satellite measurements (Armitage, 2023; https://onlinelibrary.wiley.com/doi/full/10.1111/ecog.06595#bib-0003)
-lake <- raster::brick("C:/Users/user/OneDrive - University of Waterloo/Desktop/uWaterloo/paper_maxent_dotted_duckweed/maxent_published_analyses/review_analyses/bioclim_lakes_10km.tif")
+options(timeout=600)
+url <- "https://datadryad.org/stash/downloads/file_stream/1895801"
+temp_file <- tempfile()
+temp_unzipped1 <- tempfile()
+temp_unzipped2 <- tempfile()
+download.file(url, destfile = temp_file, mode="wb")
+unzip(temp_file, exdir = temp_unzipped1)
+unzip(paste0(temp_unzipped1,"/LakeTemps_Code/rasters.zip"), exdir = temp_unzipped2)
+lake <- raster::brick(paste0(temp_unzipped2,"/rasters/bioclim_lakes_10km.tif"))
 
 air <- geodata::worldclim_global(var = 'bio', res = 5, download = T, path = 'data')
 air <- as(air, "Raster")
