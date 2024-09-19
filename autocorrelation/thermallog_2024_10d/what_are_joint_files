@@ -1,0 +1,3 @@
+Joint files: when there are interruptions during experiments due to power outages, we have to restart incubators using a cut-out of the original temperature sequence (files ending in "cont." or "continuing") to account for any missing periods.
+Joint files are Excel spreadsheets containing the complete temperature sequences (before and after the interruption). These joint files are used for the temperature sequence data validation, where any large interruptions to experiments would result
+in highly deviated parameters (mean temperature, standard deviation, etc.) and would be excluded according to pre-defined values defined in the Methods section of the autocorrelation manuscript.
