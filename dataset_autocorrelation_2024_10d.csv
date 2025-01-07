@@ -17,7 +17,7 @@
 3,"2-Aug-24","12-Aug-24","simplelong37_095rev_10d_3",37,"strong autocorrelation",4,"LP",41,1,0.193,0.43,"cold-hot",36.95,36.92,2.5,2.49,0.95,0.95,NA,NA,NA,"cold-hot"
 3,"2-Aug-24","12-Aug-24","simplelong37_000_10d_3",37,"no autocorrelation",6,"Field_LM",55,0,0.413,2.082,"no autocorrelation",36.95,36.93,2.46,2.48,0.01,0.01,NA,NA,NA,"no autocorrelation"
 3,"2-Aug-24","12-Aug-24","simplelong37_000_10d_3",37,"no autocorrelation",6,"LP",37,2,0.375,1.287,"no autocorrelation",36.95,36.93,2.46,2.48,0.01,0.01,NA,NA,NA,"no autocorrelation"
-4,"30-Aug-24","9-Sep-24","simplelong37_095rev_10d_4",37,"strong autocorrelation",3,"Field_LM",24,15,0.351,0.45,"cold-hot",36.87,36.83,2.77,2.78,0.81,0.81,NA,NA,NA,"cold-hot"
+4,"30-Aug-24","9-Sep-24","simplelong37_095rev_10d_4",37,"strong autocorrelation",3,"Field_LM",29,9,0.351,0.45,"cold-hot",36.87,36.83,2.77,2.78,0.81,0.81,NA,NA,NA,"cold-hot"
 4,"30-Aug-24","9-Sep-24","simplelong37_095rev_10d_4",37,"strong autocorrelation",3,"LP",2,38,0.289,0.027,"cold-hot",36.87,36.83,2.77,2.78,0.81,0.81,NA,NA,NA,"cold-hot"
 4,"30-Aug-24","9-Sep-24","simplelong37_000_10d_4",37,"no autocorrelation",4,"Field_LM",42,1,0.451,0.795,"no autocorrelation",36.82,36.79,2.54,2.59,0.12,0.12,NA,NA,NA,"no autocorrelation"
 4,"30-Aug-24","9-Sep-24","simplelong37_000_10d_4",37,"no autocorrelation",4,"LP",33,1,0.308,0.464,"no autocorrelation",36.82,36.79,2.54,2.59,0.12,0.12,NA,NA,NA,"no autocorrelation"
