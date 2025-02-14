@@ -2,10 +2,19 @@ library('readxl')
 
 # Define URLs for downloading the files
 urls <- c(
+  "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e9inc2-summer-constant-24-joint.xls",
+  "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e9inc3-nw-27.5-joint.xls",
+  "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e9inc4-summer-constant-27.5-joint.xls",
+  "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e9inc6-summer-control-24-joint.xls",
   "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e10inc2-summer-constant-24.xls",
   "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e10inc3-nw-27.5.xls",
   "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e10inc4-summer-constant-27.5.xls",
   "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e10inc6-summer-control-24.xls",
+  "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e10inc6-summer-control-24.xls",
+  "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e11inc2-summer-control-24.xls",
+  "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e11inc3-summer-nw-27.5.xls",
+  "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e11inc4-summer-constant-24.xls",
+  "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e11inc6-summer-constant-27.5.xls",
   "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e12inc2-summer-control-24-2.xls",
   "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e12inc3-summer-constant-24-2.xls",
   "https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warming_thermallog/e12inc4-summer-nw-27.5-2.xls",
