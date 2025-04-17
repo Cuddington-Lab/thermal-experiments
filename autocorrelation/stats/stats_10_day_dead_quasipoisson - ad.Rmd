@@ -1,0 +1,286 @@
+---
+title: "Autocorrelation_stats: mortality - 10-day experiment"
+author: "Debora"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+## Mortality analysis at 37 ºC
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+
+# Load required packages
+library(lme4)
+library(interactions)
+library(sjPlot)
+library(performance)
+
+# Read datasets
+# Disable scientific notation
+options(scipen = 999)
+
+# Load necessary dataset
+original_dataset <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2024_10d.csv", header = TRUE, stringsAsFactors = TRUE, fileEncoding = "UTF-8-BOM")
+
+# Data validation and cleaning
+datin <- original_dataset
+
+# Exclude experiments outside thresholds established in methods
+datin <- datin[datin$Obs_sd >= 2.1 & datin$Obs_sd <= 2.9, ]
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_ac < 0 | datin$Obs_ac >= 0.29)) &
+                 !(datin$Treatment == 0.95 & (datin$Obs_ac <= 0.78 | datin$Obs_ac >= 0.99)), ]
+datin <- datin[datin$Obs_mean >= 36.7 & datin$Obs_mean <= 37.3, ]
+
+# Exclude failed experiments due to contamination
+datin <- subset(datin, !Errors == "y" | is.na(Errors))
+
+datin$total_living_fronds <- (datin$Frond_count_1)
+
+datins <- datin
+names(datins)[names(datins) == "Experiment_Number"] <- "Exp_run"
+
+datins <- within(datins, Treatment <- relevel(factor(Treatment), ref = "no autocorrelation"))
+datins$Species <- gsub("Field_LM", "LM", datins$Species)
+datins <- within(datins, Species <- relevel(factor(Species), ref = "LM"))
+datins$Exp_run <- as.factor(datins$Exp_run)
+datins$Incubator <- as.factor(datins$Incubator)
+datins$Treatment <- as.factor(datins$Treatment)
+```
+
+## Dataset
+```{r echo=FALSE}
+
+datins$Mortality <- datins$Dead_frond_count_1
+
+datins$Frond_count <- datins$Frond_count_1
+
+datins$Proportion <- (datins$Frond_count/(datins$Frond_count+datins$Mortality))
+datins$Total_frond <- datins$Frond_count+datins$Mortality
+
+datins[, 27] <- round(datins[, 27], 3)
+knitr::kable(head(datins[, c(1, 23, 8, 26, 25, 28, 27)]))
+```
+
+## Overview of data distribution
+```{r echo=FALSE}
+## Overview of data distribution
+datins$Mortality <- as.numeric(datins$Mortality)
+par(mfrow = c(2, 3))
+invisible(sapply(unique(datins$Treatment), function(trt) {
+  invisible(sapply(c("LM", "LP"), function(sp) {
+    hist(datins$Mortality[datins$Species == sp & datins$Treatment == trt],
+         main = paste("Species:", sp, "\nTreatment:", trt),  
+         xlab = "Mortality", col = "lightblue", border = "white",
+         breaks = seq(0, max(datins$Mortality, na.rm = TRUE) + 1, by = 1))
+  }))
+}))
+```
+
+## Summary table: total sum of mortality across treatments
+```{r echo=FALSE}
+for (species in unique(datins$Species)) {
+  species_data <- subset(datins, Species == species)
+  table <- aggregate(cbind(Frond_count, Mortality, Total_frond) ~ Treatment, 
+                   data = species_data, 
+                   FUN = function(x) c(sum = sum(x), avg = mean(x)))
+
+result_table <- data.frame(
+  Treatment = table$Treatment,
+  `Total living frond count` = table$Frond_count[, "sum"],
+  `Total dead frond count` = table$Mortality[, "sum"],
+  `Average proportion of surviving fronds` = table$Frond_count[, "sum"] / (table$Frond_count[, "sum"] + table$Mortality[, "sum"])
+)
+
+
+cat("Summary table for:", species, "\n")
+  print(knitr::kable(result_table[c(3, 1, 2), ], row.names = FALSE, digits = 2, align = rep('c', 4)), "simple", digits=2)
+  cat("\n")
+}
+```
+
+## Model Fitting
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+results_list <- list()
+compare_results <- list()
+
+for (species in unique(datins$Species)) {
+
+  species_data <- subset(datins, Species == species)
+
+  simple <- glm(Mortality ~ Treatment, data = species_data, family = poisson)
+  library(lme4)
+exp_number <- glmer(Mortality ~ Treatment + (1|Exp_run), data=species_data, family=poisson, control = glmerControl(optimizer = "nloptwrap"))
+
+L0 <- logLik(simple)
+L1 <- logLik(exp_number)
+L.ratio <- as.vector(- 2 * (L0 - L1))
+p_value <- 0.5 * (1 - pchisq(L.ratio, 1))
+options(scipen = 999)
+cat("Comparing simple x mixed model:", species, "\n")
+cat("p_value:", p_value, "\n")
+
+# Store models
+results_list[[species]] <- list(simple = simple, exp_number = exp_number)
+
+# Compare models by AIC
+Cand.modsF <- list("no random effects" = results_list[[species]]$simple,
+                   "experiment number" = results_list[[species]]$exp_number)
+
+# Get AIC for each model and store it
+AIC_values <- sapply(Cand.modsF, function(model) AIC(model))
+
+# Function to compute AICc
+compute_AICc <- function(model, n) {
+  aic <- AIC(model)
+  k <- length(coef(model))  # Number of parameters
+  aicc <- aic + (2 * k * (k + 1)) / (n - k - 1)  # AICc formula
+  return(aicc)
+}
+
+n <- nrow(species_data)  
+
+# Compute AICc for each model
+AICc_values <- sapply(Cand.modsF, compute_AICc, n = n)
+
+# Create a summary table using AICc
+compare_results[[species]] <- knitr::kable(data.frame(Model = names(AICc_values), AICc = AICc_values), "simple", digits = 2)
+
+cat("Model assessment:", species, "\n")
+print(compare_results[[species]])
+
+# Find the best model based on AICc
+best_model_name <- names(AICc_values)[which.min(AICc_values)]
+results_list[[species]] <- Cand.modsF[[best_model_name]]
+
+  best_model <- results_list[[species]]
+  
+  model_dispersion <- sum(residuals(best_model, type = "pearson")^2) / df.residual(best_model)
+  print(paste("Model dispersion ratio for species", species, ":", model_dispersion))
+  
+  cat("Wald test type 2 for significance of predictor:", species, "\n")
+  library(car)
+phi <- sum(residuals(best_model, type="pearson")^2) / df.residual(best_model)  
+anova_table <- Anova(best_model, type = "II")  
+
+# Adjusting chi-square values (quasipoisson)
+anova_table$`Chisq` <- anova_table$`Chisq` / phi  
+
+# Recalculating p-values using chi-square distribution
+anova_table$`Pr(>Chisq)` <- pchisq(anova_table$`Chisq`, anova_table$Df, lower.tail = FALSE)  
+
+  print(paste("Adjusted predictor significance", species, ":"))
+print(anova_table)
+}
+```
+
+
+## Visualization of Results
+```{r echo=FALSE}
+for (species in unique(datins$Species)) {
+  full_mod1 <- results_list[[species]]
+quasi_table <- function(model,ctab=coef(summary(model))) {
+  phi <- sum(residuals(model, type="pearson")^2)/df.residual(model)
+  qctab <- within(as.data.frame(ctab),
+                  {`Std. Error` <- `Std. Error`*sqrt(phi)
+                  `z value` <- Estimate/`Std. Error`
+                  `Pr(>|z|)` <- 2*pnorm(abs(`z value`), lower.tail=FALSE)
+                  })
+  return(qctab)
+}
+print(paste("Original model summary - species :", species))
+print(summary(full_mod1))
+
+print(paste("Adjusted model summary - species :", species))
+printCoefmat(quasi_table(full_mod1),digits=2)
+  }
+```  
+
+
+## Post-hoc test
+```{r echo=FALSE}
+library(emmeans)
+
+results_pairwise <- list()
+
+for (species in names(results_list)) {
+  best_model <- results_list[[species]]
+  
+  # Overdispersion factor (phi)
+  phi <- sum(residuals(best_model, type = "pearson")^2)/df.residual(best_model)  
+  
+  # Perform pairwise comparisons
+  pairwise <- emmeans(best_model, pairwise ~ Treatment, type = "response")
+  
+  pairwise_adj <- emmeans(best_model, pairwise ~ Treatment, type = "response", vcov. = vcov(best_model)*phi)
+  #https://stackoverflow.com/questions/78357281/post-hoc-comparisons-of-quasi-family-glmer-models-with-emmeans
+  # Store results in the list
+  results_pairwise[[species]] <- pairwise_adj
+  
+  # Print results for the species
+  cat("Non-adjusted post-hoc for species:", species, "\n")
+  print(pairwise)
+  cat("\n")
+      
+  cat("Adjusted post-hoc for species:", species, "\n")
+  print(pairwise_adj)
+  cat("\n")
+}
+```
+
+```{r echo=FALSE}
+library(ggplot2)
+plots <- list()
+for (species in unique(datins$Species)) {
+  
+  species_data <- subset(datins, Species == species)
+  
+  # Compute mean and SE for each Treatment
+summary_data <- aggregate(Mortality ~ Treatment, data = species_data,
+                          FUN = function(x) c(mean = mean(x), se = sqrt(mean(x) / length(x))))
+
+  summary_data <- do.call(data.frame, summary_data)
+  colnames(summary_data)[2:3] <- c("mean.treatm", "se")
+  
+  # Define colors for error bars
+  colors <- c("grey37", "#0072B2", "#D55E00")
+  
+  # Specify y-values for plotting
+  if (species == "LP") {
+    y_max <- 30
+  } else if (species == "LM") {
+    y_max <- 30  
+  }
+  
+  p <- ggplot(summary_data, aes(x = Treatment, y = mean.treatm)) +
+    geom_point(size = 6.5, color = colors) +  
+    geom_errorbar(aes(ymin = mean.treatm - se, ymax = mean.treatm + se, color = Treatment), width = 0.2, linewidth = 1.5) +   
+    scale_color_manual(values = colors, guide = "none") +  
+    labs(
+      x = "Treatment",
+      y = "Number of dead fronds") +
+    theme_bw(base_size = 22) +
+    theme(panel.border = element_blank(), 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+          axis.line = element_line(colour = "black")) +
+    geom_jitter(data = species_data, aes(x = Treatment, y = Mortality, color = Treatment), width = 0.2, size = 3, shape = 1, stroke = 1) +
+    ylim(-0.4, y_max)  
+  
+  plots[[species]] <- p
+}
+
+cat("Plot for LM", "\n\n")
+print(plots[["LM"]])
+
+cat("Plot for LP", "\n\n")
+print(plots[["LP"]])
+```

@@ -1,0 +1,262 @@
+---
+title: "Autocorrelation experiment - 10 days - Reproduction"
+author: "Debora"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+## Load and Preprocess Datasets
+
+We load two datasets: one with a preparation technique (repeated frond selection) and one without.
+
+```{r}
+# Load dataset
+original_dataset <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2024_10d.csv", header = TRUE, stringsAsFactors = TRUE, fileEncoding = "UTF-8-BOM")
+```
+
+```{r include=FALSE}
+# Data validation and cleaning
+datin <- original_dataset
+
+# Exclude experiments outside thresholds established in methods
+datin <- datin[datin$Obs_sd >= 2.1 & datin$Obs_sd <= 2.9, ]
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_ac < 0 | datin$Obs_ac >= 0.29)) &
+                 !(datin$Treatment == 0.95 & (datin$Obs_ac <= 0.78 | datin$Obs_ac >= 0.99)), ]
+datin <- datin[datin$Obs_mean >= 36.7 & datin$Obs_mean <= 37.3, ]
+
+# Exclude failed experiments due to contamination
+datin <- subset(datin, !Errors == "y" | is.na(Errors))
+
+# Label hot-cold and cold-hot treatments
+colnames(datin)[6] <- "Label"
+table(datin$Label, datin$cat_1)
+levels(datin$cat_1) <- c("no autocorrelation", "hot-cold", "cold-hot")
+datin$Treatment <- paste0(datin$cat_1)
+
+# Relabel groups to simplify visualization
+library(stringr)
+datin$Label <- str_replace(datin$Label, "0.95", "strong autocorrelation")
+datin$Label <- str_replace(datin$Label, "0", "no autocorrelation")
+```
+
+## View dataset and response variable
+```{r echo=FALSE}
+datin$change_frond_count <- (datin$Frond_count_1)-12
+datin$total_living_fronds <- (datin$Frond_count_1)
+
+dataset <- datin
+names(dataset)[names(dataset) == "Experiment_Number"] <- "Exp_run"
+
+dataset <- within(dataset, Treatment <- relevel(factor(Treatment), ref = "no autocorrelation"))
+dataset$Species <- gsub("Field_LM", "LM", dataset$Species)
+dataset <- within(dataset, Species <- relevel(factor(Species), ref = "LM"))
+dataset$Exp_run <- as.factor(dataset$Exp_run)
+dataset$Treatment <- as.factor(dataset$Treatment)
+
+knitr::kable(head(dataset[, c(1,5,8,23,25)]))
+```
+
+Poisson selected because this is count data, right-skewed
+```{r echo=FALSE}
+## Overview of data distribution
+dataset$total_living_fronds <- as.numeric(dataset$total_living_fronds)
+par(mfrow = c(2, 3))
+
+invisible(sapply(unique(dataset$Treatment), function(trt) {
+  sapply(c("LM", "LP"), function(sp) {
+    hist(dataset$total_living_fronds[dataset$Species == sp & dataset$Treatment == trt],
+         main = paste("Species:", sp, "\nTreatment:", trt),  
+         xlab = "Total Living Fronds", col = "lightblue", border = "white",
+         breaks = 10, right = FALSE)
+  })
+}))
+```
+
+## Mixed-Effects Model Fitting
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+model_results <- list()
+compare_results <- list()
+
+for (species in unique(dataset$Species)) {
+  
+  species_data <- subset(dataset, species == Species)
+  
+  simple <- glm(total_living_fronds ~ Treatment, data = species_data, family = poisson)
+  library(lme4)
+exp_number <- glmer(total_living_fronds ~ Treatment + (1|Exp_run), data=species_data, family=poisson, control = glmerControl(optimizer = "nloptwrap"))
+
+#anova(exp_number, simple, test = "Chisq")
+L0 <- logLik(simple)
+L1 <- logLik(exp_number)
+L.ratio <- as.vector(- 2 * (L0 - L1))
+p_value <- 0.5 * (1 - pchisq(L.ratio, 1))
+options(scipen = 999)
+cat("Comparing simple x mixed model for ", species, "\n")
+cat("p_value:", p_value, "\n")
+
+# Store models
+model_results[[species]] <- list(simple = simple, exp_number = exp_number)
+
+# Compare models by AIC
+Cand.modsF <- list("no random effects" = model_results[[species]]$simple,
+                   "experiment number" = model_results[[species]]$exp_number)
+
+# Get AIC for each model and store it
+AIC_values <- sapply(Cand.modsF, function(model) AIC(model))
+
+# Function to compute AICc
+compute_AICc <- function(model, n) {
+  aic <- AIC(model)
+  k <- length(coef(model))  # Number of parameters
+  aicc <- aic + (2 * k * (k + 1)) / (n - k - 1)  # AICc formula
+  return(aicc)
+}
+
+n <- nrow(species_data)  
+
+# Compute AICc for each model
+AICc_values <- sapply(Cand.modsF, compute_AICc, n = n)
+
+# Create a summary table using AICc
+compare_results[[species]] <- knitr::kable(data.frame(Model = names(AICc_values), AICc = AICc_values), "simple", digits = 2)
+
+cat("Model assessment:", species, "\n")
+print(compare_results[[species]])
+
+# Find the best model based on AICc
+best_model_name <- names(AICc_values)[which.min(AICc_values)]
+model_results[[species]] <- Cand.modsF[[best_model_name]]
+
+  best_model <- model_results[[species]]
+  
+  model_dispersion <- sum(residuals(best_model, type = "pearson")^2) / df.residual(best_model)
+  print(paste("Model dispersion ratio for species", species, ":", model_dispersion))
+  
+  cat("Wald test type 2 for significance of predictor:", species, "\n")
+  library(car)
+phi <- sum(residuals(best_model, type="pearson")^2) / df.residual(best_model)  
+anova_table <- Anova(best_model, type = "II")  
+
+# Adjusting chi-square values (quasipoisson)
+anova_table$`Chisq` <- anova_table$`Chisq` / phi  
+
+# Recalculating p-values using chi-square distribution
+anova_table$`Pr(>Chisq)` <- pchisq(anova_table$`Chisq`, anova_table$Df, lower.tail = FALSE)  
+
+  print(paste("Predictor significance", species, ":"))
+print(anova_table)
+}
+```
+
+## Visualization of model results
+
+```{r echo=FALSE}
+for (species in unique(dataset$Species)) {
+  full_mod1 <- model_results[[species]]
+quasi_table <- function(model,ctab=coef(summary(model))) {
+  phi <- sum(residuals(model, type="pearson")^2)/df.residual(model)
+  qctab <- within(as.data.frame(ctab),
+                  {   `Std. Error` <- `Std. Error`*sqrt(phi)
+                  `z value` <- Estimate/`Std. Error`
+                  `Pr(>|z|)` <- 2*pnorm(abs(`z value`), lower.tail=FALSE)
+                  })
+  return(qctab)
+}
+
+print(paste("Adjusted model summary - species :", species))
+printCoefmat(quasi_table(full_mod1),digits=2)
+}
+```
+
+## Post-hoc test 
+```{r echo=FALSE, message=TRUE, warning=TRUE}
+library(emmeans)
+
+results_pairwise <- list()
+
+for (species in names(model_results)) {
+  
+  best_model <- model_results[[species]]
+  
+  # Overdispersion factor (phi)
+  phi <- sum(residuals(best_model, type = "pearson")^2)/df.residual(best_model)  # Use nobs() for number of observations
+  
+  # Perform pairwise comparisons
+  pairwise <- emmeans(best_model, pairwise ~ Treatment, type = "response")
+  
+  pairwise_adj <- emmeans(best_model, pairwise ~ Treatment, type = "response", vcov. = vcov(best_model)*phi)
+  #https://stackoverflow.com/questions/78357281/post-hoc-comparisons-of-quasi-family-glmer-models-with-emmeans
+  # Store results in the list
+  results_pairwise[[species]] <- pairwise_adj
+  
+  # Print results for the species
+  cat("Non-adjusted post-hoc for species:", species, "\n")
+  print(pairwise)
+  cat("\n")
+      
+  cat("Adjusted post-hoc for species:", species, "\n")
+  print(pairwise_adj)
+  cat("\n")
+}
+
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2
+        )
+plots <- list()
+for (species in names(model_results)) {
+  
+  species_data <- subset(dataset, Species == species)
+  
+summary_data <- aggregate(total_living_fronds ~ Treatment, data = species_data,
+                          FUN = function(x) c(mean = mean(x), se = sqrt(mean(x) / length(x))))
+
+  summary_data <- do.call(data.frame, summary_data)
+  colnames(summary_data)[2:3] <- c("rate", "se")
+  
+  colors <- c("grey37", "#0072B2", "#D55E00")
+  
+  if (species == "LP") {
+    summary_data$y_values <- 55  
+    y_max <- 60
+  } else if (species == "LM") {
+    summary_data$y_values <- 105 
+    y_max <- 110  
+  }
+  
+  p <- ggplot(summary_data, aes(x = Treatment, y = rate)) +
+    geom_point(size = 6.5, color = colors) +  
+    geom_errorbar(aes(ymin = rate - se, ymax = rate + se, color = Treatment), width = 0.2, linewidth = 1.5) +   
+    scale_color_manual(values = colors, guide = "none") +  
+    labs(
+      x = "Treatment",
+      y = "Number of live fronds") +
+    theme_bw(base_size = 23) +
+    theme(panel.border = element_blank(), 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+          axis.line = element_line(colour = "black")) +
+    geom_jitter(data = species_data, aes(x = Treatment, y = total_living_fronds, color = Treatment), width = 0.2, size = 3, shape = 1, stroke = 1) +
+    ylim(-0.4, y_max)  
+  
+  plots[[species]] <- p
+}
+
+plots[[1]]
+plots[[2]]
+```

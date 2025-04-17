@@ -1,0 +1,271 @@
+---
+title: "Autocorrelation experiment - 5 days - Mortality"
+author: "Debora"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+## Load and Preprocess Datasets
+
+We load two datasets: one with a preparation technique (repeated frond selection) and one without.
+
+```{r}
+options(scipen=999)
+# This dataset contains replicates for which a preparation technique was performed (repeated first born frond selection to reduce maternal effects)
+original_dataset_2 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2022-2023.csv",header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+
+# This dataset contains replicates of experiments performed without a preparation technique 
+original_dataset_1 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2021-2022.csv",header=TRUE, stringsAsFactors = TRUE,fileEncoding="UTF-8-BOM")
+```
+
+## Combine and clean up datasets
+
+We combine both datasets and filter out rows based on specific conditions for standard deviation (`Obs_sd`) and autocorrelation (`Obs_ac`) to clean the data.
+
+```{r}
+# Blending both datasets, as there are no significant differences between preparation methods (probably because we only have 2 methods in low temperatures)
+datin <- rbind(original_dataset_1,original_dataset_2)
+
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_sd <= 2.1 | datin$Obs_sd >= 2.9))
+               &!(datin$Treatment == 0.95 & (datin$Obs_sd <= 2.1 | datin$Obs_sd >= 2.9)),]
+
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_ac <= -0.2 | datin$Obs_ac >= 0.2))
+               &!(datin$Treatment == 0.95 & (datin$Obs_ac <= 0.92 | datin$Obs_ac >= 0.98)),]
+
+datin <- subset(datin, !Errors == "y"|is.na(Errors))
+datin <- subset(datin, !Treatment == "constant")
+```
+
+
+```{r include=FALSE}
+## Data Relabeling
+# We relabel the groups for easier visualization and manipulate the dataset to  prepare it for analysis.
+
+colnames(datin)[6] <- "Label"
+table(datin$Label, datin$cat_1)
+levels(datin$cat_1) = c("no autocorrelation","hot-cold","no autocorrelation","cold-hot")
+datin$Treatment<-paste0(datin$cat_1)
+
+# Relabel groups to further simplify visualization of results
+library(stringr)
+datin$Label <- str_replace(datin$Label, "0.95", "strong autocorrelation")
+datin$Label <- str_replace(datin$Label, "0", "no autocorrelation")
+
+# Extract experiment run IDs
+datin$Exp_run <- str_sub(datin$Profile_name,-2,-1)
+datin$Exp_run <- gsub('_','',datin$Exp_run)
+datin$Exp_run <- as.numeric(datin$Exp_run)
+```
+
+
+```{r include=FALSE}
+## Subset Data
+# We subset the data to retain only those experiment runs that have at least 3  replicates within each `Mean_Temperature` and `Species` level
+
+ datin <- datin[
+   ave(seq_along(datin$Exp_run), 
+       interaction(datin$Exp_run, datin$Mean_temperature, datin$Species), 
+       FUN = length) >= 3, 
+ ]
+```
+
+```{r include=FALSE}
+## Further Data Processing
+
+# Blending 10C and 15C, as there are no significant differences between performance in these 2 average temperatures
+datin$Mean_temperature <- str_replace(datin$Mean_temperature, "15", "10")
+datin$Mean_temperature <- str_replace(datin$Mean_temperature, "10", "10-15")
+
+# Removing "lab" strain, as preliminary statistical analyses showed significant differences between the 2 common duckweed strains used in this experiment in average temperature of 27C
+datin <- subset(datin, !(Species == "Lab_LM" & Mean_temperature == "27"))
+
+# Blending common duckweed strains, as preliminary analyses showed no differences between them
+datin$Species <- gsub("Lab_LM|Field_LM", "LM", datin$Species)
+
+table(datin$Mean_temperature,datin$Treatment)
+```
+
+## Dataset: each row of the dataset corresponds to a replicate; here we are showing 3 experiment runs, each including 3 treatments
+```{r echo=FALSE}
+datins <- subset(datin, Mean_temperature=="37")
+
+datins$Mortality <- datins$Dead_frond_count_1 + datins$Dead_frond_count_2 + datins$Dead_frond_count_3
+
+datins$Frond_count <- datins$Frond_count_1 + datins$Frond_count_2 + datins$Frond_count_3
+
+datins$Proportion <- (datins$Frond_count/(datins$Frond_count+datins$Mortality))
+datins$Total_frond <- datins$Frond_count+datins$Mortality
+
+# Convert Treatment to factor and set levels
+datins$Treatment <- as.factor(datins$Treatment)
+datins <- within(datins, Treatment <- relevel(Treatment, ref = "no autocorrelation"))
+
+datins[, 36] <- round(datins[, 36], 2)
+knitr::kable(head(datins[, c(33, 32, 8, 35, 34, 37)]))
+```
+
+## Overview of data distribution
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+datins$Mortality <- as.numeric(datins$Mortality)
+par(mfrow = c(2, 3))
+invisible(sapply(unique(datins$Treatment), function(trt) {
+  invisible(sapply(c("LM", "LP"), function(sp) {
+    hist(datins$Mortality[datins$Species == sp & datins$Treatment == trt],
+         main = paste("Species:", sp, "\nTreatment:", trt),  
+         xlab = "Mortality", col = "lightblue", border = "white",
+         breaks = seq(0, max(datins$Mortality, na.rm = TRUE) + 5, by = 5))
+  }))
+}))
+```
+
+## Summary table: total sum of mortality across treatments
+```{r echo=FALSE}
+# Aggregate total dead frond count by Treatment and Species
+table <- aggregate(Mortality ~ Treatment + Species, data = datins, sum)
+
+# Rename Species
+table$Species <- ifelse(table$Species == "LM", "Common duckweed", "Dotted duckweed")
+
+# Reshape the data to have Species as columns
+result_table <- as.data.frame.matrix(xtabs(Mortality ~ Treatment + Species, data = table))
+
+print(knitr::kable(result_table,col.names = c("Treatment", "Common duckweed", "Dotted duckweed"), align = c('l', 'c', 'c'),format = "simple"))
+
+```
+
+## Model Fitting
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+results_list <- list()
+compare_results <- list()
+
+for (species in unique(datins$Species)) {
+
+  species_data <- subset(datins, Species == species)
+
+  simple <- glm(Mortality ~ Treatment, data = species_data, family = poisson)
+  library(lme4)
+exp_number <- glmer(Mortality ~ Treatment + (1|Exp_run), data=species_data, family=poisson, control = glmerControl(optimizer = "nloptwrap"))
+
+# Store models
+results_list[[species]] <- list(simple = simple, exp_number = exp_number)
+
+# Compare models by AIC
+Cand.modsF <- list("no random effects" = results_list[[species]]$simple,
+                   "experiment number" = results_list[[species]]$exp_number)
+
+# Get AIC for each model and store it
+AIC_values <- sapply(Cand.modsF, function(model) AIC(model))
+
+# Function to compute AICc
+compute_AICc <- function(model, n) {
+  aic <- AIC(model)
+  k <- length(coef(model))  # Number of parameters
+  aicc <- aic + (2 * k * (k + 1)) / (n - k - 1)  # AICc formula
+  return(aicc)
+}
+
+n <- nrow(species_data)  
+
+# Compute AICc for each model
+AICc_values <- sapply(Cand.modsF, compute_AICc, n = n)
+
+# Create a summary table using AICc
+compare_results[[species]] <- knitr::kable(data.frame(Model = names(AICc_values), AICc = AICc_values), "simple", digits = 2)
+
+cat("Model assessment:", species, "\n")
+print(compare_results[[species]])
+
+# Find the best model based on AICc
+best_model_name <- names(AICc_values)[which.min(AICc_values)]
+results_list[[species]] <- Cand.modsF[[best_model_name]]
+
+  best_model <- results_list[[species]]
+  
+  model_dispersion <- sum(residuals(best_model, type = "pearson")^2) / df.residual(best_model)
+  print(paste("Model dispersion ratio for species", species, ":", model_dispersion))
+  
+  cat("Wald test type 2 for significance of predictor:", species, "\n")
+  library(car)
+phi <- sum(residuals(best_model, type="pearson")^2) / df.residual(best_model)  
+anova_table <- Anova(best_model, type = "II")  
+
+# Adjusting chi-square values (quasipoisson)
+anova_table$`Chisq` <- anova_table$`Chisq` / phi  
+
+# Recalculating p-values using chi-square distribution
+anova_table$`Pr(>Chisq)` <- pchisq(anova_table$`Chisq`, anova_table$Df, lower.tail = FALSE)  
+
+  print(paste("Adjusted predictor significance", species, ":"))
+print(anova_table)
+}
+```
+
+
+
+
+```{r echo=FALSE}
+for (species in unique(datins$Species)) {
+  if (species == "LM") {
+  full_mod1 <- results_list[[species]]
+quasi_table <- function(model,ctab=coef(summary(model))) {
+  phi <- sum(residuals(model, type="pearson")^2)/df.residual(model)
+  qctab <- within(as.data.frame(ctab),
+                  {`Std. Error` <- `Std. Error`*sqrt(phi)
+                  `z value` <- Estimate/`Std. Error`
+                  `Pr(>|z|)` <- 2*pnorm(abs(`z value`), lower.tail=FALSE)
+                  })
+  return(qctab)
+}
+print(paste("Original model summary - species :", species))
+print(summary(full_mod1))
+
+print(paste("Adjusted model summary - species :", species))
+printCoefmat(quasi_table(full_mod1),digits=2)
+  }
+}
+```  
+
+## Post-hoc test for common duckweed
+```{r echo=FALSE}
+library(emmeans)
+
+results_pairwise <- list()
+
+for (species in names(results_list)) {
+  if (species == "LM") {
+  best_model <- results_list[[species]]
+  
+  # Overdispersion factor (phi)
+  phi <- sum(residuals(best_model, type = "pearson")^2)/df.residual(best_model)  # Use nobs() for number of observations
+  
+  # Perform pairwise comparisons
+  pairwise <- emmeans(best_model, pairwise ~ Treatment, type = "response")
+  
+  pairwise_adj <- emmeans(best_model, pairwise ~ Treatment, type = "response", vcov. = vcov(best_model)*phi)
+  #https://stackoverflow.com/questions/78357281/post-hoc-comparisons-of-quasi-family-glmer-models-with-emmeans
+  # Store results in the list
+  results_pairwise[[species]] <- pairwise_adj
+  
+  # Print results for the species
+  cat("Non-adjusted post-hoc for species:", species, "\n")
+  print(pairwise)
+  cat("\n")
+      
+  cat("Adjusted post-hoc for species:", species, "\n")
+  print(pairwise_adj)
+  cat("\n")
+}}
+```
+

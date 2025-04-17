@@ -1,0 +1,432 @@
+---
+title: "Autocorrelation experiment - 10 days - Surface area"
+author: "Debora"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+## Load and Preprocess Datasets
+
+```{r}
+# Load dataset
+original_dataset <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2024_10d.csv", header = TRUE, stringsAsFactors = TRUE, fileEncoding = "UTF-8-BOM")
+```
+
+```{r include=FALSE}
+# Data validation and cleaning
+datin <- original_dataset
+
+# Exclude experiments outside thresholds established in methods
+datin <- datin[datin$Obs_sd >= 2.1 & datin$Obs_sd <= 2.9, ]
+datin <- datin[!(datin$Treatment == 0 & (datin$Obs_ac < 0 | datin$Obs_ac >= 0.29)) &
+                 !(datin$Treatment == 0.95 & (datin$Obs_ac <= 0.78 | datin$Obs_ac >= 0.99)), ]
+datin <- datin[datin$Obs_mean >= 36.7 & datin$Obs_mean <= 37.3, ]
+
+# Exclude failed experiments due to contamination
+datin <- subset(datin, !Errors == "y" | is.na(Errors))
+
+# Label hot-cold and cold-hot treatments
+colnames(datin)[6] <- "Label"
+table(datin$Label, datin$cat_1)
+levels(datin$cat_1) <- c("no autocorrelation", "hot-cold", "cold-hot")
+datin$Treatment <- paste0(datin$cat_1)
+
+# Relabel groups to simplify visualization
+library(stringr)
+datin$Label <- str_replace(datin$Label, "0.95", "strong autocorrelation")
+datin$Label <- str_replace(datin$Label, "0", "no autocorrelation")
+```
+
+## View dataset and response variable (SA = change in surface area)
+```{r echo=FALSE}
+dataset <- datin
+names(dataset)[names(dataset) == "Experiment_Number"] <- "Exp_run"
+
+dataset <- within(dataset, Treatment <- relevel(factor(Treatment), ref = "no autocorrelation"))
+dataset$Species <- gsub("Field_LM", "LM", dataset$Species)
+dataset <- within(dataset, Species <- relevel(factor(Species), ref = "LM"))
+dataset$Exp_run <- as.factor(dataset$Exp_run)
+
+dataset$Treatment <- as.factor(dataset$Treatment)
+
+dataset$SA <- dataset$Final_area - dataset$Initial_area
+
+knitr::kable(head(dataset[, c(1,5,23,8,11,12,24)]))
+```
+
+
+## Histogram of surface areas for each species
+```{r echo=FALSE}
+dataset$SA <- as.numeric(dataset$SA)
+par(mfrow = c(2, 3))
+invisible(sapply(unique(dataset$Treatment), function(trt) {
+  invisible(sapply(c("LM", "LP"), function(sp) {
+    hist(dataset$SA[dataset$Species == sp & dataset$Treatment == trt],
+         main = paste("Species:", sp, "\nTreatment:", trt),  
+         xlab = "SA", col = "lightblue", border = "white",
+         breaks = seq(min(dataset$SA, na.rm = TRUE), max(dataset$SA, na.rm = TRUE) + 0.5, by = 0.5))
+  }))
+}))
+```
+
+## Mixed-Effects Model Fitting
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+results_list <- list()
+
+for (species in unique(dataset$Species)) {
+  
+species_data <- subset(dataset, Species == species)
+library(lme4)  
+
+simple <- lm(SA ~ Treatment, 
+                 data = species_data)
+
+exp_number <- lmer(SA ~ Treatment + (1 | Exp_run), 
+                         data = species_data)
+
+L0 <- logLik(simple)
+L1 <- logLik(exp_number)
+L.ratio <- as.vector(- 2 * (L0 - L1))
+p_value <- 0.5 * (1 - pchisq(L.ratio, 1))
+options(scipen = 999)
+print(paste("Comparing simple x mixed model:"))
+cat("p_value:", p_value, "\n")
+
+results_list[[species]] <- list(simple = simple, exp_number = exp_number)
+}
+```
+
+## Model Comparison and Results
+
+We compare the performance of the models and extract estimates, confidence intervals, and p values.
+```{r echo=FALSE}
+results_comparison <- list()
+best_models <- list()
+
+for (species in names(results_list)) {
+  Cand.modsF <- list("no random effects" = results_list[[species]]$simple,
+                     "experiment number" = results_list[[species]]$exp_number)
+  
+  # Get AIC values for each model using base R's AIC function
+  AIC_values <- sapply(Cand.modsF, AIC)
+  
+  # Store the AIC values in a dataframe for easy viewing
+  compareF <- data.frame(
+    Name = names(AIC_values),
+    AIC = AIC_values
+  )
+  
+  # Display AIC values in the dataframe (for each species)
+  results_comparison[[species]] <- knitr::kable(compareF, "simple", digits=2)
+  
+  # Get the model name with the lowest AIC
+  best_model_name <- compareF$Name[which.min(compareF$AIC)]
+  best_models[[species]] <- Cand.modsF[[best_model_name]]
+  
+  # Display model comparison for the current species
+  print(paste("Model comparison for species:", species))
+  print(results_comparison[[species]])
+  cat("\n")
+   # Display model summary for the current species
+  print(paste("Model summary for species:", species))
+  best_model <- best_models[[species]]
+  print(best_model)
+  cat("\n")
+}
+
+```
+
+
+## Model significance testing
+The best model selected in the step above is tested for significance, for each species
+```{r echo=FALSE}
+for (species in names(results_list)) {
+  
+  best_model <- best_models[[species]]
+  
+  # Perform ANOVA for linear model
+  anova_output <- anova(best_model)
+   
+  # Adjust p-values for ANOVA F-statistics
+  anova_output$`Pr(>F)` <- pf(anova_output$`F value`, 
+                              anova_output$Df - 1, 
+                              df.residual(best_model), 
+                              lower.tail = FALSE)
+  
+  # Extract residual degrees of freedom
+  residual_df <- df.residual(best_model)
+  
+  # Print the residual degrees of freedom
+  cat("Residual degrees of freedom for species", species, ":", residual_df, "\n")
+  
+  # Print the model summary
+  model_summary <- summary(best_model)
+  
+  # Print the predictor significance and ANOVA results
+  print(paste("Predictor significance - species", species, ":"))
+  print(anova_output)
+}
+```
+
+## Visualization of Results
+```{r echo=FALSE}
+library(ggplot2)
+library(emmeans)
+
+prediction_list <- list()
+for (species in names(results_list)) {
+  
+  best_model <- best_models[[species]]
+  species_data <- subset(dataset, Species == species)
+  
+  # Use emmeans to get estimates and confidence intervals
+  emmeans_results <- emmeans(best_model, ~ Treatment)
+  
+  # Convert emmeans output to a dataframe
+  predictions <- as.data.frame(summary(emmeans_results))
+  prediction_list[[species]] <- predictions
+  
+  # Rename columns for clarity
+  predictions$Lower_CI <- predictions$lower.CL
+  predictions$Upper_CI <- predictions$upper.CL
+  
+  # Clean treatment names
+  predictions$Treatment <- gsub("Treatment", "", predictions$Treatment)
+  predictions$Treatment[predictions$Treatment == "(Intercept)"] <- "no autocorrelation"
+  predictions$Treatment <- factor(predictions$Treatment, levels = c("no autocorrelation", "cold-hot", "hot-cold"))
+  
+  # Define colors for error bars
+  colors <- c("grey37", "#0072B2", "#D55E00")
+  
+  # Create plot
+  p <- ggplot(predictions, aes(x = Treatment, y = emmean)) +
+    geom_point(size = 4, color = colors) +  
+    geom_errorbar(aes(ymin = Lower_CI, ymax = Upper_CI, color = Treatment), width = 0.2, linewidth = 1.5) +  
+    scale_color_manual(values = colors, guide = "none") +  
+    labs(title = "", x = "Treatment", y = bquote("Change in surface area (cm"^2*")")) +
+    theme_bw(base_size = 30) +
+    theme(panel.border = element_blank(), 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+          axis.line = element_line(colour = "black")) +
+    geom_jitter(data = species_data, aes(x = Treatment, y = SA, color = Treatment), width = 0.2, size = 3, shape = 1)
+  
+  # Add conditional annotations
+  if (species == "LM") {
+    p <- p + 
+      coord_cartesian(ylim = c(-2, 3.6)) +
+      geom_segment(aes(x = 1, xend = 3, y = 3.5, yend = 3.5), color = "black") +
+      geom_text(aes(x = 2, y = 3.6, label = "**"), size = 8) +
+      geom_segment(aes(x = 1, xend = 2, y = 2.7, yend = 2.7), color = "black") +
+      geom_text(aes(x = 1.5, y = 3, label = "NS"), size = 8) +
+      geom_segment(aes(x = 2, xend = 3, y = 3, yend = 3), color = "black") +
+      geom_text(aes(x = 2.5, y = 3.2, label = "NS"), size = 8)
+  } else {
+    p <- p + 
+      coord_cartesian(ylim = c(-1, 2)) +
+      geom_segment(aes(x = 1, xend = 3, y = 1.9, yend = 1.9), color = "black") +
+      geom_text(aes(x = 2, y = 1.92, label = "*"), size = 8) +
+      geom_segment(aes(x = 1, xend = 2, y = 1.6, yend = 1.6), color = "black") +
+      geom_text(aes(x = 1.5, y = 1.7, label = "NS"), size = 8) +
+      geom_segment(aes(x = 2, xend = 3, y = 1.7, yend = 1.7), color = "black") +
+      geom_text(aes(x = 2.5, y = 1.7, label = "*"), size = 8)
+  }
+  
+  # Print each plot within the loop
+  print(p)
+}
+
+```
+
+
+```{r echo=FALSE}
+summary <- list()
+# Loop through species
+for (species in names(results_list)) {
+  best_model <- best_models[[species]]
+  
+#   # Get estimated marginal means and pairwise comparisons
+#   emmeans_results <- emmeans(best_model, pairwise ~ Treatment, 
+#                            lmer.df = "kenward-roger")
+#   emmeans_summary <- summary(emmeans_results)
+# 
+#   # Get the p-value for the reference level (intercept)
+#   emmeans_intercept <- as.data.frame(summary(emmeans_results, infer = c(TRUE, TRUE)))
+# 
+#   cat("### Model results for ", species, "\n\n")
+#   
+#   # Print the intercept significance
+#   cat("### Intercept p-value ", species, "\n\n")
+#   print(emmeans_intercept[[1]][1,])
+# 
+#   # View the estimated marginal means
+#   cat("### Contrasts p-value ", species, "\n\n")
+#   print(emmeans_summary$emmeans)
+# 
+#   # View pairwise comparisons with p-values
+#   print(emmeans_summary$contrasts)
+# 
+#   cat("### Variance component of random incercept for ", species, "\n\n")
+# random_effects <- VarCorr(best_model)
+# 
+# # Extract the random intercept variance (τ00 Exp_run)
+# random_intercept_variance <- as.numeric(random_effects$Exp_run[1])
+# print(sprintf("τ00 Exp_run: %.3f", random_intercept_variance))
+# 
+# # Extract the residual variance (σ²)
+# residual_variance <- attr(random_effects, "sc")^2
+# print(sprintf("σ² (Residual variance): %.3f", residual_variance))
+# 
+# # Calculate the Intraclass Correlation (ICC)
+# # ICC = variance of random intercept / (variance of random intercept + residual variance)
+# ICC <- random_intercept_variance / (random_intercept_variance + residual_variance)
+# print(sprintf("ICC: %.3f", ICC))
+# 
+# library(performance)
+# 
+# # Calculate marginal and conditional R2 for the model
+# r2_values <- r2_nakagawa(best_model)
+# 
+# # Extract and print the values with 3 decimals
+# marginal_r2 <- r2_values$R2_marginal
+# conditional_r2 <- r2_values$R2_conditional
+# 
+# cat(sprintf("Marginal R²: %.3f\n", marginal_r2))
+# cat(sprintf("Conditional R²: %.3f\n", conditional_r2))
+
+library(sjPlot)
+summary[[species]] <- tab_model(best_model)
+}
+
+# View sjplot model summary
+cat("Common duckweed", "\n\n")
+summary[[1]]
+cat("Dotted duckweed", "\n\n")
+summary[[2]]
+``` 
+
+
+
+## Model diagnostics
+
+```{r model-validation, echo=FALSE, fig.show='hold'}
+for (species in names(results_list)) {
+  # Get the best model for each species
+  best_model <- best_models[[species]]
+
+  if (inherits(best_model, "lmerMod")) {  # Check if the model is a mixed-effects model
+    cat("Processing mixed-effects model for", species, "\n")
+
+    # Plot residual diagnostics
+    print(plot(best_model, main = paste("Residuals vs Fitted for", species)))
+
+    # Q-Q plot for normality of residuals
+    qqnorm(residuals(best_model), main = paste("Q-Q Plot for", species))
+    qqline(residuals(best_model), col = "red")
+
+    # Perform a Shapiro-Wilk test on random effects for normality
+    ranef_component <- ranef(best_model)
+    cat("Shapiro-Wilk test for random effects (Intercept) for", species, ":\n")
+    print(shapiro.test(ranef_component[[1]][, "(Intercept)"]))
+
+  } else if (inherits(best_model, "lm")) {  # Check if the model is a simple linear model
+    cat("Processing simple linear model for", species, "\n")
+
+    # Plot diagnostics for the best model
+    par(mfrow = c(1, 4))
+    print(plot(best_model, main = paste(species)))
+
+    # Perform Shapiro-Wilk test for normality of residuals
+    model_residuals <- residuals(best_model)
+    shapiro_test <- shapiro.test(model_residuals)
+    cat("Shapiro-Wilk test for normality of residuals for", species, ":\n")
+    print(shapiro_test)
+
+    # Perform Breusch-Pagan test for heteroscedasticity
+    library(lmtest)
+    bptest_result <- bptest(best_model)
+    cat("Breusch-Pagan test for heteroscedasticity for", species, ":\n")
+    print(bptest_result)
+  } else {
+    cat("Unknown model type for", species, "\n")
+  }
+}
+
+
+# Reset plotting area
+par(mfrow = c(1, 1))
+
+# For LM:
+# Residuals vs Fitted: The residuals show a slight pattern, indicating a potential mild non-linearity, and shapiro is not significant. However, deviations are small, so this may be acceptable if no strong pattern is observed in other diagnostics.
+# 
+# Q-Q Plot: The points mostly follow the 45-degree line, suggesting that the residuals are approximately normally distributed. This is acceptable.
+# 
+# Scale-Location: The spread of the residuals is relatively even across fitted values, which is acceptable and suggests homoscedasticity. Breusch-Pagan test is not significant.
+# 
+# Residuals vs Leverage: There are no influential outliers or leverage points that significantly deviate. This is acceptable and indicates that no single observation is unduly influencing the model.
+
+# For LP:
+# Residuals vs Fitted: Althought there is a pattern (drop in residuals at one point), shapiro is not significant.
+# 
+# Q-Q Plot: The residuals closely follow the theoretical line, indicating that the normality assumption is mostly satisfied. This is acceptable.
+# 
+# Scale-Location: Although there is a upward trend in the spread of residuals, which may indicate heteroscedasticity (non-constant variance), Breusch-Pagan test is not significant (test uses model residuals and checks for significant relationship between residuals variance and predictors).
+# 
+# Residuals vs Leverage: While there are some points with higher leverage, none appear to be overly influential. This is acceptable, but it’s worth monitoring high-leverage points in further analysis.
+```
+
+
+```{r echo=FALSE}
+## Post-hoc test
+results_pairwise <- list()
+library(emmeans)
+for (species in names(results_list)) {
+
+  best_model <- best_models[[species]]
+
+  pairwise <- emmeans(best_model, list(pairwise ~ Treatment), lmer.df="satterthwaite")
+  pairs <- as.data.frame(pairwise$`pairwise differences of Treatment`)
+  results_pairwise[[species]] <- pairs
+
+  cat("Post-hoc Test Results for Species:", species, "\n")
+  print(knitr::kable(pairs, "simple", digits=3))
+  cat("\n")
+}
+```
+
+## If I had used mixed linear models, these would be the results
+```{r echo=FALSE}
+for (species in names(results_list)) {
+  # Print the predictor significance for linear mixed models
+  
+  print(paste("Anova - linear mixed model - species", species, ":"))
+  mx_anova <- car::Anova(results_list[[species]]$exp_number, type = "II")
+  print(mx_anova)
+  
+  print(paste("Summary - linear mixed model - species", species, ":"))
+  mx_summary <- summary(results_list[[species]]$exp_number)
+  print(mx_summary)
+  
+  pairwise <- emmeans(results_list[[species]]$exp_number, list(pairwise ~ Treatment), lmer.df="satterthwaite")
+  pairs <- as.data.frame(pairwise$`pairwise differences of Treatment`)
+  results_pairwise[[species]] <- pairs
+
+  cat("Post-hoc Test Results for Species:", species, "\n")
+  print(knitr::kable(pairs, "simple", digits=3))
+  cat("\n")
+}
+```
+
