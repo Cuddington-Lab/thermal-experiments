@@ -14,7 +14,6 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```{r}
 datin <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_night_warming_summer.csv",
                   header=TRUE, stringsAsFactors = TRUE, fileEncoding="UTF-8-BOM")
-datin <- read.csv("C:/Users/user/Desktop/night_warm_dataset_summer.csv")
 
 # Filter data to include only species 'LM'
 datin <- subset(datin, Species == "LM")
