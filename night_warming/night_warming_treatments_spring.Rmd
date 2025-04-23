@@ -1,0 +1,180 @@
+---
+title: "Night warming treatments"
+author: "Debora"
+date: "4/23/2025"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,always_allow_html = TRUE, tidy.opts=list(width.cutoff=60), tidy=TRUE)
+```
+
+Historical temperatures recorded every 15 minutes from 1998 to 2020 were downloaded from the Data Archives webpage (http://weather.uwaterloo.ca/data.html) maintained by the University of Waterloo Weather Station (43°28'27.5"N 80°33'24.4"W), Ontario, Canada. Date and temperature formatting was standardized and data cleaning was performed to remove any incorrect entries caused by technical errors (such as unrealistic temperature entries of 100 °C) using R Studio software. This dataset was then subset to the period of June 1-10, which represents late Spring in temperate regions. This period has been chosen because it occurs in the growing season, where any effects to performance can be more readily observed. In addition, other night warming experiments were conducted using this same timeframe (e.g., Zhao et al., 2014; Barton & Schmitz, 2017; Higashi, Barton, & Oliver, 2020). To simulate night warming treatments, the clean file saved on GitHub was then downloaded to R.
+```{r}
+refjune <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/historical_temps_analyses/historical_temperatures_uwaterloo_june_1_10.csv", header=TRUE, stringsAsFactors = TRUE)
+
+head(refjune)
+```
+
+Next, very cold and very hot years, such as 1998 and 2020, have been excluded from the dataset so that it contains mostly years representative of average current conditions.
+```{r}
+boxplot(Temperature~year, data=refjune, main="Fig. 1: Waterloo historical temperatures: June 1-10", 
+        outline=FALSE, xlab="Year", ylab="Temperature (°C)", 
+        names = levels(as.factor(refjune$year)))
+
+refjune<-subset(refjune, !(year==1998 | year==1999 | year== 2005
+                           | year== 2009| year== 2020))
+```
+
+Mean hourly temperatures were then obtained across years. This composed a reference 24-hour temperature sequence which is named "control", as it is the basis for the control treatment.
+```{r}
+refjune <- aggregate(list(control=refjune$Temperature), 
+                     by = list(time=refjune$hour), mean)
+head(refjune)
+```
+
+Minimum and maximum temperatures were extracted from this reference temperature sequence (note: "time2" column represents fictitious hours from 1-15, as it would be hard to fit a linear model using actual hours which are not in a crescent order, ie. start at 3pm and end at 5am). 
+```{r}
+reftemps <- data.frame(cbind(time2 = c(15,1), 
+                             subset(refjune, 
+                                    control == max(refjune$control)
+                                    | control == min(refjune$control))))
+```
+
+Temperature regimes were based on Higashi, Barton, & Oliver (2020). The control group is characterized by maximum and minimum temperatures equivalent to local conditions. In the night warming regime (night_warm), minimum temperatures are increased by 5°C, while in the daytime warming (dw), maximum temperatures are increased by 5°C. Finally, a whole day warming regime (ambient_plus) was created with all hourly temperatures being increased by 2.5°C. Across all treatments, maximum temperatures occurred at 3pm, while minimum temperatures occurred at 5am, which corresponds to historical data and results in 14 hours from minima to maxima and 10 hours from maxima to minima. The photoperiod consisted of 15.5 hours of light and 8.5 hours of darkness, which is also close to local conditions in the growing season (National Research Council, 2022).
+```{r}
+reftemps$night_warm <- ifelse(reftemps$control==min(reftemps$control), 
+                      reftemps$control+5, reftemps$control)
+
+reftemps$ambient_plus <- reftemps$control+2.5
+
+head(reftemps)
+```
+
+Next, linear models were created based on maximum and minimum temperatures, along with the respective hours in which they occurred.
+```{r}
+lm_func <- function(y) lm(y ~ time, data = reftemps)
+
+lapply(reftemps[,3:5], lm_func)
+fit <- lm(cbind(control, night_warm, ambient_plus) ~ time, data = reftemps)
+
+thermalseq <- data.frame(time=c(5:15))
+thermalseq <- data.frame(cbind(time=thermalseq$time,(predict(fit,thermalseq))))
+
+head(thermalseq)
+```
+A linear function was applied to allow for an even ramp-up from minimum to maximum temperatures based on the "time" column (actual hours in which temperatures occurred) (control and whole day warming: `r thermalseq[2, 2]-thermalseq[1, 2]` °C/hour; daytime warming: `r thermalseq[2, 4]-thermalseq[1, 4]` °C/hour; night warming: `r thermalseq[2, 3]-thermalseq[1, 3]` °C/hour).
+```{r}
+lm_func2 <- function(y) lm(y ~ time2, data = reftemps)
+
+lapply(reftemps[,3:5], lm_func2)
+fit2 <- lm(cbind(control, night_warm, ambient_plus) ~ time2, data = reftemps)
+
+thermalseq2 <- data.frame(time2=c(1:15))
+thermalseq2 <- data.frame(cbind(time2=thermalseq2$time2,
+                                (predict(fit2,thermalseq2))))
+
+head(thermalseq2)
+```
+A second linear function was applied from maximum to minimum temperatures based on the "time2" column (fictitious hours to provide a crescent ordering for model fitting) (control and whole day warming: `r thermalseq2[2, 2]-thermalseq2[1, 2]` °C/hour; daytime warming: `r thermalseq2[2, 4]-thermalseq2[1, 4]` °C/hour; night warming: `r thermalseq2[2, 3]-thermalseq2[1, 3]` °C/hour). Predicted temperatures based on these linear models were then obtained for a 24-hour period.
+
+Fictitious hours were replaced by actual hours and predictions from the 2 linear models were bound together.
+```{r}
+thermalseq2$time2 <- c(15:23,0:5)
+colnames(thermalseq2)[1] <- "time"
+
+thermalseq3 <- rbind(thermalseq,thermalseq2)
+thermalseq3 <- thermalseq3[order(thermalseq3$time),]
+thermalseq3 <- thermalseq3[!duplicated(thermalseq3$time), ]
+rownames(thermalseq3) <- NULL
+```
+
+Creating a random treatment for the night warming spring experiment
+```{r}
+set.seed(1234)  
+# Generate an initial sequence of random values
+random <- rnorm(24, mean = mean(thermalseq3$night_warm), sd = sd(thermalseq3$night_warm))
+
+# Clip values to stay within the range of night warming
+random <- pmax(pmin(random, max(thermalseq3$night_warm)), min(thermalseq3$night_warm))
+
+# Adjust mean and sd directly
+current_mean <- mean(random)
+current_sd <- sd(random)
+
+# Scale and shift
+random <- (random - current_mean) / current_sd * sd(thermalseq3$night_warm) + mean(thermalseq3$night_warm)
+
+# Clip again to ensure it stays within bounds
+random <- pmax(pmin(random, max(thermalseq3$night_warm)), min(thermalseq3$night_warm))
+
+thermalseq3$random <- random
+
+rbind(
+  night_warm = c(mean = mean(thermalseq3$night_warm), sd = sd(thermalseq3$night_warm), min = min(thermalseq3$night_warm), max = max(thermalseq3$night_warm)),
+  random = c(mean = mean(thermalseq3$random), sd = sd(thermalseq3$random), min = min(thermalseq3$random), max = max(thermalseq3$random))
+)
+
+head(thermalseq3)
+```
+
+The obtained daily sequence was multiplied in order to obtain a thermal sequence of 10 days in total, ensuring that the start and the end of the experiment are at 12pm. 
+```{r}
+rows= c(1:nrow(thermalseq3))
+times = 11
+thermalseq3 <- thermalseq3[rep(rows, times),]
+thermalseq3 <- thermalseq3[-(1:12),]
+thermalseq3 <- thermalseq3[-(242:252),]
+```
+
+
+```{r}
+#write file with series (each column a different treatment)
+tempfilename=paste("C:/Users/user/Desktop/night_warming_treatments_spring.csv")
+write.csv(thermalseq3[,c(2:5)]*10,tempfilename, row.names=FALSE)
+```
+
+
+```{r}
+# Mar 2025 plot including random treatment
+# Set margins
+par(mar = c(5, 5, 4, 2))
+
+# Define custom time labels from 12 PM to 11 AM (every 4 hours)
+time_labels <- c("12PM", "4PM", "8PM", "12AM", "4AM", "8AM")
+
+# Define positions for these labels
+time_positions <- seq(1, 24, by = 4)
+
+# Plot without x-axis
+plot(thermalseq3[1:24, 2], type = "l", col = "black", ylim = c(12, 23), lwd = 2,
+     main = "Fig. 2: Night warming experiment treatments", cex.axis = 1.5, cex.lab = 1.8,
+     xlab = "Time (hours)", ylab = "Temperature (°C)", xaxt = "n")
+
+# Add custom x-axis with labels every 4 hours
+axis(1, at = time_positions, labels = time_labels, cex.axis = 1.2)
+
+# Add lines for other columns, restricted to the first 24 rows
+lines(thermalseq3[1:24, 5], type = "l", col = "#E69F00", lwd = 3, lty = 2)
+lines(thermalseq3[1:24, 3], type = "l", col = "#E69F00", lwd = 3)
+lines(thermalseq3[1:24, 6], type = "l", col = "#E69F00", lwd = 3, lty = "dotted")
+
+# Add legend
+legend("bottomleft", legend = c(
+  expression("ambient(" ~ mu == 16.4 * degree * C ~ "," ~ sigma == 2.4 * degree * C ~ ")"),
+  expression("ambient_plus(" ~ mu == 18.9 * degree * C ~ "," ~ sigma == 2.4 * degree * C ~ ")"),
+  expression("night-warming(" ~ mu == 18.9 * degree * C ~ "," ~ sigma == 0.9 * degree * C ~ ")"),
+  expression("random(" ~ mu == 18.9 * degree * C ~ "," ~ sigma == 0.8 * degree * C ~ ")")
+), 
+col = c("black", "#E69F00", "#E69F00", "#E69F00"), 
+lty = c(1, 2, 1, 3),  
+lwd = 3, bty = "n", cex = 1.1)
+
+```
+
+
+References
+
+Higashi, C., Barton, B., & Oliver, K. (2020). Warmer nights offer no respite for a defensive mutualism. Journal of animal ecology, 89(8), 1895-1905. 
+
+National Research Council (Canada). Sun Calculator. https://nrc.canada.ca/en/research-development/products-services/software-applications/sun-calculator/
