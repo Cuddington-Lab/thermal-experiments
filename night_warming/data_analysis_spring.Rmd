@@ -1,0 +1,219 @@
+---
+title: "Data analysis: Spring night-warming experiment"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(lme4)
+library(emmeans)
+library(ggplot2)
+library(performance)
+library(multcomp)
+```
+
+## Load Data 
+```{r}
+datin <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/night_warm_dataset_spring.csv", 
+                  header = TRUE, stringsAsFactors = TRUE, fileEncoding = "UTF-8-BOM")
+```
+
+## Data Processing
+```{r echo=FALSE}
+datin <- subset(datin, Frond_count != "NA")
+datin <- subset(datin, Species == "LM")
+
+datin$Experiment_Number <- as.factor(datin$Experiment_Number)
+
+datin$Treatment <- ifelse(datin$Treatment == "ctr", "ambient", 
+                          ifelse(datin$Treatment == "random", "random",
+                                 ifelse(datin$Treatment == "dw", "day warm.", 
+                                        ifelse(datin$Treatment == "nw", "night warm.", 
+                                               ifelse(datin$Treatment == "ww", "ambient+", datin$Treatment)))))
+
+datin$Treatment <- factor(datin$Treatment, levels = c("ambient", "ambient+", "night warm.", "day warm.", "random"))
+
+datin <- subset(datin,!Treatment=="day warm.")
+
+levels(datin$Treatment)
+```
+
+```{r}
+frond <- aggregate(Frond_count ~ Species + Treatment + Incubator + Experiment_Number, data = datin, FUN = sum)
+frond$endpoint <- frond$Frond_count
+
+weight <- aggregate(cbind(Final_weight, Initial_weight) ~ Species + Treatment + Incubator + Experiment_Number, data = datin, FUN = sum)
+weight$endpoint <- weight$Final_weight - weight$Initial_weight
+
+data <- list(frond = frond, weight = weight)
+```
+
+##  Model fitting
+```{r}
+compare_results <- list()
+results_list <- list()
+best_models_results <- list()
+best_models <- list()
+plots <- list()
+
+for (i in seq_along(data)) {
+  df <- data[[i]]
+  
+  if (names(data)[i] == "frond") {
+    df <- data[[1]]
+    simple <- glm(endpoint ~ Treatment, data = df, family = "poisson")
+    mxlin <- glmer(endpoint ~ Treatment + (1|Experiment_Number), data = df, family="poisson")
+    
+    L0 <- logLik(simple)
+    L1 <- logLik(mxlin)
+    L.ratio <- as.vector(- 2 * (L0 - L1))
+    p_value <- 0.5 * (1 - pchisq(L.ratio, 1))
+    options(scipen = 999)
+    print(paste("Comparing simple x mixed model - frond count:"))
+    cat("p_value:", p_value, "\n")
+    
+  } else {
+    df <- data[[2]]
+    simple <- lm(endpoint ~ Treatment, data = df)
+    mxlin <- lmer(endpoint ~ Treatment + (1|Experiment_Number), data = df)
+    
+    L0 <- logLik(simple)
+    L1 <- logLik(mxlin)
+    L.ratio <- as.vector(- 2 * (L0 - L1))
+    p_value <- 0.5 * (1 - pchisq(L.ratio, 1))
+    options(scipen = 999)
+    print(paste("Comparing simple x mixed model - dry weight:"))
+    cat("p_value:", p_value, "\n")
+  }
+  
+  Cand.modsF <- list("no random effects" = simple, "experiment number" = mxlin)
+  
+  AIC_values <- sapply(Cand.modsF, function(model) AIC(model))
+  
+  compute_AICc <- function(model, n) {
+    aic <- AIC(model)
+    k <- length(coef(model))
+    aicc <- aic + (2 * k * (k + 1)) / (n - k - 1)
+    return(aicc)
+  }
+  
+  n <- nrow(df)  
+  AICc_values <- sapply(Cand.modsF, compute_AICc, n = n)
+  
+  compare_results[[i]] <- knitr::kable(data.frame(Model = names(AICc_values), AICc = AICc_values), "simple", digits = 2)
+  
+  cat("Model assessment:", names(data)[i])
+  print(compare_results[[i]])
+  
+  best_model_name <- names(AICc_values)[which.min(AICc_values)]
+  results_list[[i]] <- Cand.modsF[[best_model_name]]
+  
+  best_model <- results_list[[i]]
+  
+  best_models_results[[i]] <- summary(best_model)
+  best_models[[i]] <- best_model
+  
+  if (names(data)[i] == "frond") {
+    model_dispersion <- sum(residuals(best_model, type = "pearson")^2) / df.residual(best_model)
+    print(paste("Model dispersion ratio", model_dispersion)) 
+  }
+}
+```
+
+##  Anova analysis
+```{r}
+library(car)
+
+best_model <- best_models[[1]]
+phi <- sum(residuals(best_model, type="pearson")^2) / df.residual(best_model)
+anova_table <- Anova(best_model, type = "II")
+anova_table$`Chisq` <- anova_table$`Chisq` / phi  
+anova_table$`Pr(>Chisq)` <- pchisq(anova_table$`Chisq`, anova_table$Df, lower.tail = FALSE)  
+
+print("Adjusted predictor significance - frond count")
+print(anova_table)
+
+best_model <- best_models[[2]]
+anova_table <- Anova(best_model, type = "II")
+print("Standard ANOVA table for linear model - biomass:")
+print(anova_table)
+```
+
+## Quasi-table
+```{r}
+cat("Frond count", "\n")
+full_mod1 <- best_models[[1]]
+quasi_table <- function(model, ctab=coef(summary(model))) {
+  phi <- sum(residuals(model, type="pearson")^2)/df.residual(model)
+  qctab <- within(as.data.frame(ctab),
+                  {`Std. Error` <- `Std. Error`*sqrt(phi)
+                   `z value` <- Estimate/`Std. Error`
+                   `Pr(>|z|)` <- 2*pnorm(abs(`z value`), lower.tail=FALSE)})
+  return(qctab)
+}
+print(paste("Original model summary"))
+print(summary(full_mod1))
+
+print(paste("Adjusted model summary"))
+printCoefmat(quasi_table(full_mod1), digits=2)
+```
+
+## Post-hoc
+```{r}
+library(emmeans)
+best_model <- best_models[[1]]
+phi <- sum(residuals(best_model, type = "pearson")^2)/df.residual(best_model)  
+
+pairwise <- emmeans(best_model, pairwise ~ Treatment, type = "response")
+pairwise_adj <- emmeans(best_model, pairwise ~ Treatment, type = "response", vcov. = vcov(best_model)*phi)
+pairwise_adj
+```
+
+## Plot results
+```{r}
+y_labels <- c("Number of fronds", expression(Delta ~ "dry weight (g)"))
+titles <- c("Population growth", "Biomass")
+for (i in seq_along(data)) {
+  df <- data[[i]]
+  
+  means <- aggregate(endpoint ~ Treatment, data = df, FUN = mean)
+  
+  if (data[i] == "frond") {
+    errors <- aggregate(endpoint ~ Treatment, data = df, FUN = function(x) sqrt(mean(x) / length(x)))
+  } else {
+    errors <- aggregate(endpoint ~ Treatment, data = df, FUN = function(x) sd(x) / sqrt(length(x)))
+  }
+  
+  means <- merge(means, errors, by = "Treatment", suffixes = c("_mean", "_se"))
+  
+  if (names(data)[i] == "frond") {
+    cld <- cld(pairwise_adj, alpha = 0.05)
+    means$letters <- cld$.group[match(as.character(means$Treatment), cld$Treatment)]
+    means$y_values <- c(111,111,111,111)
+  } else {
+    means$letters <- character(length = nrow(means))  
+    means$y_values <- c(0.0085,0.0085,0.0085)
+  }
+  
+  colors <- setNames(c("#0072B2", "#0072B2", "#E69F00", "#E69F00", "#E69F00", "#E69F00"), c("constant", "ambient", "ambient+", "constant+", "night warm.", "random"))
+  
+  p <- ggplot(means, aes(x = Treatment, y = endpoint_mean, fill=Treatment)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_errorbar(aes(ymin = endpoint_mean - endpoint_se, ymax = endpoint_mean + endpoint_se), width = 0.2, position = position_dodge(0.9)) +
+    geom_text(aes(label = letters, y = y_values), vjust = -0.5, size = 7) +
+    scale_fill_manual(values = colors) + 
+    labs(title = titles[i], y = y_labels[i]) +
+    theme(
+      plot.title = element_text(size = 18, face = "bold"),
+      axis.title = element_text(size = 16), 
+      axis.text = element_text(size = 16),
+      axis.text.x = element_text(size = 16),
+      panel.background = element_rect(fill = "white"),  
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      legend.position = "none")
+  print(p)
+}
+```

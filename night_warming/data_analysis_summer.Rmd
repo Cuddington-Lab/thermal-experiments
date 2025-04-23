@@ -1,0 +1,527 @@
+---
+title: "Data analysis: Summer night-warming experiment"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+## Load Data 
+```{r}
+datin <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_night_warming_summer.csv",
+                  header=TRUE, stringsAsFactors = TRUE, fileEncoding="UTF-8-BOM")
+datin <- read.csv("C:/Users/user/Desktop/night_warm_dataset_summer.csv")
+
+# Filter data to include only species 'LM'
+datin <- subset(datin, Species == "LM")
+
+datin <- subset(datin, !Gaps == "y")
+```
+
+## Data Processing
+```{r}
+# Convert categorical variables to factors
+datin$Experiment_Number <- factor(datin$Experiment_Number)
+datin$Incubator <- factor(datin$Incubator)
+
+# Recode Treatment factor levels
+datin$Treatment <- factor(datin$Treatment, 
+                          levels = c("constant24", "control24", "allday", "constant275", "nw275", "random"), 
+                          labels = c("constant", "ambient", "ambient+", "constant+", "night warm.", "random"))
+
+# Exclude constant treatments
+datin <- subset(datin,!(Treatment=="constant" | Treatment=="constant+"))
+```
+
+## Aggregating Data (summing all individuals within a given incubator at a given experiment run)
+```{r}
+# Aggregate frond count data
+frond <- aggregate(Frond_count ~ Species + Treatment + Incubator + Experiment_Number, data = datin, FUN = sum)
+frond$endpoint <- frond$Frond_count
+
+# Aggregate weight data
+weight <- aggregate(cbind(Final_weight, Initial_weight) ~ Species + Treatment + Incubator + Experiment_Number, data = datin, FUN = sum)
+weight$endpoint <- weight$Final_weight - weight$Initial_weight
+
+# Create a list to store frond and weight data
+data <- list(frond = frond, weight = weight)
+```
+
+## Data Visualization
+```{r echo=FALSE}
+# Histogram of frond count and weight change
+hist(frond$endpoint, breaks=10)
+hist(weight$endpoint, breaks=10)
+
+# # Set up panel layout
+# par(mfrow = c(2, length(unique(frond$Treatment))))
+# 
+# # Function to plot histograms
+# plot_hist <- function(data, var, label) {
+#   invisible(lapply(unique(data$Treatment), function(t) 
+#     hist(data$endpoint[data$Treatment == t], breaks = 10, main = t, xlab = label)))
+# }
+# 
+# # Plot histograms for frond and weight
+# plot_hist(frond, "endpoint", "Frond count")
+# plot_hist(weight, "endpoint", "Weight change")
+# 
+# # Reset layout
+# par(mfrow = c(1, 1))
+```
+
+## Statistical Analysis
+```{r include=FALSE}
+library(lme4)
+library(emmeans)
+library(multcomp)
+library(car)
+
+# Lists to store results
+plots <- list()
+model_results <- list()
+posthoc_results <- list()
+best_models <- list()
+best_models_results <- list()
+compare_results <- list()
+results_list <- list()
+titles <- c("Population growth", "Biomass")
+y_labels <- c("Number of fronds", expression(Delta ~ "dry weight (g)"))
+```
+
+## Candidate model fitting and assessment
+```{r}
+# Loop through each dataset (frond and weight)
+for (i in seq_along(data)) {
+  df <- data[[i]]
+  
+  # Perform statistical tests
+  if (names(data)[i] == "frond") {
+    df <- data[[1]]
+    simple <- glm(endpoint ~ Treatment, data = df, family = "poisson")
+    # Mixed Poisson model with random effect of Experiment_Number
+    mxlin <- glmer(endpoint ~ Treatment + (1|Experiment_Number), data = df, family="poisson")
+    
+#anova(mxlin, simple, test = "Chisq")
+L0 <- logLik(simple)
+L1 <- logLik(mxlin)
+L.ratio <- as.vector(- 2 * (L0 - L1))
+p_value <- 0.5 * (1 - pchisq(L.ratio, 1))
+options(scipen = 999)
+print(paste("Comparing simple x mixed model - frond count:"))
+cat("p_value:", p_value, "\n")
+#https://stat.ethz.ch/pipermail/r-help/2008-July/167889.html
+
+    } else {
+    df <- data[[2]]
+    # Linear model
+    simple <- lm(endpoint ~ Treatment, data = df)
+    # Mixed linear model with random effect of Experiment_Number
+    mxlin <- lmer(endpoint ~ Treatment + (1|Experiment_Number), data = df)
+    
+#anova(mxlin, simple, test = "Chisq")
+L0 <- logLik(simple)
+L1 <- logLik(mxlin)
+L.ratio <- as.vector(- 2 * (L0 - L1))
+p_value <- 0.5 * (1 - pchisq(L.ratio, 1))
+options(scipen = 999)
+print(paste("Comparing simple x mixed model - dry weight:"))
+cat("p_value:", p_value, "\n")
+    
+  }
+
+  Cand.modsF <- list("no random effects" = simple,
+                   "experiment number" = mxlin)
+  
+  # Get AIC for each model and store it
+AIC_values <- sapply(Cand.modsF, function(model) AIC(model))
+
+# Function to compute AICc
+compute_AICc <- function(model, n) {
+  aic <- AIC(model)
+  k <- length(coef(model))  # Number of parameters
+  aicc <- aic + (2 * k * (k + 1)) / (n - k - 1)  # AICc formula
+  return(aicc)
+}
+
+n <- nrow(df)  
+
+# Compute AICc for each model
+AICc_values <- sapply(Cand.modsF, compute_AICc, n = n)
+
+# Create a summary table using AICc
+compare_results[[i]] <- knitr::kable(data.frame(Model = names(AICc_values), AICc = AICc_values), "simple", digits = 2)
+
+cat("Model assessment:",names(data)[i])
+print(compare_results[[i]])
+
+# Find the best model based on AICc
+best_model_name <- names(AICc_values)[which.min(AICc_values)]
+results_list[[i]] <- Cand.modsF[[best_model_name]]
+
+  best_model <- results_list[[i]]
+  
+  best_models_results[[i]] <- summary(best_model)
+  best_models[[i]] <- best_model
+  
+  if (names(data)[i] == "frond") {
+  model_dispersion <- sum(residuals(best_model, type = "pearson")^2) / df.residual(best_model)
+  print(paste("Model dispersion ratio", model_dispersion)) }
+}
+
+
+```
+
+## Asessment of treatment significance for selected model above
+```{r}
+library(car)
+
+best_model <- best_models[[1]]
+phi <- sum(residuals(best_model, type="pearson")^2) / df.residual(best_model)
+anova_table <- Anova(best_model, type = "II")
+  
+# Adjusting chi-square values (quasipoisson)
+anova_table$`Chisq` <- anova_table$`Chisq` / phi  
+  
+# Recalculating p-values using chi-square distribution
+anova_table$`Pr(>Chisq)` <- pchisq(anova_table$`Chisq`, anova_table$Df, lower.tail = FALSE)  
+  
+print("Adjusted predictor significance - frond count")
+print(anova_table)
+  
+  
+best_model <- best_models[[2]]
+# Perform standard ANOVA for a linear model
+anova_table <- Anova(best_model, type = "II")
+print("Standard ANOVA table for linear model - biomass:")
+print(anova_table)
+
+```
+
+## Model Results
+```{r echo=FALSE}
+cat("Frond count", "\n")
+full_mod1 <- best_models[[1]]
+quasi_table <- function(model,ctab=coef(summary(model))) {
+  phi <- sum(residuals(model, type="pearson")^2)/df.residual(model)
+  qctab <- within(as.data.frame(ctab),
+                  {`Std. Error` <- `Std. Error`*sqrt(phi)
+                  `z value` <- Estimate/`Std. Error`
+                  `Pr(>|z|)` <- 2*pnorm(abs(`z value`), lower.tail=FALSE)
+                  })
+  return(qctab)
+}
+print(paste("Original model summary"))
+print(summary(full_mod1))
+
+print(paste("Adjusted model summary"))
+printCoefmat(quasi_table(full_mod1),digits=2)
+```
+
+## Results Visualization
+```{r echo=FALSE}
+library(emmeans)
+best_model <- best_models[[1]]
+# Overdispersion factor (phi)
+phi <- sum(residuals(best_model, type = "pearson")^2)/df.residual(best_model)  
+
+# Perform pairwise comparisons
+pairwise <- emmeans(best_model, pairwise ~ Treatment, type = "response")
+  
+pairwise_adj <- emmeans(best_model, pairwise ~ Treatment, type = "response", vcov. = vcov(best_model)*phi)
+#https://stackoverflow.com/questions/78357281/post-hoc-comparisons-of-quasi-family-glmer-models-with-emmeans
+pairwise_adj
+```
+
+
+
+```{r echo=FALSE}
+for (i in seq_along(data)) {
+  df <- data[[i]]
+  
+  # Calculate mean endpoint values per Treatment
+  means <- aggregate(endpoint ~ Treatment, data = df, FUN = mean)
+  
+  if (data[i] == "frond") {
+   # Calculate Poisson standard errors
+errors <- aggregate(endpoint ~ Treatment, data = df, FUN = function(x) sqrt(mean(x) / length(x)))
+  } else {
+ # Calculate standard errors 
+  errors <- aggregate(endpoint ~ Treatment, data = df, FUN = function(x) sd(x) / sqrt(length(x)))
+  }
+
+  # Merge means and errors
+  means <- merge(means, errors, by = "Treatment", suffixes = c("_mean", "_se"))
+  
+  if (names(data)[i] == "frond") {
+    cld <- cld(pairwise_adj, alpha = 0.05)
+    means$letters <- cld$.group[match(as.character(means$Treatment), cld$Treatment)]
+    means$y_values <- c(223,223,223,223)
+  } else {
+    means$letters <- character(length = nrow(means))  
+    means$y_values <- c(0.012,0.012,0.012,0.012)
+  }
+  
+  colors <- setNames(c("#0072B2", "#0072B2", "#E69F00", "#E69F00", "#E69F00", "#E69F00"), c("constant", "ambient", "ambient+", "constant+", "night warm.", "random"))
+  
+  
+  
+  y_max <- c(260, 0.013)
+  y_limit <- c(270,0.015)
+  
+  # Define y-axis breaks (4 evenly spaced values)
+  #y_breaks <- seq(0, y_limit, length.out = 6)
+  
+  library(ggplot2)
+  p <- ggplot(means, aes(x = Treatment, y = endpoint_mean, fill=Treatment)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_errorbar(aes(ymin = endpoint_mean - endpoint_se, ymax = endpoint_mean + endpoint_se), width = 0.2, position = position_dodge(0.9)) +
+    geom_text(aes(label = letters, y = y_values), vjust = -0.5, size = 7) +
+    scale_fill_manual(values = colors) + 
+    labs(title = titles[i], y = y_labels[i]) +
+    theme(
+      plot.title = element_text(size = 18, face = "bold"),
+      axis.title = element_text(size = 16), 
+      axis.text = element_text(size = 16),
+      axis.text.x = element_text(size = 16),
+      panel.background = element_rect(fill = "white"),  
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      legend.position = "none"
+    )
+  
+  plots[[i]] <- p
+}
+library(gridExtra)
+grid.arrange(plots[[1]], plots[[2]], ncol = 2)
+```
+
+
+# Interaction model: constant versus fluctuating treatments
+```{r include=FALSE}
+datin <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_night_warming_summer.csv",
+                  header=TRUE, stringsAsFactors = TRUE, fileEncoding="UTF-8-BOM")
+datin <- read.csv("C:/Users/user/Desktop/night_warm_dataset_summer.csv")
+
+# Filter data to include only species 'LM'
+datin <- subset(datin, Species == "LM")
+
+datin <- subset(datin, !Gaps == "y")
+
+# Recode Treatment factor levels
+datin$Treatment <- factor(datin$Treatment, 
+                          levels = c("constant24", "control24", "allday", "constant275", "nw275", "random"), 
+                          labels = c("constant", "ambient", "ambient+", "constant+", "night warm.", "random"))
+
+# Exclude treatments
+datin <- subset(datin,!(Treatment=="night warm." | Treatment=="random"))
+
+# Define temperature and treatment type variables
+datin$temp <- with(datin, ifelse((Treatment == "constant" | Treatment == "ambient"), '24', '27.5'))
+datin$treatm <- with(datin, ifelse((Treatment == "ambient" | Treatment == "ambient+"), 'fluctuating', 'constant'))
+
+# Aggregate frond count
+frondcount <- aggregate(Frond_count ~ Incubator + Experiment_Number + temp + treatm, data = datin, FUN = sum)
+frondcount$endpoint <- frondcount$Frond_count
+
+# Weight
+weight <- aggregate(cbind(Final_weight, Initial_weight) ~ Incubator + Experiment_Number + temp + treatm, data = datin, FUN = sum)
+weight$endpoint <- weight$Final_weight - weight$Initial_weight
+
+# Create a list to store frond and weight data
+data <- list(frondcount = frondcount, weight = weight)
+```
+
+## Interaction Model (Constant vs Fluctuating)
+```{r}
+# Lists to store results
+plots <- list()
+model_results <- list()
+posthoc_results <- list()
+best_models <- list()
+best_models_results <- list()
+compare_results <- list()
+results_list <- list()
+titles <- c("Population growth", "Biomass")
+y_labels <- c("Number of fronds", expression(Delta ~ "dry weight (g)"))
+```
+
+## Candidate model fitting and assessment
+```{r}
+# Loop through each dataset (frond and weight)
+for (i in seq_along(data)) {
+  df <- data[[i]]
+  
+  # Perform statistical tests
+  if (names(data)[i] == "frondcount") {
+    df <- data[[1]]
+    simple <- glm(endpoint ~ treatm*temp, data = df, family = "poisson")
+    # Mixed Poisson model with random effect of Experiment_Number
+    mxlin <- glmer(endpoint ~ treatm*temp + (1|Experiment_Number), data = df, family="poisson")
+    
+#anova(mxlin, simple, test = "Chisq")
+L0 <- logLik(simple)
+L1 <- logLik(mxlin)
+L.ratio <- as.vector(- 2 * (L0 - L1))
+p_value <- 0.5 * (1 - pchisq(L.ratio, 1))
+options(scipen = 999)
+print(paste("Comparing simple x mixed model - frond count:"))
+cat("p_value:", p_value, "\n")
+#https://stat.ethz.ch/pipermail/r-help/2008-July/167889.html
+
+    } else {
+    df <- data[[2]]
+    # Linear model
+    simple <- lm(endpoint ~ treatm*temp, data = df)
+    # Mixed linear model with random effect of Experiment_Number
+    mxlin <- lmer(endpoint ~ treatm*temp + (1|Experiment_Number), data = df)
+    
+#anova(mxlin, simple, test = "Chisq")
+L0 <- logLik(simple)
+L1 <- logLik(mxlin)
+L.ratio <- as.vector(- 2 * (L0 - L1))
+p_value <- 0.5 * (1 - pchisq(L.ratio, 1))
+options(scipen = 999)
+print(paste("Comparing simple x mixed model - dry weight:"))
+cat("p_value:", p_value, "\n")
+    
+  }
+
+  Cand.modsF <- list("no random effects" = simple,
+                   "experiment number" = mxlin)
+  
+  # Get AIC for each model and store it
+AIC_values <- sapply(Cand.modsF, function(model) AIC(model))
+
+# Function to compute AICc
+compute_AICc <- function(model, n) {
+  aic <- AIC(model)
+  k <- length(coef(model))  # Number of parameters
+  aicc <- aic + (2 * k * (k + 1)) / (n - k - 1)  # AICc formula
+  return(aicc)
+}
+
+n <- nrow(df)  
+
+# Compute AICc for each model
+AICc_values <- sapply(Cand.modsF, compute_AICc, n = n)
+
+# Create a summary table using AICc
+compare_results[[i]] <- knitr::kable(data.frame(Model = names(AICc_values), AICc = AICc_values), "simple", digits = 2)
+
+cat("Model assessment:",names(data)[i])
+print(compare_results[[i]])
+
+# Find the best model based on AICc
+best_model_name <- names(AICc_values)[which.min(AICc_values)]
+results_list[[i]] <- Cand.modsF[[best_model_name]]
+
+  best_model <- results_list[[i]]
+  
+  best_models_results[[i]] <- summary(best_model)
+  best_models[[i]] <- best_model
+  
+  if (names(data)[i] == "frond") {
+  model_dispersion <- sum(residuals(best_model, type = "pearson")^2) / df.residual(best_model)
+  print(paste("Model dispersion ratio", model_dispersion)) }
+}
+```
+
+## Asessment of treatment significance for selected model above
+```{r}
+library(car)
+
+best_model <- best_models[[1]]
+phi <- sum(residuals(best_model, type="pearson")^2) / df.residual(best_model)
+anova_table <- Anova(best_model, type = "III")
+  
+# Adjusting chi-square values (quasipoisson)
+anova_table$`Chisq` <- anova_table$`Chisq` / phi  
+  
+# Recalculating p-values using chi-square distribution
+anova_table$`Pr(>Chisq)` <- pchisq(anova_table$`Chisq`, anova_table$Df, lower.tail = FALSE)  
+  
+print("Adjusted predictor significance - frond count")
+print(anova_table)
+  
+  
+best_model <- best_models[[2]]
+# Perform standard ANOVA for a linear model
+anova_table <- Anova(best_model, type = "III")
+print("Standard ANOVA table for linear model - biomass:")
+print(anova_table)
+
+```
+
+## Results Visualization
+```{r echo=FALSE}
+for (i in 1:length(data)) {
+  df <- data[[i]] 
+  
+  # Calculate the mean and standard error by treatment and temperature
+
+  
+if (data[i] == "frond") {
+summary_stats <- do.call(data.frame, aggregate(endpoint ~ temp + treatm, df, 
+  function(x) c(mean_response = mean(x, na.rm = TRUE), se_response = sd(x, na.rm = TRUE) / sqrt(mean(x)/length(x)))))
+} else { 
+summary_stats <- do.call(data.frame, aggregate(endpoint ~ temp + treatm, df, 
+  function(x) c(mean_response = mean(x, na.rm = TRUE), se_response = sd(x, na.rm = TRUE) / sqrt(length(x)))))
+}
+
+  p <- ggplot(summary_stats, aes(x = temp, y = endpoint.mean_response, group = treatm, color = treatm, fill = treatm)) +
+    geom_line(size = 2) + 
+    geom_point(size = 6) + 
+    geom_errorbar(aes(ymin = endpoint.mean_response - endpoint.se_response, ymax = endpoint.mean_response + endpoint.se_response), 
+                  width = 0.1, size = 2) +  
+    theme_bw(base_size = 16) +
+    ggtitle(titles[i]) +
+    theme(
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      axis.text = element_text(size = 14),  
+      axis.title = element_text(size = 18), 
+      plot.title = element_text(size = 20)  
+    ) +
+    xlab("Temperature (ºC)") + ylab(y_labels[i]) +
+    scale_fill_manual(name = "Treatment", values = c("constant" = "grey", "fluctuating" = "black")) +
+    scale_color_manual(name = "", values = c("constant" = "grey", "fluctuating" = "black"))
+  
+  plots[[i]] <- p
+}
+
+```
+
+```{r echo=FALSE}
+cat("Frond count", "\n")
+full_mod1 <- best_models[[1]]
+quasi_table <- function(model,ctab=coef(summary(model))) {
+  phi <- sum(residuals(model, type="pearson")^2)/df.residual(model)
+  qctab <- within(as.data.frame(ctab),
+                  {`Std. Error` <- `Std. Error`*sqrt(phi)
+                  `z value` <- Estimate/`Std. Error`
+                  `Pr(>|z|)` <- 2*pnorm(abs(`z value`), lower.tail=FALSE)
+                  })
+  return(qctab)
+}
+
+print(paste("Adjusted model summary"))
+printCoefmat(quasi_table(full_mod1),digits=2)
+
+cat("Biomass", "\n")
+summary(best_models[[2]])
+```
+
+## Model Diagnostics
+```{r}
+# Residual plots
+par(mfrow = c(2, 2))
+plot(best_models[[2]])
+```
+
