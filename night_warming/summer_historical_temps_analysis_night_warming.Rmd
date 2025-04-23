@@ -1,0 +1,57 @@
+---
+title: "Historical temperature analysis for night warming - summer"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lubridate)
+library(dplyr)
+```
+
+```{r}
+# downloaded from Environment Canada on Wednesday, May 17, 2023, 11:26:27 AM
+# reftemps <- read.csv("C:/Users/user/Desktop/historical_temps_sd_range/waterloo_region_hourly_data_2012_2022.csv", header=TRUE, stringsAsFactors = TRUE)
+# reftemps$month <- as.numeric(reftemps$month)
+# reftemps$day <- as.numeric(reftemps$day)
+# reftemps <- subset(reftemps,!temp=="NA")
+# ref_temps_summer <- subset(reftemps, month > 6 & month < 9)
+# ref_temps_summer <- cat_stats[, -c(2:9,17:25,27:37)]
+
+ref_temps_summer <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/night_warming/ref_temps_summer.csv", header = TRUE, stringsAsFactors = TRUE, fileEncoding = "UTF-8-BOM")
+
+```
+
+```{r}
+summary_stats <- ref_temps_summer %>%
+  mutate(year = as.integer(format(as.Date(date), "%Y"))) %>%
+  filter(year %in% c(2016, 2020, 2022), station_name == "KITCHENER/WATERLOO") %>%
+  group_by(year, month, station_name, day) %>%
+  summarise(
+    avg_temp = mean(temp, na.rm = TRUE),
+    min_temp = any(temp >= 11 & temp <= 15),
+    max_temp = any(temp >= 33 & temp <= 37),
+    in_range = avg_temp > 22 & avg_temp < 26,
+    .groups = "drop"
+  ) %>%
+  group_by(year, month, station_name) %>%
+  summarise(
+    total_days = n(),
+    days_min = sum(min_temp),
+    percentage_min_temp = (days_min / total_days) * 100,
+    days_max = sum(max_temp),
+    percentage_max_temp = (days_max / total_days) * 100,
+    days_mean_temp = sum(in_range),
+    percentage_mean_temp = (days_mean_temp / total_days) * 100,
+    .groups = "drop"
+  )
+
+knitr::kable(
+  summary_stats[] <- data.frame(lapply(summary_stats, function(x) {
+    if (is.numeric(x)) round(x, 2) else x
+  }))
+)
+```
+
