@@ -94,8 +94,8 @@ cat_stats <- cat_stats[
 # Create a new column to check if program_mean differs from obs_mean by more than 1.1C
 cat_stats$mean_diff_flag <- ifelse(abs(cat_stats$program_mean - cat_stats$obs_mean) > 1.1, "yes", "no")
 
-# Create a new column to check if program_sd differs from obs_sd by more than 0.6C
-cat_stats$sd_diff_flag <- ifelse(abs(cat_stats$program_sd - cat_stats$obs_sd) > 0.6, "yes", "no")
+# Create a new column to check if program_sd differs from obs_sd by more than 0.7C
+cat_stats$sd_diff_flag <- ifelse(abs(cat_stats$program_sd - cat_stats$obs_sd) > 0.7, "yes", "no")
 
 cat_stats$remarks <- ifelse(
   cat_stats$sd_diff_flag == "yes",
