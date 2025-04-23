@@ -1,0 +1,254 @@
+---
+title: "Night warming treatments: Summer"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this document, we analyze the temperature profiles of different treatments: ambient, night warming, ambient+, and random variation. The objective is to understand if these treatments will help us to identify if any effects are due to timing of warming and/or effects of changes in mean temperature or variance.
+
+```{r echo=TRUE}
+
+## Function to create daily cycles
+sinusoidalArray<- function (size = 10, min=-1, max=1, subdivide = 1){
+  ax = array(0, size)
+  for(i in 0:size){
+    ax[i]=min+(max-min)*(0.5+0.5*sin(2*pi*(i/subdivide)/24))
+  }
+  return(ax)
+}
+
+# setting minimum and maximum temperatures 
+size = 24
+
+ambient <- sinusoidalArray(size,35,13)
+
+nw <- sinusoidalArray(size,35,20)
+
+ambient_plus <- sinusoidalArray(size,37.5,17.5)
+
+set.seed(123456)  
+
+# Get min, max, and stats from the night warming treatment
+min_nw <- min(nw)
+max_nw <- max(nw)
+mean_nw <- mean(nw)
+sd_nw <- sd(nw)
+
+# Generate an initial sequence of random values
+random_variation <- rnorm(size, mean = 27.5, sd = 5.4)
+
+# Clip values to stay within the range of night warming
+random_variation <- pmax(pmin(random_variation, max_nw), min_nw)
+
+# Adjust mean and sd directly
+current_mean <- mean(random_variation)
+current_sd <- sd(random_variation)
+
+# Scale and shift
+random_variation <- (random_variation - current_mean) / current_sd * sd_nw + mean_nw
+
+# Clip again to ensure it stays within bounds
+random_variation <- pmax(pmin(random_variation, max_nw), min_nw)
+
+# # Plotting
+# par(mfrow=c(3,2), mar=c(4, 4, 2, 1))
+# axis_font_size <- 1.2
+# font_size <- 1.2
+# 
+# # ambient and nw
+# plot(ambient, type="l", ylim=c(10,43), lwd=3, main="Ambient vs night-warming", 
+#      xlab="Time (hours)", ylab="", cex=font_size, cex.axis=axis_font_size)
+# lines(nw, col="red", lty=4, lwd=3)
+# 
+# # ambient and all-day-warming
+# plot(ambient, type="l", ylim=c(10,43), lwd=3, main="Ambient vs all-day-warm", 
+#      xlab="Time (hours)", ylab="Temperature (°C)", cex=font_size, cex.axis=axis_font_size)
+# lines(ambient_plus, col="blue", lty=4, lwd=3)
+# 
+# # night warming and random variation
+# plot(nw, type="l", ylim=c(10,43), lwd=3, main="Night warming vs random variation", 
+#      xlab="Time (hours)", ylab="", col="red", cex=font_size, cex.axis=axis_font_size)
+# lines(random_variation, col="grey", lty=4, lwd=3)
+ 
+# # 5: Plot min, max, and mean for each treatment
+# # Calculate min, max, and mean for each treatment
+treatments <- list(ambient = ambient, nw = nw, ambient_plus = ambient_plus, random_variation = random_variation)
+ treatment_names <- c("ambient", "night_warm", "ambient_plus",  
+                      "random_var")
+min_vals <- sapply(treatments, min)
+max_vals <- sapply(treatments, max)
+mean_vals <- sapply(treatments, mean)
+ 
+# par(mfrow=c(1,1))
+# 
+# plot(1:4, mean_vals, ylim = c(10, 45), xlim = c(0.5, 6.5), xaxt = "n",
+#      pch = 16, col = c("black","red","blue","green","grey","purple"), xlab = "Treatment", ylab = "Temperature (°C)",
+#      main = "Temperature range")
+# axis(1, at = 1:4, labels = treatment_names, cex=0.7, cex.axis=0.7)
+# 
+# # Add min and max values as vertical lines
+# segments(1:4, min_vals, 1:4, max_vals,col = c("black","red","blue","green","grey","purple"), lwd = 2)
+
+
+
+# Calculate the standard deviation for each treatment
+sd_vals <- sapply(treatments, sd)
+
+# Create questions for each treatment
+questions <- c(
+  "Current temperatures",
+  "Will night warming have an effect?",
+  "What if warming was happening the same way across all hours of the day?",
+  "Do diel cycles matter?"
+)
+
+# Create a data frame with the required columns
+table_data <- data.frame(
+  Treatment = treatment_names,
+  Min_Temperature = min_vals,
+  Mean_Temperature = mean_vals,
+  Max_Temperature = max_vals,
+  Standard_Deviation = sd_vals,
+  Questions = questions
+)
+
+thermalseq10 <- cbind(ambient,nw,ambient_plus,random_variation)
+
+# Use kable to display the table
+knitr::kable(table_data, col.names = c("Treatments ", "Min Temp (°C)", "Mean Temp (°C)", "Max Temp (°C)", "SD", "Questions"),row.names = FALSE, digits = 1)
+
+
+# Save
+write.csv(thermalseq10, "C:/Users/user/Desktop/night_warming_summer_extra_treatments.csv", row.names = FALSE)
+
+```
+
+
+```{r eval=FALSE, include=FALSE}
+# # Plotting spring and summer treatments using the same colours
+# # data for spring is in: night_warming_treatments_version2
+# par(mfrow = c(1, 2), mar = c(5, 5, 4, 1), oma = c(0, 1, 0, 0))  # Adjust mar and oma for balance
+# par(mfrow = c(1, 1))
+# # Plot 1: Spring experiment with last column plotted before the 4th
+# avg_temps_spring <- colMeans(thermalseq3[, c(2, 3, 5, 4)])
+# min_temps_spring <- apply(thermalseq3[, c(2, 3, 5, 4)], 2, min)
+# max_temps_spring <- apply(thermalseq3[, c(2, 3, 5, 4)], 2, max)
+# 
+# plot(1, type = "n", xlim = c(0.5, 4.5), ylim = c(12, 37), xaxt = "n",
+#      main = "Spring Experiment", 
+#      xlab = "Treatments", ylab = "Temperature (°C)", 
+#      cex.main = 1.3, cex.lab = 1.3, cex.axis = 1.2)
+# 
+# axis(1, at = 1:4, labels = c("ambient", "night warm.", "uniform", "day warm."), cex.axis = 1.2)
+# 
+# points(1:4, avg_temps_spring, pch = 19, col = c("black", "#D55E00", "grey", "#56B4E9"), cex = 2)
+# arrows(1:4, min_temps_spring, 1:4, max_temps_spring, 
+#        angle = 90, code = 3, length = 0.1, col = c("black", "#D55E00", "grey", "#56B4E9"), lwd = 4)
+
+# Plot 2: Summer experiment
+avg_temps <- sapply(treatments, mean)
+min_temps <- sapply(treatments, min)
+max_temps <- sapply(treatments, max)
+avg_temps <- append(avg_temps, 24, after = 1)
+avg_temps <- append(avg_temps, 27.5, after = 3)
+min_temps <- append(min_temps, 24, after = 1)
+min_temps <- append(min_temps, 27.5, after = 3)
+max_temps <- append(max_temps, 24, after = 1)
+max_temps <- append(max_temps, 27.5, after = 3)
+
+plot(1, type = "n", xlim = c(0.5, 6.5), ylim = c(12, 37), xaxt = "n",
+     main = "Summer Experiment", 
+     xlab = "Treatments", ylab = "", 
+     cex.main = 1.3, cex.lab = 1.3, cex.axis = 1.2)
+
+axis(1, at = 1:6, labels = c("ambient", "const. amb.", "night warm.", "const. fut.", "uniform", "random"), cex.axis = 1.2)
+
+points(1:6, avg_temps, pch = 19, col = c("#0072B2","#0072B2", "#E69F00", "#E69F00", "#E69F00", "#E69F00"), cex = 2)
+arrows(1:6, min_temps, 1:6, max_temps, 
+       angle = 90, code = 3, length = 0.1, col = c("#0072B2","#0072B2", "#E69F00", "#E69F00", "#E69F00", "#E69F00"), cex = 2, lwd = 4)
+
+# Reset layout
+par(mfrow = c(1, 1))
+```
+
+
+
+
+
+```{r echo=FALSE}
+## mar 23 2025 plots for thesis
+thermalseq10 <- thermalseq10[c(14:24, 1:13), ]
+
+# Set margins
+par(mar = c(5, 5, 4, 2))
+
+# Define custom time labels from 12 PM to 11 AM (every 4 hours)
+time_labels <- c("12PM", "4PM", "8PM", "12AM", "4AM", "8AM")
+
+# Define positions for these labels
+time_positions <- seq(1, 24, by = 4)
+
+# Plot without x-axis
+plot(thermalseq10[1:24, 1], type = "l", col = "black", ylim = c(12, 40), lwd = 2,
+     main = "Fig. 2: Night warming experiment treatments", cex.axis = 1.5, cex.lab = 1.8,
+     xlab = "Time", ylab = "Temperature (°C)", xaxt = "n")
+
+# Add custom x-axis with labels every 4 hours
+axis(1, at = time_positions, labels = time_labels, cex.axis = 1.2)
+
+# Add lines for other columns, restricted to the first 24 rows
+lines(thermalseq10[1:24, 3], type = "l", col = "#E69F00", lwd = 3, lty = 2)
+lines(thermalseq10[1:24, 2], type = "l", col = "#E69F00", lwd = 3)
+lines(thermalseq10[1:24, 4], type = "l", col = "#E69F00", lwd = 3, lty = "dotted")
+
+# Add legend
+legend("bottomleft", legend = c(
+  expression("ambient (" ~ mu == 24 * degree * C ~ "," ~ sigma == 7.9 * degree * C ~ ")"),
+  expression("ambient+ (" ~ mu == 27.5 * degree * C ~ "," ~ sigma == 7.2 * degree * C ~ ")"),
+  expression("night-warming (" ~ mu == 27.5 * degree * C ~ "," ~ sigma == 5.4 * degree * C ~ ")"),
+  expression("random (" ~ mu == 27.5 * degree * C ~ "," ~ sigma == 5.2 * degree * C ~ ")")
+), 
+col = c("black", "#E69F00", "#E69F00", "#E69F00"), 
+lty = c(1, 2, 1, 3),  
+lwd = 3, bty = "n", cex = 0.9)
+
+
+
+par(mar = c(5, 5, 4, 2))
+
+# Define custom time labels from 12 PM to 11 AM (every 4 hours)
+time_labels <- c("12PM", "4PM", "8PM", "12AM", "4AM", "8AM")
+
+# Define positions for these labels
+time_positions <- seq(1, 24, by = 4)
+
+# # Plot without x-axis
+# plot(thermalseq3[1:24, 2], type = "l", col = "black", ylim = c(12, 23), lwd = 2,
+#      main = "Fig. 2: Night warming experiment treatments", cex.axis = 1.5, cex.lab = 1.8,
+#      xlab = "Time (hours)", ylab = "Temperature (°C)", xaxt = "n")
+# 
+# # Add custom x-axis with labels every 4 hours
+# axis(1, at = time_positions, labels = time_labels, cex.axis = 1.2)
+# 
+# # Add lines for other columns, restricted to the first 24 rows
+# lines(thermalseq3[1:24, 5], type = "l", col = "#E69F00", lwd = 3, lty = 2)
+# lines(thermalseq3[1:24, 3], type = "l", col = "#E69F00", lwd = 3)
+# lines(thermalseq3[1:24, 6], type = "l", col = "#E69F00", lwd = 3, lty = "dotted")
+# 
+# # Add legend
+# legend("bottomleft", legend = c(
+#   expression("ambient(" ~ mu == 16.4 * degree * C ~ "," ~ sigma == 2.4 * degree * C ~ ")"),
+#   expression("ambient+(" ~ mu == 18.9 * degree * C ~ "," ~ sigma == 2.4 * degree * C ~ ")"),
+#   expression("night-warming(" ~ mu == 18.9 * degree * C ~ "," ~ sigma == 0.9 * degree * C ~ ")"),
+#   expression("random(" ~ mu == 18.9 * degree * C ~ "," ~ sigma == 0.8 * degree * C ~ ")")
+# ), 
+# col = c("black", "#E69F00", "#E69F00", "#E69F00"), 
+# lty = c(1, 2, 1, 3),  
+# lwd = 3, bty = "n", cex = 0.9)
+
+```
