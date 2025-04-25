@@ -1,0 +1,19 @@
+﻿Experiment_Number,Old_Experiment_Number,Experiment_Start,Experiment_End,Profile_name,Mean_temperature,Treatment_1,Treatment,Incubator,Species,Aphid_count_1,Aphid_count_2,Aphid_count_3,Petridish_Alive_count_1,Petridish_Alive_count_2,Petridish_Alive_count_2,Petridish_dead_count_1,Petridish_Dead_count_2,Petridish_Dead_count_3,cat_1,Program_mean,Obs_mean,Program_sd,Obs_sd,Program_ac,Obs_ac,Errors,Gap_size,Remarks
+1,,27-Feb-25,04-Mar-25,simplelong15_000_18,15,0,no,2,,2,0,21,1,13,12,,,,,,,,,,,y,,Prep aphid a day early 
+1,,27-Feb-25,04-Mar-25,simplelong15_095_18,15,0.95,hot-cold,3,,11,18,12,13,22,18,,,,,,,,,,,y,,Prep aphid a day early 
+1,,27-Feb-25,04-Mar-25,simplelong15_095rev_18,15,0.95,cold-hot,4,,11,15,20,16,17,18,,,,,,,,,,,y,,Prep aphid a day early 
+2,,21-Mar-25,26-Mar-25,simplelong15_095_19,15,0.95,cold-hot,2,,1,2,21,7,13,16,1,4,7,,,,,,,,,,
+2,,21-Mar-25,26-Mar-25,simplelong15_095rev_19,15,0.95,hot-cold,3,,11,10,17,21,13,1,12,5,1,,,,,,,,,,
+2,,21-Mar-25,26-Mar-25,simplelong15_000_19,15,0,no,4,,10,11,9,16,17,11,5,5,2,,,,,,,,,,
+3,,05-Apr-25,10-Apr-25,simplelong27_095rev_34,27,0.95,hot-cold,2,,10,1,2,0,10,6,1,1,1,,,,,,,,,,
+3,,05-Apr-25,10-Apr-25,simplelong27_095_34,27,0.95,cold-hot,4,,5,3,14,10,5,3,0,0,0,,,,,,,,,,
+3,,05-Apr-25,10-Apr-25,simplelong27_000_34,27,0,no,6,,16,2,5,7,11,22,0,1,17,,,,,,,,,,
+4,,10-Apr-25,15-Apr-25,simplelong27_095_35,27,0.95,hot-cold,2,,0,5,1,12,1,1,0,0,1,,,,,,,,,,
+4,,10-Apr-25,15-Apr-25,implelong27_095rev_35,27,0.95,cold-hot,4,,2,2,1,2,2,1,0,0,1,,,,,,,,,,
+4,,10-Apr-25,15-Apr-25,simplelong27_000_35,27,0,no,6,,18,5,1,15,1,8,31,2,1,,,,,,,,,,
+5,,17-Apr-25,22-Apr-25,simplelong15_095rev_20,15,0.95,cold-hot,2,,1,1,7,1,2,2,1,2,1,,,,,,,,,,
+5,,17-Apr-25,22-Apr-25,simplelong15_000_20,15,0,no,4,,1,1,1,1,1,1,1,2,1,,,,,,,,,,
+5,,17-Apr-25,22-Apr-25,simplelong15_095_20,15,0.95,hot-cold,6,,0,9,0,3,1,1,0,1,1,,,,,,,,,,
+6,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+6,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+6,,,,,,,,,,,,,,,,,,,,,,,,,,,,
