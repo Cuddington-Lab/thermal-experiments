@@ -1,0 +1,128 @@
+Experiment_Number,Experiment_Start,Experiment_End,Profile_name,Mean_temperature,Label,Incubator,Species,Aphid_count_1,Aphid_count_2,Aphid_count_3,Frond_count_1,Frond_count_2,Frond_count_3,Dead_frond_count_1,Dead_frond_count_2,Dead_frond_count_3,Initial_area,Final_area,Initial_weight,Final_weight,cat_1,Program_mean,Obs_mean,Program_sd,Obs_sd,Program_ac,Obs_ac,Errors,Gap_size,Remarks,prep,Treatment,Exp_run
+53,5-Nov-21,10-Nov-21,Simplelong 15_095rev_06,15,strong autocorrelation,4,LM,0,3,2,5,6,6,NA,NA,NA,NA,NA,NA,NA,hot-cold,14.949,14.932,2.503,2.496,0.954,0.952,,NA,,no,hot-cold,6
+55,19-Nov-21,24-Nov-21,Simplelong15_095_06,15,strong autocorrelation,2,LM,12,19,17,4,5,6,NA,NA,NA,NA,NA,NA,NA,cold-hot,14.95,14.903,2.507,2.516,0.952,0.953,,NA,,no,cold-hot,6
+55,19-Nov-21,24-Nov-21,Simplelong15_000_06,15,no autocorrelation,5,LM,15,12,8,7,5,6,NA,NA,NA,NA,NA,NA,NA,no autocorrelation,14.956,14.93,2.457,2.46,0.018,0.029,,NA,,no,no autocorrelation,6
+67,4-Mar-22,9-Mar-22,Simplelong15_000_8,15,no autocorrelation,4,LM,8,7,13,4,5,5,NA,NA,NA,NA,NA,NA,NA,no autocorrelation,14.951,14.936,2.457,2.45,0.015,0.033,,NA,,no,no autocorrelation,8
+67,4-Mar-22,9-Mar-22,Simplelong15_095_8,15,strong autocorrelation,5,LM,NA,NA,NA,4,6,6,NA,NA,NA,NA,NA,NA,NA,hot-cold,14.948,14.92,2.491,2.511,0.954,0.948,,NA,,no,hot-cold,8
+67,4-Mar-22,9-Mar-22,Simplelong15_095rev_8,15,strong autocorrelation,6,LM,0,0,0,6,5,5,NA,NA,NA,NA,NA,NA,NA,cold-hot,14.959,14.908,2.494,2.485,0.954,0.952,,NA,,no,cold-hot,8
+68,11-Mar-22,16-Mar-22,Simplelong15_095_9,15,strong autocorrelation,2,LM,26,23,32,6,6,6,NA,NA,NA,NA,NA,NA,NA,cold-hot,14.95,14.918,2.504,2.503,0.957,0.957,,NA,,no,cold-hot,9
+68,11-Mar-22,16-Mar-22,Simplelong15_095rev_9,15,strong autocorrelation,3,LM,12,17,10,5,6,6,NA,NA,NA,NA,NA,NA,NA,hot-cold,14.951,14.908,2.497,2.51,0.957,0.957,,NA,,no,hot-cold,9
+68,11-Mar-22,16-Mar-22,Simplelong15_000_9,15,no autocorrelation,4,LM,7,9,10,6,6,6,NA,NA,NA,NA,NA,NA,NA,no autocorrelation,14.947,14.944,2.465,2.467,0.008,0.053,,NA,,no,no autocorrelation,9
+69,18-Mar-22,23-Mar-22,Simplelong15_095_10,15,strong autocorrelation,2,LM,NA,NA,NA,6,6,6,NA,NA,NA,0.53,0.723,NA,NA,cold-hot,14.962,14.922,2.5,2.497,0.95,0.95,,NA,,no,cold-hot,10
+69,18-Mar-22,23-Mar-22,Simplelong15_095rev_10,15,strong autocorrelation,3,LM,9,0,0,5,6,6,NA,NA,NA,0.549,0.693,NA,NA,hot-cold,14.963,14.924,2.493,2.499,0.95,0.949,,NA,,no,hot-cold,10
+69,18-Mar-22,23-Mar-22,Simplelong15_000_10,15,no autocorrelation,4,LM,1,7,5,4,5,5,NA,NA,NA,0.608,0.667,NA,NA,no autocorrelation,14.958,14.928,2.463,2.46,0.02,0.018,,NA,,no,no autocorrelation,10
+69,18-Mar-22,23-Mar-22,Simplelong15_095_11,15,strong autocorrelation,5,LM,17,10,0,5,5,5,NA,NA,NA,0.549,0.683,NA,NA,cold-hot,14.957,14.907,2.49,2.516,0.95,0.953,,NA,,no,cold-hot,11
+69,18-Mar-22,23-Mar-22,Simplelong15_095rev_11,15,strong autocorrelation,6,LM,NA,NA,NA,6,6,3,NA,NA,NA,0.556,0.694,NA,NA,hot-cold,14.945,14.918,2.504,2.49,0.952,0.951,,NA,,no,hot-cold,11
+71,1-Apr-22,6-Apr-22,Simplelong15_000_11,15,no autocorrelation,5,LM,0,0,19,5,6,5,NA,NA,NA,0.532,0.725,NA,NA,no autocorrelation,15.404,15.344,2.284,2.268,0.149,0.194,,NA,,no,no autocorrelation,11
+71,1-Apr-22,6-Apr-22,Simplelong15_000_12,15,no autocorrelation,2,LM,0,0,0,7,6,4,NA,NA,NA,0.418,0.682,NA,NA,no autocorrelation,14.948,14.923,2.457,2.481,0.021,0.027,,NA,,no,no autocorrelation,12
+71,1-Apr-22,6-Apr-22,Simplelong15_095_12,15,strong autocorrelation,3,LM,16,18,17,7,7,6,NA,NA,NA,0.638,0.852,NA,NA,hot-cold,14.944,14.919,2.495,2.499,0.955,0.953,,NA,,no,hot-cold,12
+71,1-Apr-22,6-Apr-22,Simplelong15_095rev_12,15,strong autocorrelation,4,LM,10,17,0,5,5,5,NA,NA,NA,0.45,0.664,NA,NA,cold-hot,14.955,14.913,2.494,2.496,0.954,0.955,,NA,,no,cold-hot,12
+71,1-Apr-22,6-Apr-22,Simplelong15_095_13,15,strong autocorrelation,6,LM,0,0,0,4,5,5,NA,NA,NA,0.508,0.674,NA,NA,hot-cold,14.952,14.909,2.498,2.491,0.958,0.959,,NA,,no,hot-cold,13
+72,8-Apr-22,13-Apr-22,Simplelong15_095rev_13,15,strong autocorrelation,2,LM,NA,NA,NA,6,8,7,NA,NA,NA,NA,NA,NA,NA,cold-hot,14.935,14.887,2.505,2.514,0.957,0.955,,NA,,no,cold-hot,13
+72,8-Apr-22,13-Apr-22,Simplelong15_000_13,15,no autocorrelation,3,LM,10,12,3,6,6,7,NA,NA,NA,NA,NA,NA,NA,no autocorrelation,14.987,14.95,2.433,2.457,0.014,0.013,,NA,,no,no autocorrelation,13
+72,8-Apr-22,13-Apr-22,Simplelong15_000_14,15,no autocorrelation,4,LM,NA,NA,NA,7,6,6,NA,NA,NA,NA,NA,NA,NA,no autocorrelation,14.953,14.921,2.473,2.468,0.014,0.034,,NA,,no,no autocorrelation,14
+72,8-Apr-22,13-Apr-22,Simplelong15_095_14,15,strong autocorrelation,5,LM,11,9,10,8,7,7,NA,NA,NA,NA,NA,NA,NA,hot-cold,14.956,14.932,2.504,2.513,0.95,0.952,,NA,,no,hot-cold,14
+72,8-Apr-22,13-Apr-22,Simplelong15_095rev_14,15,strong autocorrelation,6,LM,NA,NA,NA,6,7,7,NA,NA,NA,NA,NA,NA,NA,cold-hot,14.952,14.909,2.498,2.491,0.958,0.959,,NA,,no,cold-hot,14
+73,15-Apr-22,20-Apr-22,Simplelong15_000_15,15,no autocorrelation,2,LM,6,7,5,6,6,6,NA,NA,NA,NA,NA,NA,NA,no autocorrelation,14.955,14.939,2.467,2.499,0.009,0.004,,NA,,no,no autocorrelation,15
+73,15-Apr-22,20-Apr-22,Simplelong15_095_15,15,strong autocorrelation,3,LM,12,12,17,7,7,6,NA,NA,NA,NA,NA,NA,NA,cold-hot,14.956,14.912,2.493,2.496,0.95,0.946,,NA,,no,cold-hot,15
+73,15-Apr-22,20-Apr-22,Simplelong15_095rev_15,15,strong autocorrelation,4,LM,NA,NA,NA,5,6,6,NA,NA,NA,NA,NA,NA,NA,hot-cold,14.955,14.913,2.492,2.489,0.95,0.949,,NA,,no,hot-cold,15
+74,22-Apr-22,27-Apr-22,Simplelong10_000_1,10,no autocorrelation,2,LM,6,8,10,4,5,6,NA,NA,NA,0.637,0.64,NA,NA,no autocorrelation,9.937,9.952,2.468,2.429,0.015,0.06,,NA,,no,no autocorrelation,1
+74,22-Apr-22,27-Apr-22,Simplelong10_095_1,10,strong autocorrelation,3,LM,0,0,0,5,6,7,NA,NA,NA,0.623,0.652,NA,NA,hot-cold,9.95,9.905,2.507,2.503,0.955,0.95,,NA,,no,hot-cold,1
+74,22-Apr-22,27-Apr-22,Simplelong10_095rev_1,10,strong autocorrelation,4,LM,NA,NA,NA,6,6,7,NA,NA,NA,0.498,0.602,NA,NA,cold-hot,9.945,9.918,2.495,2.505,0.955,0.954,,NA,,no,cold-hot,1
+74,22-Apr-22,27-Apr-22,Simplelong10_000_2,10,no autocorrelation,5,LM,NA,NA,NA,4,5,4,NA,NA,NA,0.426,0.47,NA,NA,no autocorrelation,9.948,10.029,2.46,2.357,0.01,0.037,,NA,,no,no autocorrelation,2
+75,29-Apr-22,4-May-22,Simplelong10_000_4,10,no autocorrelation,2,LM,NA,NA,NA,4,4,5,NA,NA,NA,0.407,0.502,NA,NA,no autocorrelation,9.931,9.936,2.476,2.434,-0.004,0.018,,NA,,no,no autocorrelation,4
+75,29-Apr-22,4-May-22,Simplelong10_000_3,10,no autocorrelation,3,LM,NA,NA,NA,4,5,5,NA,NA,NA,0.506,0.563,NA,NA,no autocorrelation,9.951,9.92,2.462,2.464,0.004,0.011,,NA,,no,no autocorrelation,3
+75,29-Apr-22,4-May-22,Simplelong10_095_3,10,strong autocorrelation,4,LM,0,0,2,5,5,6,NA,NA,NA,0.462,0.513,NA,NA,cold-hot,9.958,9.932,2.493,2.488,0.965,0.961,,NA,,no,cold-hot,3
+75,29-Apr-22,4-May-22,Simplelong10_095rev_4,10,strong autocorrelation,5,LM,0,0,0,5,6,5,NA,NA,NA,0.544,0.617,NA,NA,hot-cold,9.971,9.954,2.495,2.497,0.965,0.956,,NA,,no,hot-cold,4
+75,29-Apr-22,4-May-22,Simplelong10_095rev_2,10,strong autocorrelation,6,LM,NA,NA,NA,7,6,5,NA,NA,NA,0.487,0.594,NA,NA,cold-hot,9.976,9.94,2.493,2.498,0.953,0.954,,NA,,no,cold-hot,2
+77,22-Sep-22,27-Sep-22,simplelong10_000_7,10,no autocorrelation,2,LM,1,1,4,5,5,6,NA,NA,NA,0.264,0.333,0.00018,4e-04,no autocorrelation,9.952,9.94,2.452,2.451,0.014,0.026,,NA,,yes,no autocorrelation,7
+77,22-Sep-22,27-Sep-22,simplelong10_095_7,10,strong autocorrelation,3,LM,1,1,2,6,4,4,NA,NA,NA,0.226,0.299,0.00018,0.00021,hot-cold,9.958,9.93,2.495,2.5,0.953,0.952,,NA,,yes,hot-cold,7
+77,22-Sep-22,27-Sep-22,simplelong10_095rev_7,10,strong autocorrelation,4,LM,1,1,1,6,5,7,NA,NA,NA,0.214,0.35,0.00018,0.001,cold-hot,9.965,9.933,2.493,2.501,0.953,0.948,,NA,,yes,cold-hot,7
+78,29-Sep-22,4-Oct-22,simplelong10_095rev_8,10,strong autocorrelation,2,LM,1,1,1,6,8,8,NA,NA,NA,0.363,0.365,0.00076,0.00102,hot-cold,9.959,9.93,2.495,2.483,0.958,0.954,,NA,,yes,hot-cold,8
+78,29-Sep-22,4-Oct-22,simplelong10_095_8,10,strong autocorrelation,3,LM,1,1,1,7,8,6,NA,NA,1,0.349,0.456,0.00076,0.00096,cold-hot,9.955,9.913,2.49,2.493,0.957,0.957,,NA,,yes,cold-hot,8
+79,6-Oct-22,11-Oct-22,simplelong10_000_9,10,no autocorrelation,2,LM,2,1,1,6,7,5,NA,NA,NA,0.318,0.333,NA,NA,no autocorrelation,9.951,9.968,2.464,2.438,0.012,0.015,,NA,,yes,no autocorrelation,9
+79,6-Oct-22,11-Oct-22,simplelong10_095rev_9,10,strong autocorrelation,3,LM,0,1,1,8,8,8,NA,NA,NA,0.269,0.376,NA,NA,hot-cold,9.973,9.926,2.496,2.492,0.953,0.953,,NA,,yes,hot-cold,9
+79,6-Oct-22,11-Oct-22,simplelong10_095_9,10,strong autocorrelation,4,LM,0,1,1,6,7,6,NA,NA,NA,0.228,0.228,NA,NA,cold-hot,9.941,10.028,2.503,2.404,0.953,0.946,,NA,,yes,cold-hot,9
+80,20-Oct-22,25-Oct-22,simplelong10_095_10,10,strong autocorrelation,2,LM,NA,NA,NA,4,4,4,NA,NA,NA,0.224,0.34,0.00036,0.00036,hot-cold,9.962,9.883,2.504,2.504,0.958,0.95,,NA,,yes,hot-cold,10
+80,20-Oct-22,25-Oct-22,simplelong10_000_10,10,no autocorrelation,3,LM,NA,NA,NA,5,6,4,NA,NA,NA,0.148,0.285,0.00036,3e-04,no autocorrelation,9.978,9.936,2.448,2.457,0.001,0.008,,NA,,yes,no autocorrelation,10
+81,27-Oct-22,1-Nov-22,simplelong37_000_1,37,no autocorrelation,2,LM,NA,NA,NA,2,3,4,2,3,1,0.189,0.127,0.00029,0.00016,no autocorrelation,36.953,36.911,2.46,2.496,0.016,0.003,,NA,,yes,no autocorrelation,1
+81,27-Oct-22,1-Nov-22,simplelong37_095_1,37,strong autocorrelation,3,LM,NA,NA,NA,2,1,0,6,6,5,0.234,0.075,0.00029,0,hot-cold,36.953,36.917,2.5,2.501,0.959,0.958,,NA,,yes,hot-cold,1
+82,3-Nov-22,8-Nov-22,simplelong37_000_2,37,no autocorrelation,2,LM,NA,NA,NA,4,6,4,2,1,2,0.149,0.228,3e-04,0.00073,no autocorrelation,36.947,36.928,2.445,2.49,0.013,-0.003,,NA,,yes,no autocorrelation,2
+82,3-Nov-22,8-Nov-22,simplelong37_095_2,37,strong autocorrelation,3,LM,NA,NA,NA,11,10,7,0,0,2,0.234,0.672,3e-04,0.00133,cold-hot,36.928,36.892,2.504,2.5,0.926,0.925,,NA,,yes,cold-hot,2
+84,17-Nov-22,22-Nov-22,simplelong37_000_4,37,no autocorrelation,2,LM,NA,NA,NA,11,9,12,0,0,0,0.531,NA,0.00045,0.00087,no autocorrelation,36.952,36.896,2.466,2.534,0.022,-0.01,,NA,,yes,no autocorrelation,4
+84,17-Nov-22,22-Nov-22,simplelong37_095_4,37,strong autocorrelation,3,LM,NA,NA,NA,11,10,8,0,0,1,0.403,NA,0.00045,0.00131,cold-hot,36.956,36.912,2.496,2.497,0.958,0.956,,NA,,yes,cold-hot,4
+85,24-Nov-22,29-Nov-22,simplelong37_000_5,37,no autocorrelation,2,LM,NA,NA,NA,10,9,6,1,0,0,0.402,NA,NA,NA,no autocorrelation,36.961,36.945,2.472,2.495,0.035,0.019,,NA,,yes,no autocorrelation,5
+85,24-Nov-22,29-Nov-22,simplelong37_095_5,37,strong autocorrelation,3,LM,NA,NA,NA,0,0,0,6,4,4,0.218,NA,NA,NA,hot-cold,36.97,36.939,2.501,2.5,0.953,0.951,,NA,,yes,hot-cold,5
+88,12-Jan-23,17-Jan-23,simplelong37_000_6,37,no autocorrelation,4,LM,NA,NA,NA,11,8,6,0,0,1,0.308,0,0.00022,0.00131,no autocorrelation,36.95,36.92,2.465,2.495,0.018,0.002,,NA,,yes,no autocorrelation,6
+88,12-Jan-23,17-Jan-23,simplelong37_095_6,37,strong autocorrelation,5,LM,NA,NA,NA,1,0,1,5,5,6,0.452,0,0.00022,0,hot-cold,36.954,36.928,2.498,2.507,0.952,0.951,,NA,,yes,hot-cold,6
+89,19-Jan-23,24-Jan-23,simplelong10_095_11,10,strong autocorrelation,2,LM,NA,NA,NA,6,6,7,0,0,0,0.257,0,5e-04,0.00142,hot-cold,9.986,9.941,2.511,2.515,0.943,0.942,,NA,,yes,hot-cold,11
+89,19-Jan-23,24-Jan-23,simplelong10_000_11,10,no autocorrelation,3,LM,NA,NA,NA,6,5,6,0,0,0,0.259,0,5e-04,0.00122,no autocorrelation,9.968,9.935,2.46,2.471,0.024,0.039,,NA,,yes,no autocorrelation,11
+90,2-Feb-23,7-Feb-23,simplelong37_095_9,37,strong autocorrelation,2,LM,NA,NA,NA,12,13,10,0,0,0,0.415,1.206,0.00073,0.00242,cold-hot,36.948,36.904,2.496,2.489,0.954,0.947,,NA,,yes,cold-hot,9
+90,2-Feb-23,7-Feb-23,simplelong37_000_9,37,no autocorrelation,3,LM,NA,NA,NA,11,7,3,0,0,2,0.257,0.536,0.00073,0.00129,no autocorrelation,36.949,36.913,2.461,2.505,0.019,0.001,,NA,,yes,no autocorrelation,9
+90,2-Feb-23,7-Feb-23,simplelong37_095rev_9,37,strong autocorrelation,4,LM,NA,NA,NA,7,4,6,2,2,1,0.287,0.369,0.00073,0.00125,hot-cold,36.969,36.93,2.468,2.473,0.952,0.953,,NA,,yes,hot-cold,9
+91,9-Feb-23,14-Feb-23,simplelong37_095rev_10,37,strong autocorrelation,2,LM,NA,NA,NA,12,8,11,0,1,0,0.2,0.595,0.00037,0.00138,cold-hot,36.957,36.918,2.49,2.496,0.952,0.948,,NA,,yes,cold-hot,10
+91,9-Feb-23,14-Feb-23,simplelong37_095_10,37,strong autocorrelation,3,LM,NA,NA,NA,3,5,6,4,3,2,0.25,0.211,0.00037,0.00095,hot-cold,36.957,36.909,2.496,2.492,0.952,0.949,,NA,,yes,hot-cold,10
+91,9-Feb-23,14-Feb-23,simplelong37_000_10,37,no autocorrelation,5,LM,NA,NA,NA,13,12,12,0,0,0,0.307,0.95,0.00037,0.00228,no autocorrelation,36.954,36.919,2.459,2.497,0.02,0,,NA,,yes,no autocorrelation,10
+92,16-Feb-23,21-Feb-23,simplelong37_000_11,37,no autocorrelation,2,LM,NA,NA,NA,8,4,7,0,0,0,0.28,0.384,0.00038,NA,no autocorrelation,37.024,36.939,2.498,2.452,0.023,0.037,,NA,,yes,no autocorrelation,11
+92,16-Feb-23,21-Feb-23,simplelong37_095rev_11,37,strong autocorrelation,3,LM,NA,NA,NA,0,0,0,4,4,4,0.167,0,0.00038,NA,hot-cold,37.001,36.915,2.499,2.499,0.951,0.954,,NA,,yes,hot-cold,11
+92,16-Feb-23,21-Feb-23,simplelong37_095_11,37,strong autocorrelation,4,LM,NA,NA,NA,6,8,7,0,0,0,0.135,0.308,0.00038,NA,cold-hot,37.001,36.916,2.499,2.491,0.951,0.956,,NA,,yes,cold-hot,11
+93,24-Feb-23,1-Mar-23,simplelong37_095rev_12,37,strong autocorrelation,2,LM,NA,NA,NA,8,7,6,0,0,0,NA,NA,0.00022,0.00099,hot-cold,36.997,36.918,2.502,2.491,0.947,0.948,,NA,,yes,hot-cold,12
+93,24-Feb-23,1-Mar-23,simplelong37_000_12,37,no autocorrelation,3,LM,NA,NA,NA,6,7,7,1,0,0,NA,NA,0.00022,0.00106,no autocorrelation,37.015,36.932,2.504,2.466,0.017,0.03,,NA,,yes,no autocorrelation,12
+93,24-Feb-23,1-Mar-23,simplelong37_095_12,37,strong autocorrelation,4,LM,NA,NA,NA,8,7,8,0,0,0,NA,NA,0.00022,9e-04,cold-hot,37.031,36.942,2.484,2.477,0.942,0.946,,NA,,yes,cold-hot,12
+94,2-Mar-23,7-Mar-23,simplelong10_000_12,10,no autocorrelation,2,LM,NA,NA,NA,6,7,5,0,0,0,NA,NA,5e-04,0.00134,no autocorrelation,9.953,9.97,2.464,2.453,0.019,0.062,,NA,,yes,no autocorrelation,12
+94,2-Mar-23,7-Mar-23,simplelong10_095_12,10,strong autocorrelation,3,LM,NA,NA,NA,6,5,8,0,0,0,NA,NA,5e-04,0.00183,cold-hot,9.952,9.912,2.494,2.516,0.959,0.957,,NA,,yes,cold-hot,12
+94,2-Mar-23,7-Mar-23,simplelong10_095rev_12,10,strong autocorrelation,4,LM,NA,NA,NA,8,6,7,0,0,0,NA,NA,5e-04,0.00165,hot-cold,9.95,9.915,2.501,2.495,0.958,0.956,,NA,,yes,hot-cold,12
+95,9-Mar-23,14-Mar-23,simplelong10_095_13,10,strong autocorrelation,2,LM,NA,NA,NA,6,6,6,0,0,0,0.442,0.591,0.00036,0.00198,hot-cold,9.943,9.92,2.487,2.492,0.943,0.935,,NA,,yes,hot-cold,13
+95,9-Mar-23,14-Mar-23,simplelong10_000_13,10,no autocorrelation,3,LM,NA,NA,NA,6,5,6,0,0,0,0.299,0.597,0.00036,0.00182,no autocorrelation,9.949,9.93,2.457,2.468,0.011,0.018,,NA,,yes,no autocorrelation,13
+95,9-Mar-23,14-Mar-23,simplelong10_095rev_13,10,strong autocorrelation,4,LM,NA,NA,NA,4,7,5,0,0,0,0.291,0.481,0.00036,0.00131,cold-hot,9.953,9.948,2.489,2.475,0.943,0.936,,NA,,yes,cold-hot,13
+97,23-Mar-23,28-Mar-23,simplelong37_095rev_14,37,strong autocorrelation,2,LM,NA,NA,NA,12,10,10,0,0,0,0.538,0.985,0.00096,0.0033,cold-hot,36.962,36.897,2.494,2.488,0.95,0.948,,NA,,yes,cold-hot,14
+97,23-Mar-23,28-Mar-23,simplelong37_095_14,37,strong autocorrelation,3,LM,NA,NA,NA,6,6,5,3,3,4,0.487,0.34,0.00096,0.00084,hot-cold,36.949,36.92,2.49,2.494,0.951,0.948,,NA,,yes,hot-cold,14
+97,23-Mar-23,28-Mar-23,simplelong37_000_14,37,no autocorrelation,4,LM,NA,NA,NA,7,9,9,2,2,1,0.475,0.373,0.00096,0.00138,no autocorrelation,36.955,36.928,2.453,2.477,0.026,0.02,,NA,,yes,no autocorrelation,14
+98,30-Mar-23,4-Apr-23,simplelong37_000_15,37,no autocorrelation,2,LM,NA,NA,NA,18,14,13,0,0,0,0.831,1.544,0.00082,0.00411,no autocorrelation,36.949,36.928,2.459,2.492,0.02,0.011,,NA,,yes,no autocorrelation,15
+98,30-Mar-23,4-Apr-23,simplelong37_095_15,37,strong autocorrelation,3,LM,NA,NA,NA,8,10,8,6,1,1,0.745,0.97,0.00082,0.0019,hot-cold,36.949,36.904,2.494,2.494,0.954,0.953,,NA,,yes,hot-cold,15
+98,30-Mar-23,4-Apr-23,simplelong37_095rev_15,37,strong autocorrelation,4,LM,NA,NA,NA,16,17,17,0,0,0,0.786,2.122,0.00082,0.00433,cold-hot,36.951,36.905,2.494,2.496,0.954,0.954,,NA,,yes,cold-hot,15
+99,6-Apr-23,11-Apr-23,simplelong27_000_22,27,no autocorrelation,2,LM,NA,NA,NA,39,36,36,0,0,0,NA,NA,NA,NA,no autocorrelation,26.964,26.948,2.468,2.525,0.009,-0.003,,NA,,yes,no autocorrelation,22
+100,13-Apr-23,18-Apr-23,simplelong27_095_22,27,strong autocorrelation,3,LM,NA,NA,NA,21,19,24,0,0,0,0.495,2.364,NA,NA,hot-cold,26.99,26.899,2.51,2.507,0.945,0.948,,NA,,yes,hot-cold,22
+100,13-Apr-23,18-Apr-23,simplelong27_095rev_22,27,strong autocorrelation,4,LM,NA,NA,NA,20,22,20,0,0,0,0.407,2.207,NA,NA,cold-hot,26.992,26.911,2.51,2.503,0.945,0.949,,NA,,yes,cold-hot,22
+101,27-Apr-23,2-May-23,simplelong37_095rev_16,37,strong autocorrelation,2,LM,NA,NA,NA,10,10,8,0,0,0,0.604,0.736,NA,NA,cold-hot,36.998,36.916,2.5,2.495,0.953,0.952,,NA,,yes,cold-hot,16
+101,27-Apr-23,2-May-23,simplelong37_095_16,37,strong autocorrelation,3,LM,NA,NA,NA,2,6,5,4,1,1,0.576,0.216,NA,NA,hot-cold,36.998,36.904,2.5,2.501,0.953,0.956,,NA,,yes,hot-cold,16
+101,27-Apr-23,2-May-23,simplelong37_000_16,37,no autocorrelation,4,LM,NA,NA,NA,9,9,12,2,2,0,0.517,0.869,NA,NA,no autocorrelation,36.998,36.925,2.5,2.448,-0.003,0.017,,NA,,yes,no autocorrelation,16
+103,12-May-23,17-May-23,simplelong27_095_23,27,strong autocorrelation,3,LM,NA,NA,NA,30,29,26,NA,NA,NA,NA,NA,NA,NA,cold-hot,26.942,26.906,2.495,2.502,0.956,0.955,,NA,,yes,cold-hot,23
+103,12-May-23,17-May-23,simplelong27_000_23,27,no autocorrelation,4,LM,NA,NA,NA,20,20,25,NA,NA,NA,NA,NA,NA,NA,no autocorrelation,27.003,27.01,2.401,2.436,-0.001,0.001,,NA,,yes,no autocorrelation,23
+104,19-May-23,24-May-23,simplelong27_095rev_23,27,strong autocorrelation,4,LM,NA,NA,NA,32,33,35,NA,NA,NA,0.355,1.619,NA,NA,hot-cold,26.946,26.918,2.507,2.493,0.955,0.954,,NA,,yes,hot-cold,23
+105,26-May-23,31-May-23,simplelong27_000_24,27,no autocorrelation,2,LM,NA,NA,NA,32,28,26,NA,NA,NA,0.519,2.875,NA,NA,no autocorrelation,26.951,26.923,2.455,2.509,0.015,-0.005,,NA,,yes,no autocorrelation,24
+105,26-May-23,31-May-23,simplelong27_095_24,27,strong autocorrelation,3,LM,NA,NA,NA,35,32,38,NA,NA,NA,0.695,3.968,NA,NA,hot-cold,26.953,26.916,2.492,2.501,0.949,0.95,,NA,,yes,hot-cold,24
+105,26-May-23,31-May-23,simplelong27_000_24,27,strong autocorrelation,4,LM,NA,NA,NA,36,35,30,NA,NA,NA,0.59,4.184,NA,NA,cold-hot,26.958,26.91,2.493,2.497,0.95,0.948,,NA,,yes,cold-hot,24
+111,4-Aug-23,9-Aug-23,simplelong37_095_17,37,strong autocorrelation,2,LM,NA,NA,NA,13,10,7,0,0,0,0.626,1.133,NA,NA,hot-cold,36.954,36.894,2.497,2.503,0.949,0.948,,NA,,yes,hot-cold,17
+111,4-Aug-23,9-Aug-23,simplelong37_000_17,37,no autocorrelation,3,LM,NA,NA,NA,9,9,12,0,0,0,0.659,0.991,NA,NA,no autocorrelation,36.955,36.933,2.462,2.507,0.016,-0.003,,NA,,yes,no autocorrelation,17
+111,4-Aug-23,9-Aug-23,simplelong37_095rev_17,37,strong autocorrelation,4,LM,NA,NA,NA,13,10,13,0,0,0,0.641,1.304,NA,NA,cold-hot,36.95,36.908,2.513,2.514,0.95,0.948,,NA,,yes,cold-hot,17
+112,11-Aug-23,16-Aug-23,simplelong37_095rev_18,37,strong autocorrelation,2,LM,NA,NA,NA,5,5,3,1,1,2,NA,NA,NA,NA,hot-cold,36.986,36.935,2.492,2.489,0.957,0.955,,NA,,yes,hot-cold,18
+112,11-Aug-23,16-Aug-23,simplelong37_095_18,37,strong autocorrelation,3,LM,NA,NA,NA,8,9,9,0,0,0,NA,NA,NA,NA,cold-hot,36.967,36.936,2.499,2.498,0.949,0.949,,NA,,yes,cold-hot,18
+112,11-Aug-23,16-Aug-23,simplelong37_000_18,37,no autocorrelation,4,LM,NA,NA,NA,9,4,7,0,1,1,NA,NA,NA,NA,no autocorrelation,36.926,36.888,2.453,2.476,0.011,-0.004,,NA,,yes,no autocorrelation,18
+113,18-Aug-23,23-Aug-23,simplelong27_095rev_25,27,strong autocorrelation,2,LM,NA,NA,NA,22,21,29,0,0,0,0.552,2.93,NA,NA,cold-hot,26.967,26.904,2.503,2.512,0.953,0.95,,NA,,yes,cold-hot,25
+113,18-Aug-23,23-Aug-23,simplelong27_095_25,27,strong autocorrelation,3,LM,NA,NA,NA,18,23,24,0,0,0,0.41,2.327,NA,NA,hot-cold,26.988,26.966,2.459,2.464,0.953,0.95,,NA,,yes,hot-cold,25
+113,18-Aug-23,23-Aug-23,simplelong27_000_25,27,no autocorrelation,4,LM,NA,NA,NA,9,20,30,0,0,0,0.489,2.168,NA,NA,no autocorrelation,26.933,26.913,2.459,2.53,0.006,-0.013,,NA,,yes,no autocorrelation,25
+114,25-Aug-23,30-Aug-23,simplelong27_000_26,27,no autocorrelation,2,LM,NA,NA,NA,33,31,31,0,0,0,0.78,3.392,NA,NA,no autocorrelation,26.955,26.938,2.453,2.523,0.022,-0.007,,NA,,yes,no autocorrelation,26
+114,25-Aug-23,30-Aug-23,simplelong27_095rev_26,27,strong autocorrelation,3,LM,NA,NA,NA,25,29,32,0,0,0,0.592,2.606,NA,NA,cold-hot,26.951,26.921,2.49,2.484,0.958,0.956,,NA,,yes,cold-hot,26
+114,25-Aug-23,30-Aug-23,simplelong27_095_26,27,strong autocorrelation,4,LM,NA,NA,NA,33,36,29,0,0,0,0.87,3.956,NA,NA,hot-cold,26.957,26.913,2.486,2.482,0.958,0.955,,NA,,yes,hot-cold,26
+115,1-Sep-23,6-Sep-23,simplelong27_095rev_27,27,strong autocorrelation,2,LM,NA,NA,NA,27,22,31,0,0,0,0.586,3.029,NA,NA,hot-cold,26.957,26.925,2.49,2.499,0.955,0.951,,NA,,yes,hot-cold,27
+115,1-Sep-23,6-Sep-23,simplelong27_000_27,27,no autocorrelation,3,LM,NA,NA,NA,23,29,30,0,0,0,0.588,3.057,NA,NA,no autocorrelation,26.992,26.984,2.433,2.511,0.009,-0.013,,NA,,yes,no autocorrelation,27
+115,1-Sep-23,6-Sep-23,simplelong27_095_27,27,strong autocorrelation,4,LM,NA,NA,NA,29,30,29,0,0,0,0.597,3.448,NA,NA,cold-hot,26.958,26.921,2.492,2.483,0.954,0.955,,NA,,yes,cold-hot,27
+117,15-Sep-23,20-Sep-23,simplelong27_095rev_28,27,strong autocorrelation,3,LM,NA,NA,NA,17,15,21,0,0,0,NA,NA,NA,NA,hot-cold,26.944,26.91,2.493,2.51,0.95,0.944,,NA,,yes,hot-cold,28
+117,15-Sep-23,20-Sep-23,simplelong27_000_28,27,no autocorrelation,4,LM,NA,NA,NA,13,14,19,0,0,0,NA,NA,NA,NA,no autocorrelation,26.943,26.931,2.456,2.526,0.021,-0.004,,NA,,yes,no autocorrelation,28
+117,15-Sep-23,20-Sep-23,simplelong27_095_28,27,strong autocorrelation,6,LM,NA,NA,NA,17,13,20,0,0,0,NA,NA,NA,NA,cold-hot,26.953,26.898,2.497,2.501,0.949,0.944,,NA,,yes,cold-hot,28
+118,22-Sep-23,27-Sep-23,simplelong27_095_29,27,strong autocorrelation,3,LM,NA,NA,NA,19,15,19,0,0,0,NA,NA,NA,NA,cold-hot,26.955,26.913,2.496,2.488,0.95,0.946,,NA,,yes,cold-hot,29
+118,22-Sep-23,27-Sep-23,simplelong27_000_29,27,no autocorrelation,4,LM,NA,NA,NA,13,11,14,0,0,0,NA,NA,NA,NA,no autocorrelation,26.953,26.936,2.457,2.51,0.023,-0.012,,NA,,yes,no autocorrelation,29
+118,22-Sep-23,27-Sep-23,simplelong27_095rev_29,27,strong autocorrelation,6,LM,NA,NA,NA,13,13,14,0,0,0,NA,NA,NA,NA,hot-cold,26.95,26.913,2.491,2.497,0.949,0.947,,NA,,yes,hot-cold,29
+119,29-Sep-23,4-Oct-23,simplelong27_000_30,27,no autocorrelation,3,LM,NA,NA,NA,31,27,35,0,0,0,NA,NA,NA,NA,no autocorrelation,26.951,26.948,2.462,2.513,0.014,-0.009,,NA,,yes,no autocorrelation,30
+119,29-Sep-23,4-Oct-23,simplelong27_095_30,27,strong autocorrelation,4,LM,NA,NA,NA,28,28,30,0,0,0,NA,NA,NA,NA,hot-cold,26.951,26.928,2.496,2.494,0.942,0.939,,NA,,yes,hot-cold,30
+119,29-Sep-23,4-Oct-23,simplelong27_095rev_30,27,strong autocorrelation,6,LM,NA,NA,NA,27,30,33,0,0,0,NA,NA,NA,NA,cold-hot,26.959,26.916,2.494,2.505,0.942,0.942,,NA,,yes,cold-hot,30
+120,6-Oct-23,11-Oct-23,simplelong27_095_31,27,strong autocorrelation,2,LM,NA,NA,NA,24,24,27,0,0,0,NA,NA,NA,NA,cold-hot,26.998,26.951,2.499,2.517,0.948,0.945,,NA,,yes,cold-hot,31
+120,6-Oct-23,11-Oct-23,simplelong27_000_31,27,no autocorrelation,3,LM,NA,NA,NA,14,20,22,0,0,0,NA,NA,NA,NA,no autocorrelation,26.949,26.934,2.445,2.518,0.015,-0.006,,NA,,yes,no autocorrelation,31
+120,6-Oct-23,11-Oct-23,simplelong27_095rev_31,27,strong autocorrelation,6,LM,NA,NA,NA,25,19,24,0,0,0,NA,NA,NA,NA,hot-cold,26.96,26.926,2.488,2.492,0.955,0.953,,NA,,yes,hot-cold,31
+121,13-Oct-23,18-Oct-23,simplelong27_095_32,27,strong autocorrelation,2,LM,NA,NA,NA,32,34,28,0,0,0,NA,NA,NA,NA,hot-cold,26.947,26.904,2.499,2.506,0.95,0.947,,NA,,yes,hot-cold,32
+121,13-Oct-23,18-Oct-23,simplelong27_095rev_32,27,strong autocorrelation,4,LM,NA,NA,NA,31,31,24,0,0,0,NA,NA,NA,NA,cold-hot,26.956,26.907,2.495,2.499,0.95,0.948,,NA,,yes,cold-hot,32
+121,13-Oct-23,18-Oct-23,simplelong27_000_32,27,no autocorrelation,6,LM,NA,NA,NA,38,35,35,0,0,0,NA,NA,NA,NA,no autocorrelation,26.951,26.919,2.465,2.509,0.024,0.012,,NA,,yes,no autocorrelation,32
+122,20-Oct-23,25-Oct-23,simplelong27_095rev_33,27,strong autocorrelation,2,LM,NA,NA,NA,30,30,30,0,0,0,NA,NA,NA,NA,cold-hot,26.954,26.908,2.491,2.492,0.95,0.945,,NA,,yes,cold-hot,33
+122,20-Oct-23,25-Oct-23,simplelong27_095_33,27,strong autocorrelation,3,LM,NA,NA,NA,35,25,31,0,0,0,NA,NA,NA,NA,hot-cold,26.953,26.923,2.491,2.488,0.95,0.95,,NA,,yes,hot-cold,33
+122,20-Oct-23,25-Oct-23,simplelong27_000_33,27,no autocorrelation,4,LM,NA,NA,NA,35,33,33,0,0,0,NA,NA,NA,NA,no autocorrelation,26.952,26.93,2.456,2.49,0.015,0.004,,NA,,yes,no autocorrelation,33
