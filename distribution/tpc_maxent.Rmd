@@ -1,0 +1,106 @@
+---
+title: "tpc_maxent"
+author: "Debora"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(rTPC)
+library(nls.multstart)
+
+### Datasets
+datin1 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2022-2023.csv",
+                   header=TRUE, stringsAsFactors = TRUE, fileEncoding="UTF-8-BOM")
+datin2 <- read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/main/dataset_autocorrelation_2021-2022.csv",
+                   header=TRUE, stringsAsFactors = TRUE, fileEncoding="UTF-8-BOM")
+tpc_model <- rbind(datin1, datin2)
+
+### Total reproductive number for each replicate (summing 3 dishes)
+tpc_model$Frond_count <- tpc_model$Frond_count_1 + tpc_model$Frond_count_2 + tpc_model$Frond_count_3
+
+### Selecting constant temperature experiments
+tpc_model <- subset(tpc_model, Treatment == "constant")
+
+### Removing failed experiments
+tpc_model <- subset(tpc_model, (!Errors == "y") | is.na(Errors))
+
+tpc_model <- subset(tpc_model, !Species == "Lab_LM")
+
+### Plotting observations
+colors <- c("#999999", "#E69F00")
+plot(jitter(tpc_model$Mean_temperature, 3), tpc_model$Frond_count, pch = 19, col = colors[factor(tpc_model$Species)])
+legend(6, 68, legend=c("Field_LM", "LP"), col=colors, pch=16, cex=0.8)
+
+tpc_model <- subset(tpc_model, Frond_count != 0)
+tpc_model$r <- (log(tpc_model$Frond_count) - log(12)) / 5
+
+# Removing 2 probable data entry errors
+tpc_model <- subset(tpc_model, Frond_count <= 60)
+
+tpc <- data.frame(temp = tpc_model$Mean_temperature, frond = tpc_model$r, Species = tpc_model$Species)
+tpc$temp <- as.numeric(as.character(tpc$temp))
+
+mylist <- list()
+mylist[[1]] <- subset(tpc, Species == "Field_LM")
+mylist[[2]] <- subset(tpc, Species == "LP")
+
+# choose model
+mod <- "ratkowsky_1983"
+new_data <- data.frame(temp = seq(min(tpc_model$Mean_temperature), max(tpc_model$Mean_temperature), 0.5))
+all_results <- list()
+count <- 1
+
+for (i in mylist) {
+  # get start vals
+  start_vals <- get_start_vals(i[, 1], i[, 2], model_name = mod)
+  # get limits
+  low_lims <- get_lower_lims(i[, 1], i[, 2], model_name = mod)
+  upper_lims <- get_upper_lims(i[, 1], i[, 2], model_name = mod)
+  # fit model
+  fit <- nls_multstart(frond ~ ratkowsky_1983(temp = temp, tmin, tmax, a, b),
+                       data = i[, 1:2],
+                       iter = 500,
+                       start_lower = start_vals - 10,
+                       start_upper = start_vals + 10,
+                       lower = low_lims,
+                       upper = upper_lims,
+                       supp_errors = 'Y')
+  result <- predict(fit, newdata = new_data)
+  all_results[[count]] <- as.data.frame(result)
+  count <- count + 1
+}
+
+df <- as.data.frame(do.call(cbind, all_results))
+colnames(df) <- c("tpc_fieldLM", "tpc_LP")
+df$temp <- new_data$temp
+
+# Summary stats using base R
+m <- aggregate(frond ~ temp + Species, tpc, mean, na.rm = TRUE)
+s <- aggregate(frond ~ temp + Species, tpc, sd, na.rm = TRUE)
+tpc.summary <- merge(s, m, by = c("temp", "Species"))
+names(tpc.summary)[3:4] <- c("sd", "frond")
+
+# Plotting with error bars and model lines
+plot(tpc.summary$temp, tpc.summary$frond,
+     ylim = range(c(tpc.summary$frond - tpc.summary$sd, tpc.summary$frond + tpc.summary$sd)),
+     pch = 16, col = c("#999999", "#E69F00"), xlab = "Temperature (\u00B0C)", ylab = "Relative growth rate",
+     cex = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5)
+
+# Error bars
+arrows(x0 = tpc.summary$temp, y0 = tpc.summary$frond - tpc.summary$sd,
+       x1 = tpc.summary$temp, y1 = tpc.summary$frond + tpc.summary$sd,
+       length = 0.15, code = 3, angle = 90, col = c("#999999", "#E69F00"))
+
+legend("topleft", legend = c("L. minor", "L. punctata"), text.font = c(3, 3),
+       col = c("#999999", "#E69F00"), pch = 16, cex = 1.1)
+
+lines(df$temp, df$tpc_fieldLM, col = "#999999", lwd = 3)
+lines(df$temp, df$tpc_LP, col = "#E69F00", lwd = 3)
+```
