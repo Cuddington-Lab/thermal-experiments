@@ -2,7 +2,7 @@ Thermal Experiments – Cuddington Lab
 
 This repository contains datasets, incubator documents, and code from experiments conducted in the Cuddington Lab to study temperature responses of ectotherms, including duckweeds and aphids. The experiments include both controlled laboratory studies using LED incubators and greenhouse-based experiments.
 
-Datasets:
+Autocorrelation experiment datasets: for all datasets below, the categorization of thermal sequences into negative or positive was based on a linear regression of the entire strong autocorrelation sequence (120 or 240h)
 - autocorrelation_TPC.csv:
   Cleaned dataset from autocorrelation experiments using common duckweeds. Used to generate thermal performance curves for replicates exposed to different levels of temporal autocorrelation.
 
