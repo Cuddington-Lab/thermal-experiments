@@ -15,4 +15,5 @@ Autocorrelation experiment datasets: for all datasets below, the categorization 
 - dataset_autocorrelation_2024_10d.csv:
   Full dataset for duckweed experiments conducted in 2024 with a 10-day experimental design, including repeated first-daughter separation procedure.
 
-- dataset_autocorrelation_2025.csv: Dataset for aphid experiments conducted in 2025.
+- dataset_autocorrelation_aphids.csv:
+  Dataset including matched aphid replicates (each run contains the 3 treatments: strong autocorrelation cold-hot, hot-cold, and no autocorrelation).
