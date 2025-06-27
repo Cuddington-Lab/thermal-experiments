@@ -140,6 +140,7 @@ table(dataset$Mean_temperature[dataset$Species == "LP"], dataset$Treatment[datas
 ### Model fitting and validation
 
 ```{r echo=TRUE}
+results_list <- list()
 model_results <- list()
 compare_results <- list()
 
@@ -168,27 +169,9 @@ options(scipen = 999)
 print(paste("Comparing simple x mixed model:"))
 cat("p_value:", format(p_value, digits = 10), "\n")
 
-# Store models
-model_results[[sp]] <- list(simple = simple, exp_number = exp_number)
-
-# Compare models by AIC
-Cand.modsF <- list("no random effects" = model_results[[sp]]$simple,
-                   "experiment number" = model_results[[sp]]$exp_number)
-
-# Get AIC for each model and store it
-AIC_values <- sapply(Cand.modsF, function(model) AIC(model))
-
-# Create a summary table
-compare_results[[sp]] <- knitr::kable(data.frame(Model = names(AIC_values), AIC = AIC_values), "simple", digits = 2)
-
- cat("Model assessment:", sp, "\n")
- print(compare_results[[sp]])
-
-# Find the best model based on AIC
-best_model_name <- names(AIC_values)[which.min(AIC_values)]
-model_results[[sp]] <- Cand.modsF[[best_model_name]]
-
-  best_model <- model_results[[sp]]
+# Mixed models were selected for all analyses, as likelihood-ratio tests indicated that the random effects were significant in most cases
+results_list[[sp]] <- exp_number
+best_model <- exp_number
   
   model_dispersion <- sum(residuals(best_model, type = "pearson")^2) / df.residual(best_model)
   print(paste("Model dispersion ratio for species", sp, ":", model_dispersion))
@@ -216,7 +199,8 @@ All assumptions were met.
 validation_results <- list()
 
 for (sp in species_list) {
-  best_model <- model_results[[sp]]
+  best_model <- results_list[[sp]]
+
   # Model validation for each species
   model_dispersion <- sum(residuals(best_model, type = "pearson")^2) / df.residual(best_model)
   print(paste("Model dispersion ratio for species", sp, ":", model_dispersion))
@@ -256,7 +240,7 @@ abline(h = 4 / nrow(species_data), col = "red", lty = 2)
 # Adjusting model results to account for overdispersion
 ```{r echo=TRUE}
 for (sp in species_list) {
-  full_mod1 <- model_results[[sp]]
+  full_mod1 <- results_list[[sp]]
 quasi_table <- function(model,ctab=coef(summary(model))) {
   phi <- sum(residuals(model, type="pearson")^2)/df.residual(model)
   qctab <- within(as.data.frame(ctab),
@@ -277,6 +261,6 @@ printCoefmat(quasi_table(full_mod1),digits=2)
 # Fixes Standard Errors: It takes the standard errors from the model and makes them bigger based on phi.
 # Recalculates Other Numbers: Since standard errors changed, it also updates the z-values and p-values.
 # Returns the New Table: It gives you a corrected version of the table with the adjusted values.
-# Basically, your Poisson model didn’t fit well because the data was too spread out, so this function helps fix that by making sure the errors and test results reflect the extra spread
+# Basically, Poisson model didn’t fit well because the data was too spread out, so this function helps fix that by making sure the errors and test results reflect the extra spread
 }
 ```

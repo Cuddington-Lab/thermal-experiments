@@ -157,7 +157,7 @@ We fit candidate simple or mixed-effects models to the data, including random ef
 
 ```{r echo=FALSE}
 species_list <- c("LM", "LP")
-model_results <- list()
+results_list <- list()
 
 for (sp in species_list) {
   dataset_species <- subset(dataset, Species == sp)
@@ -180,54 +180,16 @@ options(scipen = 999)
 print(paste("Comparing simple x mixed model:"))
 cat("p_value:", p_value, "\n")
 
-  model_results[[sp]] <- list(simple = simple, exp_number = exp_number)
+# Mixed models were selected for all analyses, as likelihood-ratio tests indicated that the random effects were significant in most cases
+results_list[[sp]] <- exp_number
 }
 ```
 
-## Model Comparison and Results
-
-We compare the performance of the models and extract estimates, confidence intervals, and p values.
-```{r echo=FALSE}
-# Initialize lists to store results
-compare_results <- list()
-best_models <- list()
-
-# Loop over species in the list
-for (sp in species_list) {
-  
-  # Get the models from Cand.modsF for the species
-  Cand.modsF <- list("no random effects" = model_results[[sp]]$simple,
-                     "experiment number" = model_results[[sp]]$exp_number)
-
-  # Get AIC values for each model using base R's AIC function
-  AIC_values <- sapply(Cand.modsF, AIC)
-
-  # Store the AIC values in a dataframe for easy viewing
-  compareF <- data.frame(
-    Name = names(AIC_values),
-    AIC = AIC_values
-  )
-
-  # Display the AIC values in a table using knitr
-  compare_results[[sp]] <- knitr::kable(compareF, "simple", digits = 2)
-
-  # Find the name of the model with the lowest AIC
-  best_model_name <- compareF$Name[which.min(compareF$AIC)]
-
-  # Assign the best model based on the AIC value
-  best_models[[sp]] <- Cand.modsF[[best_model_name]]
-  
-  # Print model comparison for the current species
-  print(paste("Model comparison for species:", sp))
-  print(compare_results[[sp]])
-}
-
-```
 
 ## Model significance testing
 ```{r echo=FALSE}
 for (sp in species_list) {
-  best_model <- best_models[[sp]]
+  best_model <- results_list[["LM"]]
   
   cat("Wald test type 3 for significance of predictor:", sp, "\n")
   library(car)
@@ -246,7 +208,7 @@ for (sp in species_list) {
 ## R2 for common duckweeds
 library(sjPlot)
 
-best_model <- best_models[[1]]
+best_model <- results_list[["LM"]]
 
 # Capture the printed output of tab_model as text
 summary_text <- capture.output(tab_model(best_model))
@@ -258,18 +220,18 @@ print(summary_text)
 ## Visualization of Results for common duckweeds
 
 ```{r echo=FALSE}
-  results_model <- summary(best_models[[1]])
+  results_model <- summary(results_list[[1]])
   print(results_model)
 ```
 
 ## Model validation for common duckweeds
 
 ```{r echo=FALSE}
-  model_dispersion <- sum(residuals(model_results[[1]]$exp_number, type = "pearson")^2) / df.residual(model_results[[1]]$exp_number)
+  model_dispersion <- sum(residuals(results_list[[1]], type = "pearson")^2) / df.residual(results_list[[1]])
   print(paste("Model dispersion ratio", ":", model_dispersion))
 
   # Shapiro test for random effects normality
-  r_int <- ranef(model_results[[1]]$exp_number)$Exp_run$`(Intercept)`
+  r_int <- ranef(results_list[[1]])$Exp_run$`(Intercept)`
   shapiro <- shapiro.test(r_int)
   print(paste("Shapiro test for normality of random factors", round(shapiro$p.value, 3)))
 ```
@@ -278,7 +240,8 @@ print(summary_text)
 ```{r echo=FALSE}
 library(lme4)
   library(emmeans)
-  best_model <- best_models[[1]]
+  
+best_model <- results_list[["LM"]]
   
   posthoc <- emmeans(best_model, pairwise ~ Treatment | Mean_temperature, type = "response")
   

@@ -191,53 +191,14 @@ model_results[[sp]] <- list(simple = simple, exp_number = exp_number)
 }
 ```
 
-## Model Comparison and Results
-
-We compare the performance of the models and get results for best model.
-
-```{r echo=FALSE}
-compare_results <- list()
-best_models <- list()
-
-for (sp in species_list) {
-  Cand.modsF <- list("no random effects" = model_results[[sp]]$simple,
-                     "experiment number" = model_results[[sp]]$exp_number)
-  
-  # Get AIC values for each model using base R's AIC function
-  AIC_values <- sapply(Cand.modsF, AIC)
-  
-  # Store the AIC values in a dataframe for easy viewing
-  compareF <- data.frame(
-    Name = names(AIC_values),
-    AIC = AIC_values
-  )
-  
-  # Display AIC values in the dataframe (for each species)
-  compare_results[[sp]] <- knitr::kable(compareF, "simple", digits=2)
-  
-  # Get the model name with the lowest AIC
-  best_model_name <- compareF$Name[which.min(compareF$AIC)]
-  best_models[[sp]] <- Cand.modsF[[best_model_name]]
-  
-  # Display model comparison for the current species
-  print(paste("Model comparison for species:", sp))
-  print(compare_results[[sp]])
-  cat("\n")
-   # Display model summary for the current species
-  print(paste("Model summary for species:", sp))
-  best_model <- best_models[[sp]]
-  print(best_model)
-  cat("\n")
-}
-```
 
 ## Model significance testing
-The best model selected in the step above is tested for significance, for each species
+Mixed models were selected for all analyses, as likelihood-ratio tests indicated that the random effects were significant in most cases
 ```{r echo=FALSE}
 library(car)
 
 for (sp in species_list) {
-  best_model <- best_models[[sp]]
+  best_model <- model_results[[sp]][["exp_number"]]
   
     # Type III Wald Chi-Square Tests (for interactions)
     anova_output <- car::Anova(best_model, type = "III")
@@ -268,12 +229,11 @@ for (sp in species_list) {
     
 ```
 
+## Model summary for common duckweeds
 ```{r echo=FALSE}
-## Showing results for linear mixed model for common duckweeds (treatment is significant)
-## R2 for common duckweeds
 library(sjPlot)
 
-best_model <- best_models[[1]]
+best_model <- model_results[["LM"]]$exp_number
 
 # Capture the printed output of tab_model as text
 summary_text <- capture.output(tab_model(best_model))
@@ -281,23 +241,6 @@ summary_text <- capture.output(tab_model(best_model))
 print(summary_text)
 ```
 
-## Model diagnostics
-
-```{r model-validation, echo=FALSE, fig.show='hold'}
-  best_model <- model_results[["LM"]]$exp_number
-  
- # Plot residual diagnostics
-  print(plot(best_model, main = paste("Residuals vs Fitted")))
-  
-  # Q-Q plot for normality of residuals
-  qqnorm(residuals(best_model), main = paste("Q-Q Plot"))
-  qqline(residuals(best_model), col = "red")
-  
-# Perform a Shapiro-Wilk test on random effects for normality
-  # ranef_component <- ranef(best_model)
-  # print(shapiro.test(ranef_component[[1]][, "(Intercept)"]))
-
-```
 
 ## Post-hoc test for common duckweeds
 ```{r echo=FALSE}

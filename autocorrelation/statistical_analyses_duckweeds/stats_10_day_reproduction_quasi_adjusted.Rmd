@@ -108,38 +108,10 @@ cat("p_value:", p_value, "\n")
 # Store models
 model_results[[species]] <- list(simple = simple, exp_number = exp_number)
 
-# Compare models by AIC
-Cand.modsF <- list("no random effects" = model_results[[species]]$simple,
-                   "experiment number" = model_results[[species]]$exp_number)
+model_results[[species]] <- exp_number
+# Mixed models were selected for all analyses, as likelihood-ratio tests indicated that the random effects were significant in most cases
+  best_model <- exp_number
 
-# Get AIC for each model and store it
-AIC_values <- sapply(Cand.modsF, function(model) AIC(model))
-
-# Function to compute AICc
-compute_AICc <- function(model, n) {
-  aic <- AIC(model)
-  k <- length(coef(model))  # Number of parameters
-  aicc <- aic + (2 * k * (k + 1)) / (n - k - 1)  # AICc formula
-  return(aicc)
-}
-
-n <- nrow(species_data)  
-
-# Compute AICc for each model
-AICc_values <- sapply(Cand.modsF, compute_AICc, n = n)
-
-# Create a summary table using AICc
-compare_results[[species]] <- knitr::kable(data.frame(Model = names(AICc_values), AICc = AICc_values), "simple", digits = 2)
-
-cat("Model assessment:", species, "\n")
-print(compare_results[[species]])
-
-# Find the best model based on AICc
-best_model_name <- names(AICc_values)[which.min(AICc_values)]
-model_results[[species]] <- Cand.modsF[[best_model_name]]
-
-  best_model <- model_results[[species]]
-  
   model_dispersion <- sum(residuals(best_model, type = "pearson")^2) / df.residual(best_model)
   print(paste("Model dispersion ratio for species", species, ":", model_dispersion))
   
