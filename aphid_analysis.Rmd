@@ -1,0 +1,63 @@
+---
+title: "Aphid data"
+author: "Kim Cuddington"
+date: "14/08/2025"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r readdata}
+aphid=read.csv("https://raw.githubusercontent.com/Cuddington-Lab/thermal-experiments/refs/heads/main/dataset_autocorrelation_aphids.csv")
+head(aphid)
+str(aphid)
+
+#change Treatment to factor rather than numeric
+aphid$Treatment=as.factor(aphid$Treatment)
+
+# note: only seems to be two levels?
+
+# this is also where you should eliminate/tag any data that you are not using
+```
+
+```{r sumreplicates}
+aphid$plantsum=rowSums(aphid[,c("Aphid_count_1","Aphid_count_2","Aphid_count_3")], na.rm=TRUE)
+
+aphid$petrisum=rowSums(aphid[,c("Petridish_Alive_count_1","Petridish_Alive_count_2","Petridish_Alive_count_2.1")], na.rm=TRUE)
+
+head(aphid$plantsum)
+head(aphid$petrisum)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r plots, echo=FALSE}
+par(mfrow=c(1,2))
+aphid0=aphid[aphid$Treatment=="0",]
+plot(x=aphid0$Mean_temperature, y=aphid0$plantsum, col=aphid0$Technician, bty="l", xlab="temperature", ylab="offspring")
+aphid95=aphid[aphid$Treatment=="0.95",]
+plot(x=aphid95$Mean_temperature, y=aphid95$plantsum, col=aphid95$Technician, bty="l", xlab="temperature", ylab="offspring")
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r stats}
+par(mfrow=c(1,1))
+summary(glm(plantsum~Treatment, data=aphid[aphid$Mean_temperature==15,]))
+
+table(aphid[aphid$Mean_temperature==15,"plantsum"])
+
+plot(plantsum~Treatment,data=aphid[aphid$Mean_temperature==15,], ylab="offspring", xlab="autocorrelation") 
+
+```
