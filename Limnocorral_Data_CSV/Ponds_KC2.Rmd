@@ -1,0 +1,128 @@
+---
+title: "Pond data"
+author: "Kim Cuddington"
+date: "14/08/2025"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## R Markdown
+Raw data and preliminary analysis of limnocorral dat
+```{r readdata}
+pond1_0cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L1_ST.csv")
+pond1_10cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L1_10.csv")
+colnames(pond1_10cm)[3]="Temp_C"
+pond1_75cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L1_75.csv")
+pond2_0cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L2_ST.csv")
+pond2_10cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L2_10.csv")
+pond2_75cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L2_75.csv")
+pond3_0cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L3_ST.csv")
+pond3_10cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L3_10.csv")
+pond3_75cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L3_75.csv")
+pond4_0cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L4_ST.csv")
+colnames(pond4_0cm)[3]="Temp_C"
+pond4_10cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L4_10.csv")
+pond4_75cm=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L4_75.csv")
+airtemp=read.csv("https://github.com/Cuddington-Lab/thermal-experiments/raw/refs/heads/main/Limnocorral_Data_CSV/L1_AT.csv")
+```
+```{r}
+# any data manipulation
+# Create a list of dataframes
+list_of_dfs <- list(pond1_0cm,pond1_10cm,pond1_75cm, pond2_0cm, pond2_10cm, pond2_75cm, pond3_0cm,pond3_10cm, pond3_75cm,pond4_0cm,pond4_10cm,pond4_75cm, airtemp)
+# Loop through the list and add a new column
+for (i in seq_along(list_of_dfs)) {
+  # Convert column 'A' to character and store in a new column 'C'
+  list_of_dfs[[i]]$dateconv <- as.POSIXct(list_of_dfs[[i]]$Date_Time_EDT,tryFormats=c("%m/%d/%Y %H:%M"))
+  list_of_dfs[[i]]$dummydate=1:length(list_of_dfs[[i]]$dateconv)
+}
+# or convert one line
+airtemp$dateconv=as.POSIXct(airtemp[,2], tryFormats=c("%m/%d/%Y %H:%M"))
+
+# Define date range
+start_date <- as.POSIXct("2025-07-25", tz = "EST")
+end_date   <- as.POSIXct("2025-09-11", tz = "EST")
+
+# Filter each dataframe in the list to the date range
+list_of_dfs <- lapply(list_of_dfs, function(df) {
+  df[df$dateconv >= start_date & df$dateconv <= end_date, ]
+})
+
+# Also filter airtemp
+airtemp <- airtemp[airtemp$dateconv >= start_date & airtemp$dateconv <= end_date, ]
+
+# Define pond and depth labels
+pond_names <- rep(paste0("Pond", 1:4), each = 3)
+depths <- rep(c("0cm", "10cm", "75cm"), times = 4)
+
+# Calculate mean and variance for each pond-depth dataset
+avg_temps <- data.frame(
+  Pond = pond_names,
+  Depth = depths,
+  Mean_Temp = sapply(list_of_dfs[1:12], function(df) mean(df$Temp_C, na.rm = TRUE)),
+  Var_Temp  = sapply(list_of_dfs[1:12], function(df) var(df$Temp_C, na.rm = TRUE))
+)
+
+# Add air temperature row
+avg_air <- data.frame(
+  Pond = "Air",
+  Depth = "NA",
+  
+  Mean_Temp = mean(airtemp$Temp_C, na.rm = TRUE),
+  Var_Temp  = var(airtemp$Temp_C, na.rm = TRUE)
+)
+
+# Combine
+avg_temps <- rbind(avg_temps, avg_air)
+
+# View the results
+avg_temps
+
+```
+
+
+```{r}
+dname=c("pond1_0cm","pond1_10cm","pond1_75cm", "pond2_0cm", "pond2_10cm", "pond2_75cm", "pond3_0cm","pond3_10cm", "pond3_75cm","pond4_0cm","pond4_10cm","pond4_75cm", "airtp_sur")
+
+xreg=list()
+sumdata=data.frame(Pond=NA, Depth=NA,
+                   restemp=NA)
+for (i in seq_along(list_of_dfs)) {
+  dumdf=list_of_dfs[[i]]
+xreg[[i]]=(lm(Temp_C~dummydate, data=dumdf))
+print(summary(xreg[[i]]))
+list_of_dfs[[i]]$resids=xreg[[i]]$residuals
+
+pname=rep((substr(dname[i], 1, 5)), nrow(list_of_dfs[[i]]))
+print(str(pname))
+
+depname=rep((substr(dname[i], 7, 10:11)), nrow(list_of_dfs[[i]]))
+rsds=list_of_dfs[[i]]$resids
+
+dfdum=data.frame(Pond=pname, Depth=depname, restemp=rsds)
+
+sumdata=rbind(sumdata,dfdum)
+
+
+
+}
+
+sumdata$Pond=as.factor(sumdata$Pond)
+sumdata$Depth=as.factor(sumdata$Depth)
+```
+
+```{r plot}
+par(mfrow=c(2,2), mar=c(3,3,1,1))
+j=0
+for (i in c(1,4,7,10)) {
+  j=j+1
+  plot(airtemp$Temp_C~airtemp$dateconv,type="l",col="orange",ylab="temperature",xlab="",main=paste("pond", j))
+  lines(list_of_dfs[[i]]$Temp_C~list_of_dfs[[i]]$dateconv)
+  abline(h=avg_temps[i,3], col="pink", lwd=2)
+  lines(list_of_dfs[[i+1]]$Temp_C~list_of_dfs[[i+1]]$dateconv, type="l", col="red")
+  lines(list_of_dfs[[i+2]]$Temp_C~list_of_dfs[[i+2]]$dateconv, type="l", col="blue")
+  if (i==1) {
+    legend("topright", legend=c("air","0","10","75"),title="depth (cm)", col=c("orange","black","red","blue"), lty=1, cex = 0.7)
+  }
+}
+```
