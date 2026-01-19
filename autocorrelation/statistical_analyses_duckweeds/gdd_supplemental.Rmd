@@ -1,0 +1,254 @@
+---
+title: "Appendix S2: Growing degree methods and temporal autocorrelation"
+author: "Debora"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Defining biological thresholds
+```{r}
+# set seed for reproducibility
+set.seed(20260117)
+
+# biological thresholds
+tb <- 5     # Base Temperature
+topt <- 28  # Optimum Temperature
+tu <- 40    # Upper Threshold
+```
+
+Daily growing degree day methods (based on daily maximum and minimum temperatures)
+
+Method 1 (Traditional Linear, McMaster and Wilhelm, 1997): Calculates the average of the daily max/min temperatures first, then applies thresholds
+```{r}
+# Method 1: Traditional Linear
+# Source: McMaster and Wilhelm (1997)
+calc_m1 <- function(temps) {
+  d <- get_daily(temps)
+  tavg <- (d$max + d$min) / 2
+  # Linear with cutoffs
+  dtt <- ifelse(tavg < tb, 0,
+                ifelse(tavg > tu, tu - tb,
+                       tavg - tb))
+  sum(dtt)
+}
+```
+
+Method 2 (Modified Linear, McMaster and Wilhelm, 1997): Applies thresholds to the max/min before averaging. First, get daily max/min from hourly data:
+```{r}
+get_daily <- function(temps) {
+  m <- matrix(temps, nrow = 24)
+  list(max = apply(m, 2, max), min = apply(m, 2, min))
+}
+```
+
+```{r}
+calc_m2 <- function(temps) {
+  d <- get_daily(temps)
+  # Adjusts daily extremes before averaging
+  tm <- pmin(d$max, tu)
+  tn <- pmax(d$min, tb)
+  tavg <- (tm + tn) / 2
+  dtt <- ifelse(tavg < tb, 0, tavg - tb)
+  sum(dtt)
+}
+```
+
+Hourly growing degree day: Calculate growth accumulation for every hour
+
+Method 3 (Hourly Linear, Ritchie and NeSmith, 1991): Uses linear increase to optimum, linear decrease to upper threshold
+
+```{r}
+calc_m3 <- function(th) {
+  htt <- numeric(length(th))
+  
+  # Linear increase phase
+  mk1 <- th >= tb & th <= topt
+  htt[mk1] <- th[mk1] - tb
+  
+  # Linear decrease phase
+  mk2 <- th > topt & th <= tu
+  htt[mk2] <- (topt - tb) * ((tu - th[mk2]) / (tu - topt))
+  
+  sum(htt) / 24
+}
+```
+
+Method 4 (Beta Function, Zhou and Wang, 2018): Uses a bell curve
+```{r}
+calc_m4 <- function(th) {
+  htt <- numeric(length(th))
+  mk <- th > tb & th < tu
+  
+  exp_f <- (tu - topt) / (topt - tb)
+  t1 <- (th[mk] - tb) / (topt - tb)
+  t2 <- (tu - th[mk]) / (tu - topt)
+  
+  htt[mk] <- (topt - tb) * t1 * (t2 ^ exp_f)
+  sum(htt) / 24
+}
+```
+
+Simulation: We simulated three average temperature scenarios (Cold, Ambient, Hot) with three different temporal autocorrelation strengths (no autocorrelation, cold $\to$ hot, hot $\to$ cold) to test if the growing degree day methods could capture the order of temperatures (for full description, go to Section 2.2 of Methods)
+```{r}
+means <- c(10, 20, 30)
+scen_names <- c("cold", "ambient", "hot")
+n_sims <- 100
+res_mat <- NULL
+
+for (s in 1:3) {
+  m_temp <- means[s]
+  l_lim <- m_temp - 10
+  u_lim <- m_temp + 10
+  
+  for (i in 1:n_sims) {
+    # 1. Generate random sequence (no autocorrelation) - 240 HOURS (10 DAYS)
+    x_rand <- rnorm(240, m_temp, 2.5)
+    x_rand[x_rand > u_lim] <- u_lim
+    x_rand[x_rand < l_lim] <- l_lim
+    x_rand <- ((x_rand - mean(x_rand)) / sd(x_rand)) * 2.5 + m_temp
+    
+    # 2. Generate cold -> hot sequence
+    alpha <- 0.95
+    gs <- numeric(240); gs[1] <- rnorm(1)
+    for (k in 2:240) gs[k] <- alpha * gs[k-1] + rnorm(1) * sqrt(1 - alpha^2)
+    x_fwd <- x_rand[order(order(gs))]
+    
+    # 3. Generate hot -> cold sequence
+    x_rev <- rev(x_fwd)
+    
+    # Calculate growing degree day for 3 sequences
+    g_rand <- c(calc_m1(x_rand), calc_m2(x_rand), calc_m3(x_rand), calc_m4(x_rand))
+    g_fwd  <- c(calc_m1(x_fwd),  calc_m2(x_fwd),  calc_m3(x_fwd),  calc_m4(x_fwd))
+    g_rev  <- c(calc_m1(x_rev),  calc_m2(x_rev),  calc_m3(x_rev),  calc_m4(x_rev))
+    
+    # Calculate differences in growing degree day units
+    d_fwd_rand <- g_fwd - g_rand   # ColdHot - Random
+    d_rev_rand <- g_rev - g_rand   # HotCold - Random
+    d_rev_fwd  <- g_rev - g_fwd    # HotCold - ColdHot
+    
+    # Calculate error % for all pairwise comparisons
+    # 1. ColdHot vs Rand
+    pct_err_fr_1 <- abs(d_fwd_rand[1]) / max(g_rand[1], 0.1) * 100
+    pct_err_fr_2 <- abs(d_fwd_rand[2]) / max(g_rand[2], 0.1) * 100
+    pct_err_fr_3 <- abs(d_fwd_rand[3]) / max(g_rand[3], 0.1) * 100
+    pct_err_fr_4 <- abs(d_fwd_rand[4]) / max(g_rand[4], 0.1) * 100
+    
+    # 2. HotCold vs Rand
+    pct_err_rr_1 <- abs(d_rev_rand[1]) / max(g_rand[1], 0.1) * 100
+    pct_err_rr_2 <- abs(d_rev_rand[2]) / max(g_rand[2], 0.1) * 100
+    pct_err_rr_3 <- abs(d_rev_rand[3]) / max(g_rand[3], 0.1) * 100
+    pct_err_rr_4 <- abs(d_rev_rand[4]) / max(g_rand[4], 0.1) * 100
+    
+    # 3. HotCold vs ColdHot
+    pct_err_rf_1 <- abs(d_rev_fwd[1]) / max(g_fwd[1], 0.1) * 100
+    pct_err_rf_2 <- abs(d_rev_fwd[2]) / max(g_fwd[2], 0.1) * 100
+    pct_err_rf_3 <- abs(d_rev_fwd[3]) / max(g_fwd[3], 0.1) * 100
+    pct_err_rf_4 <- abs(d_rev_fwd[4]) / max(g_fwd[4], 0.1) * 100
+
+# Store differences and % errors
+res_mat <- rbind(res_mat, c(s, 
+                                # Raw Diffs
+                                d_fwd_rand[1], d_fwd_rand[2], d_fwd_rand[3], d_fwd_rand[4], # Fwd-Rand
+                                d_rev_rand[1], d_rev_rand[2], d_rev_rand[3], d_rev_rand[4], # Rev-Rand
+                                d_rev_fwd[1],  d_rev_fwd[2],  d_rev_fwd[3],  d_rev_fwd[4],  # Rev-Fwd
+                                # % Errors
+                                pct_err_fr_1, pct_err_fr_2, pct_err_fr_3, pct_err_fr_4,
+                                pct_err_rr_1, pct_err_rr_2, pct_err_rr_3, pct_err_rr_4,
+                                pct_err_rf_1, pct_err_rf_2, pct_err_rf_3, pct_err_rf_4))
+  }
+}
+
+# Convert matrix to dataframe
+res_df <- data.frame(res_mat)
+colnames(res_df) <- c("scenario", 
+                      # Raw diffs
+                      "diff_fr_eq1", "diff_fr_eq2", "diff_fr_eq3", "diff_fr_eq4",
+                      "diff_rr_eq1", "diff_rr_eq2", "diff_rr_eq3", "diff_rr_eq4",
+                      "diff_rf_eq1", "diff_rf_eq2", "diff_rf_eq3", "diff_rf_eq4",
+                      # % Errors
+                      "pct_fr_eq1", "pct_fr_eq2", "pct_fr_eq3", "pct_fr_eq4",
+                      "pct_rr_eq1", "pct_rr_eq2", "pct_rr_eq3", "pct_rr_eq4",
+                      "pct_rf_eq1", "pct_rf_eq2", "pct_rf_eq3", "pct_rf_eq4")
+
+# Aggregate means by scenario
+agg_mean <- aggregate(. ~ scenario, res_df, mean)
+```
+
+Mean difference in growing degree days: Here we show the difference in growing degree day units (a value of 0 means the method is not able to differentiate between the temperature regimes with different intensities of temporal autocorrelation)
+```{r echo=FALSE}
+# Part A: Cold->Hot vs Random
+t1a <- data.frame(
+  Scenario = scen_names,
+  Eq1 = round(agg_mean$diff_fr_eq1, 4),
+  Eq2 = round(agg_mean$diff_fr_eq2, 4),
+  Eq3 = round(agg_mean$diff_fr_eq3, 4),
+  Eq4 = round(agg_mean$diff_fr_eq4, 4)
+)
+knitr::kable(t1a, caption = "Difference: Cold->Hot Sequence vs Random")
+
+# Part B: Hot->Cold vs Random
+t1b <- data.frame(
+  Scenario = scen_names,
+  Eq1 = round(agg_mean$diff_rr_eq1, 4),
+  Eq2 = round(agg_mean$diff_rr_eq2, 4),
+  Eq3 = round(agg_mean$diff_rr_eq3, 4),
+  Eq4 = round(agg_mean$diff_rr_eq4, 4)
+)
+knitr::kable(t1b, caption = "Difference: Hot->Cold Sequence vs Random")
+
+# Part C: Hot->Cold vs Cold->Hot
+t1c <- data.frame(
+  Scenario = scen_names,
+  Eq1 = round(agg_mean$diff_rf_eq1, 4),
+  Eq2 = round(agg_mean$diff_rf_eq2, 4),
+  Eq3 = round(agg_mean$diff_rf_eq3, 4),
+  Eq4 = round(agg_mean$diff_rf_eq4, 4)
+)
+knitr::kable(t1c, caption = "Difference: Hot->Cold Sequence vs Cold->Hot Sequence")
+```
+
+Mean relative error (%): Here the error is shown as a percentage of the total GDD accumulated.
+```{r echo=FALSE}
+# Part A: Cold->Hot vs Random
+t2a <- data.frame(
+  Scenario = scen_names,
+  Eq1 = round(agg_mean$pct_fr_eq1, 4),
+  Eq2 = round(agg_mean$pct_fr_eq2, 4),
+  Eq3 = round(agg_mean$pct_fr_eq3, 4),
+  Eq4 = round(agg_mean$pct_fr_eq4, 4)
+)
+knitr::kable(t2a, caption = "Relative Error (%): Cold->Hot vs Random")
+
+# Part B: Hot->Cold vs Random
+t2b <- data.frame(
+  Scenario = scen_names,
+  Eq1 = round(agg_mean$pct_rr_eq1, 4),
+  Eq2 = round(agg_mean$pct_rr_eq2, 4),
+  Eq3 = round(agg_mean$pct_rr_eq3, 4),
+  Eq4 = round(agg_mean$pct_rr_eq4, 4)
+)
+knitr::kable(t2b, caption = "Relative Error (%): Hot->Cold vs Random")
+
+# Part C: Hot->Cold vs Cold->Hot
+t2c <- data.frame(
+  Scenario = scen_names,
+  Eq1 = round(agg_mean$pct_rf_eq1, 4),
+  Eq2 = round(agg_mean$pct_rf_eq2, 4),
+  Eq3 = round(agg_mean$pct_rf_eq3, 4),
+  Eq4 = round(agg_mean$pct_rf_eq4, 4)
+)
+knitr::kable(t2c, caption = "Relative Error (%): Hot->Cold vs Cold->Hot")
+```
+
+Conclusion: The growing degree day calculations distinguished between strong versus no autocorrelation thermal regimes only in the few instances where the hourly temperature sequence altered the daily maxima and minima.
+
+References
+McMaster, G. S., & Wilhelm, W. W. (1997). Growing degree-days: one equation, two interpretations. Agricultural and Forest Meteorology, 87(4), 291-300.
+
+Ritchie, J. T., & NeSmith, D. S. (1991). Temperature and crop development. In Modeling plant and soil systems (pp. 5-29). American Society of Agronomy.
+
+Zhou, G., & Wang, Q. (2018). A new nonlinear method for calculating growing degree days. Scientific Reports, 8(1), 10149.
