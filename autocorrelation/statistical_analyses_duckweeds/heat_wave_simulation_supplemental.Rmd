@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Heat wave simulation - supplemental files"
 author: "Debora"
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -11,29 +11,13 @@ library(riem)
 library(ggplot2)
 ```
 
-According to the recommendation of IPCC, we refer to local climatology 
-and define heat wave as the period of at least five consecutive days 
-with a daily maximum temperature over 5 °C higher than that of the 
-local summertime climatology. 
-The detailed calculation steps are as follows:
+Definition of heat waves: "According to the recommendation of IPCC, we refer to local climatology and define heat wave as the period of at least five consecutive days with a daily maximum temperature over 5 °C higher than that of the local summertime climatology." (Li et al., 2018)
 
- Step 1:
- Calculate the local temperature threshold: the mean daily T max 
- of the summer months (i.e., June, July, and August) during the 
- simulation period (i.e., 2071–2100) is recorded as the local 
- temperature threshold.
+1. Identify climatology: The first step involves calculating the average daily maximum temperature ($T_{max}$) for the months of June, July, and August across the years 1961 to 1990. This average serves as the local temperature threshold, representing the standard "normal" for summer in that specific area.
+2. Identify warm days: A warm day is identified whenever the daily maximum temperature exceeds the established baseline by 5°C or more. These are days where the heat significantly deviates from historical norms.
+3. Identify heat wave: A heat wave is officially recorded only when at least five consecutive warm days occur. Frequency: The number of times these multi-day events happen. Duration: The total length of the continuous hot wave.
 
- Step 2:
- Determine the warm day: if the daily T max is 5 °C higher than the 
- local temperature threshold, it is classified as a warm day.
-
- Step 3:
- Calculate the frequency and duration of heat wave: a period of at 
- least five consecutive warm days is called as a heat wave, 
- and the total number of consecutive warm days is the duration of 
- the heat wave.
- https://link.springer.com/article/10.1007/s00704-017-2123-8
-
+Li, Z., Huang, G., Huang, W., Lin, Q., Liao, R., & Fan, Y. (2018). Future changes of temperature and heat waves in Ontario, Canada. Theoretical and Applied Climatology, 132(3-4), 1029–1038. https://doi.org/10.1007/s00704-017-2123-8
 
 Historical data to obtain average Tmax (climatology)
 
