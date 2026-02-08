@@ -1,7 +1,7 @@
 ---
 title: "preliminary_analyses_blending_groups"
 author: "Debora"
-date: "`r Sys.Date()`"
+date: "2025-06-16"
 output:
   pdf_document: default
 ---
@@ -22,9 +22,6 @@ The following groups were combined because there were no significant differences
 - Lemna minor strains from a US lab and field collection
   
 - Preparation methods with and without repeated first-daughter separation
-  
-  
-Exception: At 27°C, there were significant differences in performance between preparation methods. Therefore, the six replicates that did not include first-daughter separation were excluded from the analysis.
 
 ```{r}
 library(lme4)
@@ -80,13 +77,10 @@ datin$total_living_fronds <- (datin$Frond_count_1 + datin$Frond_count_2 + datin$
 datin1015 <- subset(datin, (Species == "Lab_LM" | Species == "Field_LM") &
                       (Mean_temperature == 10 | Mean_temperature == 15))
 
-datin27 <- subset(datin, (Species == "Lab_LM" | Species == "Field_LM") &
-                    (Mean_temperature == 27))
+datasets <- list(datin1015 = datin1015)
 
-datasets <- list(datin1015 = datin1015, datin27 = datin27)
 predictors_list <- list(
-  datin1015 = c("Mean_temperature*Treatment", "prep*Treatment"),
-  datin27 = c("prep*Treatment")
+  datin1015 = c("Mean_temperature*Treatment", "prep*Treatment")
 )
 
 # Initialize lists to save results
@@ -126,10 +120,5 @@ summary(best_models[[2]])
 exp_number <- glmer(total_living_fronds ~ Species * Treatment + (1|Exp_run), data = datin1015, family="poisson")
 simple <- glm(total_living_fronds ~ Species * Treatment, data = datin1015, family="poisson")
 tab_model(simple)
-
-#at 27C, preparation method makes a difference (excluding older replicates)
-summary(best_models[[3]])
-
-
 ```
 
