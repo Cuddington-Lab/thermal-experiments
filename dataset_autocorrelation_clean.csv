@@ -1,310 +1,310 @@
-"Experiment_Number","Experiment_Start","Experiment_End","Profile_name","Mean_temperature","Label","Incubator","Species","total_living_fronds"
-41,"16-Jul-21","21-Jul-21","simplelong11_1",11,"constant",3,"LM",13
-41,"16-Jul-21","21-Jul-21","simplelong15_1",15,"constant",5,"LM",14
-41,"16-Jul-21","21-Jul-21","simplelong31_1",31,"constant",6,"LM",27
-44,"20-Aug-21","25-Aug-21","simplelong31_1",31,"constant",3,"LM",34
-44,"20-Aug-21","25-Aug-21","simplelong15_1",15,"constant",5,"LM",14
-44,"20-Aug-21","25-Aug-21","simplelong11_1",11,"constant",6,"LM",12
-46,"10-Sep-21","15-Sep-21","simplelong11_1",11,"constant",3,"LM",14
-47,"17-Sep-21","22-Sep-21","simplelong11_1",11,"constant",5,"LM",13
-48,"24-Sep-21","29-Sep-21","simplelong31_1",31,"constant",3,"LM",33
-48,"24-Sep-21","29-Sep-21","simplelong15_1",15,"constant",5,"LM",14
-48,"24-Sep-21","29-Sep-21","simplelong11_1",11,"constant",6,"LM",14
-52,"29-Oct-21","3-Nov-21","simplelong30_1",30,"constant",2,"LM",32
-52,"29-Oct-21","3-Nov-21","Simplelong 35_1",35,"constant",4,"LM",28
-52,"29-Oct-21","3-Nov-21","Simplelong 25_1",25,"constant",5,"LM",31
-53,"5-Nov-21","10-Nov-21","Simplelong 15_095rev_06",15,"strong autocorrelation",4,"LM",17
-53,"5-Nov-21","10-Nov-21","Simplelong 40_1",40,"constant",5,"LM",13
-55,"19-Nov-21","24-Nov-21","Simplelong15_095_06",15,"strong autocorrelation",2,"LM",15
-55,"19-Nov-21","24-Nov-21","Simplelong15_000_06",15,"no autocorrelation",5,"LM",18
-56,"26-Nov-21","1-Dec-21","Simplelong 20_1",20,"constant",1,"LM",26
-56,"26-Nov-21","1-Dec-21","Simplelong 20_1",20,"constant",3,"LM",28
-56,"26-Nov-21","1-Dec-21","Simplelong 25_1",25,"constant",6,"LM",33
-58,"10-Dec-21","15-Dec-21","Simplelong20_2",20,"constant",1,"LM",28
-58,"10-Dec-21","15-Dec-21","Simplelong23_1",23,"constant",2,"LM",33
-58,"10-Dec-21","15-Dec-21","Simplelong35_1",35,"constant",3,"LM",28
-58,"10-Dec-21","15-Dec-21","Simplelong39_1",39,"constant",4,"LM",11
-59,"17-Dec-21","22-Dec-21","Simplelong20_2",20,"constant",1,"LM",18
-59,"17-Dec-21","22-Dec-21","Simplelong25_1",25,"constant",2,"LM",20
-59,"17-Dec-21","22-Dec-21","Simplelong39_1",39,"constant",3,"LM",14
-60,"14-Jan-22","19-Jan-22"," Simplelong35_1",35,"constant",2,"LM",30
-60,"14-Jan-22","19-Jan-22"," Simplelong40_1",40,"constant",3,"LM",8
-61,"21-Jan-22","26-Jan-22"," Simplelong20_2",20,"constant",1,"LM",27
-61,"21-Jan-22","26-Jan-22"," Simplelong35_1",35,"constant",2,"LM",20
-61,"21-Jan-22","26-Jan-22"," Simplelong40_1",40,"constant",3,"LM",2
-62,"28-Jan-22","2-Feb-22"," Simplelong20_2",20,"constant",1,"LM",35
-62,"28-Jan-22","2-Feb-22"," Simplelong40_1",40,"constant",2,"LM",0
-62,"28-Jan-22","2-Feb-22"," Simplelong40_1",40,"constant",3,"LM",0
-67,"4-Mar-22","9-Mar-22","Simplelong15_000_8",15,"no autocorrelation",4,"LM",14
-67,"4-Mar-22","9-Mar-22","Simplelong15_095_8",15,"strong autocorrelation",5,"LM",16
-67,"4-Mar-22","9-Mar-22","Simplelong15_095rev_8",15,"strong autocorrelation",6,"LM",16
-68,"11-Mar-22","16-Mar-22","Simplelong15_095_9",15,"strong autocorrelation",2,"LM",18
-68,"11-Mar-22","16-Mar-22","Simplelong15_095rev_9",15,"strong autocorrelation",3,"LM",17
-68,"11-Mar-22","16-Mar-22","Simplelong15_000_9",15,"no autocorrelation",4,"LM",18
-68,"11-Mar-22","16-Mar-22","Simplelong40_6",40,"constant",5,"LM",0
-69,"18-Mar-22","23-Mar-22","Simplelong15_095_10",15,"strong autocorrelation",2,"LM",18
-69,"18-Mar-22","23-Mar-22","Simplelong15_095rev_10",15,"strong autocorrelation",3,"LM",17
-69,"18-Mar-22","23-Mar-22","Simplelong15_000_10",15,"no autocorrelation",4,"LM",14
-69,"18-Mar-22","23-Mar-22","Simplelong15_095_11",15,"strong autocorrelation",5,"LM",15
-69,"18-Mar-22","23-Mar-22","Simplelong15_095rev_11",15,"strong autocorrelation",6,"LM",15
-71,"1-Apr-22","6-Apr-22","Simplelong15_000_11",15,"no autocorrelation",5,"LM",16
-71,"1-Apr-22","6-Apr-22","Simplelong15_000_12",15,"no autocorrelation",2,"LM",17
-71,"1-Apr-22","6-Apr-22","Simplelong15_095_12",15,"strong autocorrelation",3,"LM",20
-71,"1-Apr-22","6-Apr-22","Simplelong15_095rev_12",15,"strong autocorrelation",4,"LM",15
-71,"1-Apr-22","6-Apr-22","Simplelong15_095_13",15,"strong autocorrelation",6,"LM",14
-72,"8-Apr-22","13-Apr-22","Simplelong15_095rev_13",15,"strong autocorrelation",2,"LM",21
-72,"8-Apr-22","13-Apr-22","Simplelong15_000_13",15,"no autocorrelation",3,"LM",19
-72,"8-Apr-22","13-Apr-22","Simplelong15_000_14",15,"no autocorrelation",4,"LM",19
-72,"8-Apr-22","13-Apr-22","Simplelong15_095_14",15,"strong autocorrelation",5,"LM",22
-72,"8-Apr-22","13-Apr-22","Simplelong15_095rev_14",15,"strong autocorrelation",6,"LM",20
-73,"15-Apr-22","20-Apr-22","Simplelong15_000_15",15,"no autocorrelation",2,"LM",18
-73,"15-Apr-22","20-Apr-22","Simplelong15_095_15",15,"strong autocorrelation",3,"LM",20
-73,"15-Apr-22","20-Apr-22","Simplelong15_095rev_15",15,"strong autocorrelation",4,"LM",17
-74,"22-Apr-22","27-Apr-22","Simplelong10_000_1",10,"no autocorrelation",2,"LM",15
-74,"22-Apr-22","27-Apr-22","Simplelong10_095_1",10,"strong autocorrelation",3,"LM",18
-74,"22-Apr-22","27-Apr-22","Simplelong10_095rev_1",10,"strong autocorrelation",4,"LM",19
-75,"29-Apr-22","4-May-22","Simplelong10_000_3",10,"no autocorrelation",3,"LM",14
-75,"29-Apr-22","4-May-22","Simplelong10_095_3",10,"strong autocorrelation",4,"LM",16
-75,"29-Apr-22","4-May-22","Simplelong10_095rev_3",10,"strong autocorrelation",5,"LM",16
-76,"15-Sep-22","20-Sep-22","simplelong7_1",7,"constant",2,"LM",17
-76,"15-Sep-22","20-Sep-22","simplelong7_1",7,"constant",2,"LM",18
-76,"15-Sep-22","20-Sep-22","simplelong7_1",7,"constant",2,"LP",17
-77,"22-Sep-22","27-Sep-22","simplelong10_000_7",10,"no autocorrelation",2,"LM",16
-77,"22-Sep-22","27-Sep-22","simplelong10_000_7",10,"no autocorrelation",2,"LP",15
-77,"22-Sep-22","27-Sep-22","simplelong10_095_7",10,"strong autocorrelation",3,"LM",14
-77,"22-Sep-22","27-Sep-22","simplelong10_095_7",10,"strong autocorrelation",3,"LP",18
-77,"22-Sep-22","27-Sep-22","simplelong10_095rev_7",10,"strong autocorrelation",4,"LM",18
-77,"22-Sep-22","27-Sep-22","simplelong10_095rev_7",10,"strong autocorrelation",4,"LP",22
-77,"22-Sep-22","27-Sep-22","simplelong7_1",7,"constant",5,"LM",15
-77,"22-Sep-22","27-Sep-22","simplelong7_1",7,"constant",5,"LP",20
-77,"22-Sep-22","27-Sep-22","simplelong7_1",7,"constant",5,"LM",17
-78,"29-Sep-22","4-Oct-22","simplelong10_095rev_8",10,"strong autocorrelation",2,"LM",22
-78,"29-Sep-22","4-Oct-22","simplelong10_095rev_8",10,"strong autocorrelation",2,"LP",19
-78,"29-Sep-22","4-Oct-22","simplelong10_095_8",10,"strong autocorrelation",3,"LM",21
-78,"29-Sep-22","4-Oct-22","simplelong10_095_8",10,"strong autocorrelation",3,"LP",16
-78,"29-Sep-22","4-Oct-22","simplelong10_000_8",10,"no autocorrelation",4,"LM",20
-78,"29-Sep-22","4-Oct-22","simplelong10_000_8",10,"no autocorrelation",4,"LP",14
-78,"29-Sep-22","4-Oct-22","simplelong7_1",7,"constant",5,"LM",15
-78,"29-Sep-22","4-Oct-22","simplelong7_1",7,"constant",5,"LM",20
-78,"29-Sep-22","4-Oct-22","simplelong7_1",7,"constant",5,"LP",16
-79,"6-Oct-22","11-Oct-22","simplelong10_000_9",10,"no autocorrelation",2,"LM",18
-79,"6-Oct-22","11-Oct-22","simplelong10_000_9",10,"no autocorrelation",2,"LP",23
-79,"6-Oct-22","11-Oct-22","simplelong10_095rev_9",10,"strong autocorrelation",3,"LM",24
-79,"6-Oct-22","11-Oct-22","simplelong10_095rev_9",10,"strong autocorrelation",3,"LP",21
-79,"6-Oct-22","11-Oct-22","simplelong10_095_9",10,"strong autocorrelation",4,"LM",19
-79,"6-Oct-22","11-Oct-22","simplelong10_095_9",10,"strong autocorrelation",4,"LP",18
-79,"6-Oct-22","11-Oct-22","simplelong20_1",20,"constant",5,"LM",31
-79,"6-Oct-22","11-Oct-22","simplelong20_1",20,"constant",5,"LM",36
-79,"6-Oct-22","11-Oct-22","simplelong20_1",20,"constant",5,"LP",31
-80,"20-Oct-22","25-Oct-22","simplelong20_1",20,"constant",5,"LM",37
-80,"20-Oct-22","25-Oct-22","simplelong20_1",20,"constant",5,"LM",41
-80,"20-Oct-22","25-Oct-22","simplelong20_1",20,"constant",5,"LP",36
-81,"27-Oct-22","1-Nov-22","simplelong20_1",20,"constant",5,"LM",33
-81,"27-Oct-22","1-Nov-22","simplelong20_1",20,"constant",5,"LM",41
-81,"27-Oct-22","1-Nov-22","simplelong20_1",20,"constant",5,"LP",34
-82,"3-Nov-22","8-Nov-22","simplelong20_1",20,"constant",5,"LM",30
-82,"3-Nov-22","8-Nov-22","simplelong20_1",20,"constant",5,"LM",41
-82,"3-Nov-22","8-Nov-22","simplelong20_1",20,"constant",5,"LP",49
-84,"17-Nov-22","22-Nov-22","simplelong30_1",30,"constant",5,"LM",31
-84,"17-Nov-22","22-Nov-22","simplelong30_1",30,"constant",5,"LM",50
-84,"17-Nov-22","22-Nov-22","simplelong30_1",30,"constant",5,"LP",63
-85,"24-Nov-22","29-Nov-22","simplelong30_1",30,"constant",5,"LM",32
-85,"24-Nov-22","29-Nov-22","simplelong30_1",30,"constant",5,"LM",54
-85,"24-Nov-22","29-Nov-22","simplelong30_1",30,"constant",5,"LP",43
-86,"28-Dec-22","2-Jan-23","simplelong26_1",26,"constant",2,"LP",46
-86,"28-Dec-22","2-Jan-23","simplelong26_1",26,"constant",3,"LP",50
-86,"28-Dec-22","2-Jan-23","simplelong20_1",20,"constant",4,"LP",32
-86,"28-Dec-22","2-Jan-23","simplelong35_1",35,"constant",5,"LP",37
-87,"4-Jan-23","9-Jan-23","simplelong26_1",35,"constant",2,"LP",24
-87,"4-Jan-23","9-Jan-23","simplelong35_1",35,"constant",3,"LP",21
-87,"4-Jan-23","9-Jan-23","simplelong26_1",26,"constant",5,"LP",30
-88,"12-Jan-23","17-Jan-23","simplelong7_1",7,"constant",2,"LP",15
-88,"12-Jan-23","17-Jan-23","simplelong30_1",30,"constant",3,"LP",39
-88,"12-Jan-23","17-Jan-23","simplelong30_1",30,"constant",3,"LM",32
-89,"19-Jan-23","24-Jan-23","simplelong35_1",35,"constant",4,"LM",29
-90,"2-Feb-23","7-Feb-23","simplelong37_095_9",37,"strong autocorrelation",2,"LP",22
-90,"2-Feb-23","7-Feb-23","simplelong37_095_9",37,"strong autocorrelation",2,"LM",35
-90,"2-Feb-23","7-Feb-23","simplelong37_000_9",37,"no autocorrelation",3,"LP",18
-90,"2-Feb-23","7-Feb-23","simplelong37_000_9",37,"no autocorrelation",3,"LM",21
-90,"2-Feb-23","7-Feb-23","simplelong37_095rev_9",37,"strong autocorrelation",4,"LP",17
-90,"2-Feb-23","7-Feb-23","simplelong37_095rev_9",37,"strong autocorrelation",4,"LM",17
-91,"9-Feb-23","14-Feb-23","simplelong37_095rev_10",37,"strong autocorrelation",2,"LP",11
-91,"9-Feb-23","14-Feb-23","simplelong37_095rev_10",37,"strong autocorrelation",2,"LM",31
-91,"9-Feb-23","14-Feb-23","simplelong37_095_10",37,"strong autocorrelation",3,"LP",0
-91,"9-Feb-23","14-Feb-23","simplelong37_095_10",37,"strong autocorrelation",3,"LM",14
-91,"9-Feb-23","14-Feb-23","simplelong37_000_10",37,"no autocorrelation",5,"LP",36
-91,"9-Feb-23","14-Feb-23","simplelong37_000_10",37,"no autocorrelation",5,"LM",37
-92,"16-Feb-23","21-Feb-23","simplelong37_000_11",37,"no autocorrelation",2,"LP",12
-92,"16-Feb-23","21-Feb-23","simplelong37_000_11",37,"no autocorrelation",2,"LM",19
-92,"16-Feb-23","21-Feb-23","simplelong37_095rev_11",37,"strong autocorrelation",3,"LP",19
-92,"16-Feb-23","21-Feb-23","simplelong37_095rev_11",37,"strong autocorrelation",3,"LM",0
-92,"16-Feb-23","21-Feb-23","simplelong37_095_11",37,"strong autocorrelation",4,"LP",17
-92,"16-Feb-23","21-Feb-23","simplelong37_095_11",37,"strong autocorrelation",4,"LM",21
-93,"24-Feb-23","1-Mar-23","simplelong37_095rev_12",37,"strong autocorrelation",2,"LP",25
-93,"24-Feb-23","1-Mar-23","simplelong37_095rev_12",37,"strong autocorrelation",2,"LM",21
-93,"24-Feb-23","1-Mar-23","simplelong37_000_12",37,"no autocorrelation",3,"LP",21
-93,"24-Feb-23","1-Mar-23","simplelong37_000_12",37,"no autocorrelation",3,"LM",20
-93,"24-Feb-23","1-Mar-23","simplelong37_095_12",37,"strong autocorrelation",4,"LP",21
-93,"24-Feb-23","1-Mar-23","simplelong37_095_12",37,"strong autocorrelation",4,"LM",23
-94,"2-Mar-23","7-Mar-23","simplelong10_000_12",10,"no autocorrelation",2,"LP",14
-94,"2-Mar-23","7-Mar-23","simplelong10_000_12",10,"no autocorrelation",2,"LM",18
-94,"2-Mar-23","7-Mar-23","simplelong10_095_12",10,"strong autocorrelation",3,"LP",17
-94,"2-Mar-23","7-Mar-23","simplelong10_095_12",10,"strong autocorrelation",3,"LM",19
-94,"2-Mar-23","7-Mar-23","simplelong10_095rev_12",10,"strong autocorrelation",4,"LP",12
-94,"2-Mar-23","7-Mar-23","simplelong10_095rev_12",10,"strong autocorrelation",4,"LM",21
-95,"9-Mar-23","14-Mar-23","simplelong10_095_13",10,"strong autocorrelation",2,"LP",17
-95,"9-Mar-23","14-Mar-23","simplelong10_095_13",10,"strong autocorrelation",2,"LM",18
-95,"9-Mar-23","14-Mar-23","simplelong10_000_13",10,"no autocorrelation",3,"LP",14
-95,"9-Mar-23","14-Mar-23","simplelong10_000_13",10,"no autocorrelation",3,"LM",17
-95,"9-Mar-23","14-Mar-23","simplelong10_095rev_13",10,"strong autocorrelation",4,"LP",19
-95,"9-Mar-23","14-Mar-23","simplelong10_095rev_13",10,"strong autocorrelation",4,"LM",16
-96,"17-Mar-23","22-Mar-23","simplelong20_1",20,"constant",5,"LP",53
-96,"17-Mar-23","22-Mar-23","simplelong20_1",20,"constant",5,"LM",68
-97,"23-Mar-23","28-Mar-23","simplelong37_095rev_14",37,"strong autocorrelation",2,"LP",35
-97,"23-Mar-23","28-Mar-23","simplelong37_095rev_14",37,"strong autocorrelation",2,"LM",32
-97,"23-Mar-23","28-Mar-23","simplelong37_095_14",37,"strong autocorrelation",3,"LP",0
-97,"23-Mar-23","28-Mar-23","simplelong37_095_14",37,"strong autocorrelation",3,"LM",17
-97,"23-Mar-23","28-Mar-23","simplelong37_000_14",37,"no autocorrelation",4,"LP",20
-97,"23-Mar-23","28-Mar-23","simplelong37_000_14",37,"no autocorrelation",4,"LM",25
-98,"30-Mar-23","4-Apr-23","simplelong37_000_15",37,"no autocorrelation",2,"LP",27
-98,"30-Mar-23","4-Apr-23","simplelong37_000_15",37,"no autocorrelation",2,"LM",45
-98,"30-Mar-23","4-Apr-23","simplelong37_095_15",37,"strong autocorrelation",3,"LP",39
-98,"30-Mar-23","4-Apr-23","simplelong37_095_15",37,"strong autocorrelation",3,"LM",26
-98,"30-Mar-23","4-Apr-23","simplelong37_095rev_15",37,"strong autocorrelation",4,"LP",41
-98,"30-Mar-23","4-Apr-23","simplelong37_095rev_15",37,"strong autocorrelation",4,"LM",50
-98,"30-Mar-23","4-Apr-23","simplelong40_1",40,"constant",5,"LP",4
-98,"30-Mar-23","4-Apr-23","simplelong40_1",40,"constant",5,"LM",0
-99,"6-Apr-23","11-Apr-23","simplelong27_000_22",27,"no autocorrelation",2,"LP",55
-99,"6-Apr-23","11-Apr-23","simplelong27_000_22",27,"no autocorrelation",2,"LM",111
-100,"13-Apr-23","18-Apr-23","simplelong27_095_22",27,"strong autocorrelation",3,"LP",41
-100,"13-Apr-23","18-Apr-23","simplelong27_095_22",27,"strong autocorrelation",3,"LM",64
-100,"13-Apr-23","18-Apr-23","simplelong27_095rev_22",27,"strong autocorrelation",4,"LP",46
-100,"13-Apr-23","18-Apr-23","simplelong27_095rev_22",27,"strong autocorrelation",4,"LM",62
-101,"27-Apr-23","2-May-23","simplelong37_095rev_16",37,"strong autocorrelation",2,"LP",11
-101,"27-Apr-23","2-May-23","simplelong37_095rev_16",37,"strong autocorrelation",2,"LM",28
-101,"27-Apr-23","2-May-23","simplelong37_095_16",37,"strong autocorrelation",3,"LP",12
-101,"27-Apr-23","2-May-23","simplelong37_095_16",37,"strong autocorrelation",3,"LM",13
-101,"27-Apr-23","2-May-23","simplelong37_000_16",37,"no autocorrelation",4,"LP",28
-101,"27-Apr-23","2-May-23","simplelong37_000_16",37,"no autocorrelation",4,"LM",30
-101,"2-May-23","7-May-23","simplelong40_1",40,"constant",6,"LP",9
-102,"7-May-23","12-May-23","simplelong40_1",40,"constant",2,"LM",10
-102,"7-May-23","12-May-23","simplelong40_1",40,"constant",2,"LP",11
-102,"7-May-23","12-May-23","simplelong26_1",26,"constant",3,"LM",40
-102,"7-May-23","12-May-23","simplelong26_1",26,"constant",3,"LP",40
-102,"7-May-23","12-May-23","simplelong30_1",30,"constant",4,"LM",50
-102,"7-May-23","12-May-23","simplelong30_1",30,"constant",4,"LP",40
-102,"7-May-23","12-May-23","simplelong35_1",35,"constant",6,"LM",41
-102,"7-May-23","12-May-23","simplelong35_1",35,"constant",6,"LP",34
-103,"12-May-23","17-May-23","simplelong27_095_23",27,"strong autocorrelation",3,"LM",85
-103,"12-May-23","17-May-23","simplelong27_095_23",27,"strong autocorrelation",3,"LP",68
-103,"12-May-23","17-May-23","simplelong27_000_23",27,"no autocorrelation",4,"LM",65
-103,"12-May-23","17-May-23","simplelong27_000_23",27,"no autocorrelation",4,"LP",59
-103,"12-May-23","17-May-23","simplelong40_1",40,"constant",2,"LM",8
-103,"12-May-23","17-May-23","simplelong40_1",40,"constant",2,"LP",9
-104,"19-May-23","24-May-23","simplelong27_095rev_23",27,"strong autocorrelation",4,"LM",100
-104,"19-May-23","24-May-23","simplelong27_095rev_23",27,"strong autocorrelation",4,"LP",65
-104,"19-May-23","24-May-23","simplelong7_1",7,"constant",2,"LM",12
-104,"19-May-23","24-May-23","simplelong7_1",7,"constant",2,"LP",18
-104,"19-May-23","24-May-23","simplelong35_1",35,"constant",3,"LM",30
-104,"19-May-23","24-May-23","simplelong35_1",35,"constant",3,"LP",27
-105,"26-May-23","31-May-23","simplelong27_000_24",27,"no autocorrelation",2,"LP",66
-105,"26-May-23","31-May-23","simplelong27_000_24",27,"no autocorrelation",2,"LM",86
-105,"26-May-23","31-May-23","simplelong27_095_24",27,"strong autocorrelation",3,"LP",65
-105,"26-May-23","31-May-23","simplelong27_095_24",27,"strong autocorrelation",3,"LM",105
-105,"26-May-23","31-May-23","simplelong27_000_24",27,"strong autocorrelation",4,"LP",87
-105,"26-May-23","31-May-23","simplelong27_000_24",27,"strong autocorrelation",4,"LM",101
-105,"26-May-23","31-May-23","simplelong15_1",15,"constant",6,"LP",21
-105,"26-May-23","31-May-23","simplelong15_1",15,"constant",6,"LM",19
-106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",2,"LM",25
-106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",2,"LP",23
-106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",3,"LM",30
-106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",3,"LP",25
-106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",4,"LM",25
-106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",4,"LP",24
-106,"2-Jun-23","7-Jun-23","simplelong40_1",40,"constant",6,"LM",12
-106,"2-Jun-23","7-Jun-23","simplelong40_1",40,"constant",6,"LP",0
-107,"21-Jun-23","26-Jun-23","simplelong7_1",7,"constant",2,"LM",14
-107,"21-Jun-23","26-Jun-23","simplelong7_1",7,"constant",2,"LP",12
-107,"21-Jun-23","26-Jun-23","simplelong26_1",26,"constant",4,"LM",31
-107,"21-Jun-23","26-Jun-23","simplelong26_1",26,"constant",4,"LP",40
-108,"30-Jun-23","5-Jul-23","simplelong35_1",35,"constant",2,"LM",19
-108,"30-Jun-23","5-Jul-23","simplelong35_1",35,"constant",2,"LP",24
-108,"30-Jun-23","5-Jul-23","simplelong40_1",40,"constant",3,"LM",0
-108,"30-Jun-23","5-Jul-23","simplelong40_1",40,"constant",3,"LP",0
-108,"30-Jun-23","5-Jul-23","simplelong26_1",26,"constant",6,"LM",33
-109,"5-Jul-23","10-Jul-23","simplelong35_1",35,"constant",2,"LM",17
-109,"5-Jul-23","10-Jul-23","simplelong35_1",35,"constant",2,"LP",17
-109,"5-Jul-23","10-Jul-23","simplelong11_1",11,"constant",4,"LM",14
-109,"5-Jul-23","10-Jul-23","simplelong11_1",11,"constant",4,"LP",12
-109,"5-Jul-23","10-Jul-23","simplelong30_1",30,"constant",6,"LM",38
-109,"5-Jul-23","10-Jul-23","simplelong30_1",30,"constant",6,"LP",39
-110,"12-Jul-23","17-Jul-23","simplelong11_1",11,"constant",4,"LM",17
-110,"12-Jul-23","17-Jul-23","simplelong11_1",11,"constant",4,"LP",15
-110,"12-Jul-23","17-Jul-23","simplelong11_1",11,"constant",6,"LM",15
-110,"12-Jul-23","17-Jul-23","simplelong11_1",11,"constant",6,"LP",14
-111,"4-Aug-23","9-Aug-23","simplelong37_095_17",37,"strong autocorrelation",2,"LM",30
-111,"4-Aug-23","9-Aug-23","simplelong37_095_17",37,"strong autocorrelation",2,"LP",28
-111,"4-Aug-23","9-Aug-23","simplelong37_000_17",37,"no autocorrelation",3,"LM",30
-111,"4-Aug-23","9-Aug-23","simplelong37_000_17",37,"no autocorrelation",3,"LP",31
-111,"4-Aug-23","9-Aug-23","simplelong37_095rev_17",37,"strong autocorrelation",4,"LM",36
-111,"4-Aug-23","9-Aug-23","simplelong37_095rev_17",37,"strong autocorrelation",4,"LP",31
-112,"11-Aug-23","16-Aug-23","simplelong37_095rev_18",37,"strong autocorrelation",2,"LM",13
-112,"11-Aug-23","16-Aug-23","simplelong37_095rev_18",37,"strong autocorrelation",2,"LP",14
-112,"11-Aug-23","16-Aug-23","simplelong37_095_18",37,"strong autocorrelation",3,"LM",26
-112,"11-Aug-23","16-Aug-23","simplelong37_095_18",37,"strong autocorrelation",3,"LP",25
-112,"11-Aug-23","16-Aug-23","simplelong37_000_18",37,"no autocorrelation",4,"LM",20
-112,"11-Aug-23","16-Aug-23","simplelong37_000_18",37,"no autocorrelation",4,"LP",1
-113,"18-Aug-23","23-Aug-23","simplelong27_095rev_25",27,"strong autocorrelation",2,"LM",72
-113,"18-Aug-23","23-Aug-23","simplelong27_095rev_25",27,"strong autocorrelation",2,"LP",46
-113,"18-Aug-23","23-Aug-23","simplelong27_095_25",27,"strong autocorrelation",3,"LM",65
-113,"18-Aug-23","23-Aug-23","simplelong27_095_25",27,"strong autocorrelation",3,"LP",57
-113,"18-Aug-23","23-Aug-23","simplelong27_000_25",27,"no autocorrelation",4,"LM",59
-113,"18-Aug-23","23-Aug-23","simplelong27_000_25",27,"no autocorrelation",4,"LP",40
-114,"25-Aug-23","30-Aug-23","simplelong27_000_26",27,"no autocorrelation",2,"LM",95
-114,"25-Aug-23","30-Aug-23","simplelong27_000_26",27,"no autocorrelation",2,"LP",57
-114,"25-Aug-23","30-Aug-23","simplelong27_095rev_26",27,"strong autocorrelation",3,"LM",86
-114,"25-Aug-23","30-Aug-23","simplelong27_095rev_26",27,"strong autocorrelation",3,"LP",78
-114,"25-Aug-23","30-Aug-23","simplelong27_095_26",27,"strong autocorrelation",4,"LM",98
-114,"25-Aug-23","30-Aug-23","simplelong27_095_26",27,"strong autocorrelation",4,"LP",60
-115,"1-Sep-23","6-Sep-23","simplelong27_095rev_27",27,"strong autocorrelation",2,"LM",80
-115,"1-Sep-23","6-Sep-23","simplelong27_095rev_27",27,"strong autocorrelation",2,"LP",70
-115,"1-Sep-23","6-Sep-23","simplelong27_000_27",27,"no autocorrelation",3,"LM",82
-115,"1-Sep-23","6-Sep-23","simplelong27_000_27",27,"no autocorrelation",3,"LP",52
-115,"1-Sep-23","6-Sep-23","simplelong27_095_27",27,"strong autocorrelation",4,"LM",88
-115,"1-Sep-23","6-Sep-23","simplelong27_095_27",27,"strong autocorrelation",4,"LP",74
-117,"15-Sep-23","20-Sep-23","simplelong27_095rev_28",27,"strong autocorrelation",3,"LM",53
-117,"15-Sep-23","20-Sep-23","simplelong27_095rev_28",27,"strong autocorrelation",3,"LP",24
-117,"15-Sep-23","20-Sep-23","simplelong27_000_28",27,"no autocorrelation",4,"LM",46
-117,"15-Sep-23","20-Sep-23","simplelong27_000_28",27,"no autocorrelation",4,"LP",54
-117,"15-Sep-23","20-Sep-23","simplelong27_095_28",27,"strong autocorrelation",6,"LM",50
-117,"15-Sep-23","20-Sep-23","simplelong27_095_28",27,"strong autocorrelation",6,"LP",23
-118,"22-Sep-23","27-Sep-23","simplelong27_095_29",27,"strong autocorrelation",3,"LM",53
-118,"22-Sep-23","27-Sep-23","simplelong27_095_29",27,"strong autocorrelation",3,"LP",48
-118,"22-Sep-23","27-Sep-23","simplelong27_000_29",27,"no autocorrelation",4,"LM",38
-118,"22-Sep-23","27-Sep-23","simplelong27_000_29",27,"no autocorrelation",4,"LP",33
-118,"22-Sep-23","27-Sep-23","simplelong27_095rev_29",27,"strong autocorrelation",6,"LM",40
-118,"22-Sep-23","27-Sep-23","simplelong27_095rev_29",27,"strong autocorrelation",6,"LP",39
-119,"29-Sep-23","4-Oct-23","simplelong27_000_30",27,"no autocorrelation",3,"LM",93
-119,"29-Sep-23","4-Oct-23","simplelong27_000_30",27,"no autocorrelation",3,"LP",65
-119,"29-Sep-23","4-Oct-23","simplelong27_095_30",27,"strong autocorrelation",4,"LM",86
-119,"29-Sep-23","4-Oct-23","simplelong27_095_30",27,"strong autocorrelation",4,"LP",69
-119,"29-Sep-23","4-Oct-23","simplelong27_095rev_30",27,"strong autocorrelation",6,"LM",90
-119,"29-Sep-23","4-Oct-23","simplelong27_095rev_30",27,"strong autocorrelation",6,"LP",69
-120,"6-Oct-23","11-Oct-23","simplelong27_095_31",27,"strong autocorrelation",2,"LM",75
-120,"6-Oct-23","11-Oct-23","simplelong27_095_31",27,"strong autocorrelation",2,"LP",61
-120,"6-Oct-23","11-Oct-23","simplelong27_000_31",27,"no autocorrelation",3,"LM",56
-120,"6-Oct-23","11-Oct-23","simplelong27_000_31",27,"no autocorrelation",3,"LP",40
-120,"6-Oct-23","11-Oct-23","simplelong27_095rev_31",27,"strong autocorrelation",6,"LM",68
-120,"6-Oct-23","11-Oct-23","simplelong27_095rev_31",27,"strong autocorrelation",6,"LP",33
-121,"13-Oct-23","18-Oct-23","simplelong27_095_32",27,"strong autocorrelation",2,"LM",94
-121,"13-Oct-23","18-Oct-23","simplelong27_095_32",27,"strong autocorrelation",2,"LP",70
-121,"13-Oct-23","18-Oct-23","simplelong27_095rev_32",27,"strong autocorrelation",4,"LM",86
-121,"13-Oct-23","18-Oct-23","simplelong27_095rev_32",27,"strong autocorrelation",4,"LP",73
-121,"13-Oct-23","18-Oct-23","simplelong27_000_32",27,"no autocorrelation",6,"LM",108
-121,"13-Oct-23","18-Oct-23","simplelong27_000_32",27,"no autocorrelation",6,"LP",84
-122,"20-Oct-23","25-Oct-23","simplelong27_095rev_33",27,"strong autocorrelation",2,"LM",90
-122,"20-Oct-23","25-Oct-23","simplelong27_095rev_33",27,"strong autocorrelation",2,"LP",74
-122,"20-Oct-23","25-Oct-23","simplelong27_095_33",27,"strong autocorrelation",3,"LM",91
-122,"20-Oct-23","25-Oct-23","simplelong27_095_33",27,"strong autocorrelation",3,"LP",63
-122,"20-Oct-23","25-Oct-23","simplelong27_000_33",27,"no autocorrelation",4,"LM",101
-122,"20-Oct-23","25-Oct-23","simplelong27_000_33",27,"no autocorrelation",4,"LP",88
+"Experiment_Number","Experiment_Start","Experiment_End","Profile_name","Mean_temperature","Label","Incubator","Species","autocorrelation_regime","total_living_fronds"
+41,"16-Jul-21","21-Jul-21","simplelong11_1",11,"constant",3,"LM",NA,13
+41,"16-Jul-21","21-Jul-21","simplelong15_1",15,"constant",5,"LM",NA,14
+41,"16-Jul-21","21-Jul-21","simplelong31_1",31,"constant",6,"LM",NA,27
+44,"20-Aug-21","25-Aug-21","simplelong31_1",31,"constant",3,"LM",NA,34
+44,"20-Aug-21","25-Aug-21","simplelong15_1",15,"constant",5,"LM",NA,14
+44,"20-Aug-21","25-Aug-21","simplelong11_1",11,"constant",6,"LM",NA,12
+46,"10-Sep-21","15-Sep-21","simplelong11_1",11,"constant",3,"LM",NA,14
+47,"17-Sep-21","22-Sep-21","simplelong11_1",11,"constant",5,"LM",NA,13
+48,"24-Sep-21","29-Sep-21","simplelong31_1",31,"constant",3,"LM",NA,33
+48,"24-Sep-21","29-Sep-21","simplelong15_1",15,"constant",5,"LM",NA,14
+48,"24-Sep-21","29-Sep-21","simplelong11_1",11,"constant",6,"LM",NA,14
+52,"29-Oct-21","3-Nov-21","simplelong30_1",30,"constant",2,"LM",NA,32
+52,"29-Oct-21","3-Nov-21","Simplelong 35_1",35,"constant",4,"LM",NA,28
+52,"29-Oct-21","3-Nov-21","Simplelong 25_1",25,"constant",5,"LM",NA,31
+53,"5-Nov-21","10-Nov-21","Simplelong 15_095rev_06",15,"strong autocorrelation",4,"LM","hot-cold",17
+53,"5-Nov-21","10-Nov-21","Simplelong 40_1",40,"constant",5,"LM",NA,13
+55,"19-Nov-21","24-Nov-21","Simplelong15_095_06",15,"strong autocorrelation",2,"LM","cold-hot",15
+55,"19-Nov-21","24-Nov-21","Simplelong15_000_06",15,"no autocorrelation",5,"LM",NA,18
+56,"26-Nov-21","1-Dec-21","Simplelong 20_1",20,"constant",1,"LM",NA,26
+56,"26-Nov-21","1-Dec-21","Simplelong 20_1",20,"constant",3,"LM",NA,28
+56,"26-Nov-21","1-Dec-21","Simplelong 25_1",25,"constant",6,"LM",NA,33
+58,"10-Dec-21","15-Dec-21","Simplelong20_2",20,"constant",1,"LM",NA,28
+58,"10-Dec-21","15-Dec-21","Simplelong23_1",23,"constant",2,"LM",NA,33
+58,"10-Dec-21","15-Dec-21","Simplelong35_1",35,"constant",3,"LM",NA,28
+58,"10-Dec-21","15-Dec-21","Simplelong39_1",39,"constant",4,"LM",NA,11
+59,"17-Dec-21","22-Dec-21","Simplelong20_2",20,"constant",1,"LM",NA,18
+59,"17-Dec-21","22-Dec-21","Simplelong25_1",25,"constant",2,"LM",NA,20
+59,"17-Dec-21","22-Dec-21","Simplelong39_1",39,"constant",3,"LM",NA,14
+60,"14-Jan-22","19-Jan-22"," Simplelong35_1",35,"constant",2,"LM",NA,30
+60,"14-Jan-22","19-Jan-22"," Simplelong40_1",40,"constant",3,"LM",NA,8
+61,"21-Jan-22","26-Jan-22"," Simplelong20_2",20,"constant",1,"LM",NA,27
+61,"21-Jan-22","26-Jan-22"," Simplelong35_1",35,"constant",2,"LM",NA,20
+61,"21-Jan-22","26-Jan-22"," Simplelong40_1",40,"constant",3,"LM",NA,2
+62,"28-Jan-22","2-Feb-22"," Simplelong20_2",20,"constant",1,"LM",NA,35
+62,"28-Jan-22","2-Feb-22"," Simplelong40_1",40,"constant",2,"LM",NA,0
+62,"28-Jan-22","2-Feb-22"," Simplelong40_1",40,"constant",3,"LM",NA,0
+67,"4-Mar-22","9-Mar-22","Simplelong15_000_8",15,"no autocorrelation",4,"LM",NA,14
+67,"4-Mar-22","9-Mar-22","Simplelong15_095_8",15,"strong autocorrelation",5,"LM","hot-cold",16
+67,"4-Mar-22","9-Mar-22","Simplelong15_095rev_8",15,"strong autocorrelation",6,"LM","cold-hot",16
+68,"11-Mar-22","16-Mar-22","Simplelong15_095_9",15,"strong autocorrelation",2,"LM","cold-hot",18
+68,"11-Mar-22","16-Mar-22","Simplelong15_095rev_9",15,"strong autocorrelation",3,"LM","hot-cold",17
+68,"11-Mar-22","16-Mar-22","Simplelong15_000_9",15,"no autocorrelation",4,"LM",NA,18
+68,"11-Mar-22","16-Mar-22","Simplelong40_6",40,"constant",5,"LM",NA,0
+69,"18-Mar-22","23-Mar-22","Simplelong15_095_10",15,"strong autocorrelation",2,"LM","cold-hot",18
+69,"18-Mar-22","23-Mar-22","Simplelong15_095rev_10",15,"strong autocorrelation",3,"LM","hot-cold",17
+69,"18-Mar-22","23-Mar-22","Simplelong15_000_10",15,"no autocorrelation",4,"LM",NA,14
+69,"18-Mar-22","23-Mar-22","Simplelong15_095_11",15,"strong autocorrelation",5,"LM","cold-hot",15
+69,"18-Mar-22","23-Mar-22","Simplelong15_095rev_11",15,"strong autocorrelation",6,"LM","hot-cold",15
+71,"1-Apr-22","6-Apr-22","Simplelong15_000_11",15,"no autocorrelation",5,"LM",NA,16
+71,"1-Apr-22","6-Apr-22","Simplelong15_000_12",15,"no autocorrelation",2,"LM",NA,17
+71,"1-Apr-22","6-Apr-22","Simplelong15_095_12",15,"strong autocorrelation",3,"LM","hot-cold",20
+71,"1-Apr-22","6-Apr-22","Simplelong15_095rev_12",15,"strong autocorrelation",4,"LM","cold-hot",15
+71,"1-Apr-22","6-Apr-22","Simplelong15_095_13",15,"strong autocorrelation",6,"LM","hot-cold",14
+72,"8-Apr-22","13-Apr-22","Simplelong15_095rev_13",15,"strong autocorrelation",2,"LM","cold-hot",21
+72,"8-Apr-22","13-Apr-22","Simplelong15_000_13",15,"no autocorrelation",3,"LM",NA,19
+72,"8-Apr-22","13-Apr-22","Simplelong15_000_14",15,"no autocorrelation",4,"LM",NA,19
+72,"8-Apr-22","13-Apr-22","Simplelong15_095_14",15,"strong autocorrelation",5,"LM","hot-cold",22
+72,"8-Apr-22","13-Apr-22","Simplelong15_095rev_14",15,"strong autocorrelation",6,"LM","cold-hot",20
+73,"15-Apr-22","20-Apr-22","Simplelong15_000_15",15,"no autocorrelation",2,"LM",NA,18
+73,"15-Apr-22","20-Apr-22","Simplelong15_095_15",15,"strong autocorrelation",3,"LM","cold-hot",20
+73,"15-Apr-22","20-Apr-22","Simplelong15_095rev_15",15,"strong autocorrelation",4,"LM","hot-cold",17
+74,"22-Apr-22","27-Apr-22","Simplelong10_000_1",10,"no autocorrelation",2,"LM",NA,15
+74,"22-Apr-22","27-Apr-22","Simplelong10_095_1",10,"strong autocorrelation",3,"LM","hot-cold",18
+74,"22-Apr-22","27-Apr-22","Simplelong10_095rev_1",10,"strong autocorrelation",4,"LM","cold-hot",19
+75,"29-Apr-22","4-May-22","Simplelong10_000_3",10,"no autocorrelation",3,"LM",NA,14
+75,"29-Apr-22","4-May-22","Simplelong10_095_3",10,"strong autocorrelation",4,"LM","cold-hot",16
+75,"29-Apr-22","4-May-22","Simplelong10_095rev_3",10,"strong autocorrelation",5,"LM","hot-cold",16
+76,"15-Sep-22","20-Sep-22","simplelong7_1",7,"constant",2,"LM",NA,17
+76,"15-Sep-22","20-Sep-22","simplelong7_1",7,"constant",2,"LM",NA,18
+76,"15-Sep-22","20-Sep-22","simplelong7_1",7,"constant",2,"LP",NA,17
+77,"22-Sep-22","27-Sep-22","simplelong10_000_7",10,"no autocorrelation",2,"LM",NA,16
+77,"22-Sep-22","27-Sep-22","simplelong10_000_7",10,"no autocorrelation",2,"LP",NA,15
+77,"22-Sep-22","27-Sep-22","simplelong10_095_7",10,"strong autocorrelation",3,"LM","hot-cold",14
+77,"22-Sep-22","27-Sep-22","simplelong10_095_7",10,"strong autocorrelation",3,"LP","hot-cold",18
+77,"22-Sep-22","27-Sep-22","simplelong10_095rev_7",10,"strong autocorrelation",4,"LM","cold-hot",18
+77,"22-Sep-22","27-Sep-22","simplelong10_095rev_7",10,"strong autocorrelation",4,"LP","cold-hot",22
+77,"22-Sep-22","27-Sep-22","simplelong7_1",7,"constant",5,"LM",NA,15
+77,"22-Sep-22","27-Sep-22","simplelong7_1",7,"constant",5,"LP",NA,20
+77,"22-Sep-22","27-Sep-22","simplelong7_1",7,"constant",5,"LM",NA,17
+78,"29-Sep-22","4-Oct-22","simplelong10_095rev_8",10,"strong autocorrelation",2,"LM","hot-cold",22
+78,"29-Sep-22","4-Oct-22","simplelong10_095rev_8",10,"strong autocorrelation",2,"LP","hot-cold",19
+78,"29-Sep-22","4-Oct-22","simplelong10_095_8",10,"strong autocorrelation",3,"LM","cold-hot",21
+78,"29-Sep-22","4-Oct-22","simplelong10_095_8",10,"strong autocorrelation",3,"LP","cold-hot",16
+78,"29-Sep-22","4-Oct-22","simplelong10_000_8",10,"no autocorrelation",4,"LM",NA,20
+78,"29-Sep-22","4-Oct-22","simplelong10_000_8",10,"no autocorrelation",4,"LP",NA,14
+78,"29-Sep-22","4-Oct-22","simplelong7_1",7,"constant",5,"LM",NA,15
+78,"29-Sep-22","4-Oct-22","simplelong7_1",7,"constant",5,"LM",NA,20
+78,"29-Sep-22","4-Oct-22","simplelong7_1",7,"constant",5,"LP",NA,16
+79,"6-Oct-22","11-Oct-22","simplelong10_000_9",10,"no autocorrelation",2,"LM",NA,18
+79,"6-Oct-22","11-Oct-22","simplelong10_000_9",10,"no autocorrelation",2,"LP",NA,23
+79,"6-Oct-22","11-Oct-22","simplelong10_095rev_9",10,"strong autocorrelation",3,"LM","hot-cold",24
+79,"6-Oct-22","11-Oct-22","simplelong10_095rev_9",10,"strong autocorrelation",3,"LP","hot-cold",21
+79,"6-Oct-22","11-Oct-22","simplelong10_095_9",10,"strong autocorrelation",4,"LM","cold-hot",19
+79,"6-Oct-22","11-Oct-22","simplelong10_095_9",10,"strong autocorrelation",4,"LP","cold-hot",18
+79,"6-Oct-22","11-Oct-22","simplelong20_1",20,"constant",5,"LM",NA,31
+79,"6-Oct-22","11-Oct-22","simplelong20_1",20,"constant",5,"LM",NA,36
+79,"6-Oct-22","11-Oct-22","simplelong20_1",20,"constant",5,"LP",NA,31
+80,"20-Oct-22","25-Oct-22","simplelong20_1",20,"constant",5,"LM",NA,37
+80,"20-Oct-22","25-Oct-22","simplelong20_1",20,"constant",5,"LM",NA,41
+80,"20-Oct-22","25-Oct-22","simplelong20_1",20,"constant",5,"LP",NA,36
+81,"27-Oct-22","1-Nov-22","simplelong20_1",20,"constant",5,"LM",NA,33
+81,"27-Oct-22","1-Nov-22","simplelong20_1",20,"constant",5,"LM",NA,41
+81,"27-Oct-22","1-Nov-22","simplelong20_1",20,"constant",5,"LP",NA,34
+82,"3-Nov-22","8-Nov-22","simplelong20_1",20,"constant",5,"LM",NA,30
+82,"3-Nov-22","8-Nov-22","simplelong20_1",20,"constant",5,"LM",NA,41
+82,"3-Nov-22","8-Nov-22","simplelong20_1",20,"constant",5,"LP",NA,49
+84,"17-Nov-22","22-Nov-22","simplelong30_1",30,"constant",5,"LM",NA,31
+84,"17-Nov-22","22-Nov-22","simplelong30_1",30,"constant",5,"LM",NA,50
+84,"17-Nov-22","22-Nov-22","simplelong30_1",30,"constant",5,"LP",NA,63
+85,"24-Nov-22","29-Nov-22","simplelong30_1",30,"constant",5,"LM",NA,32
+85,"24-Nov-22","29-Nov-22","simplelong30_1",30,"constant",5,"LM",NA,54
+85,"24-Nov-22","29-Nov-22","simplelong30_1",30,"constant",5,"LP",NA,43
+86,"28-Dec-22","2-Jan-23","simplelong26_1",26,"constant",2,"LP",NA,46
+86,"28-Dec-22","2-Jan-23","simplelong26_1",26,"constant",3,"LP",NA,50
+86,"28-Dec-22","2-Jan-23","simplelong20_1",20,"constant",4,"LP",NA,32
+86,"28-Dec-22","2-Jan-23","simplelong35_1",35,"constant",5,"LP",NA,37
+87,"4-Jan-23","9-Jan-23","simplelong26_1",35,"constant",2,"LP",NA,24
+87,"4-Jan-23","9-Jan-23","simplelong35_1",35,"constant",3,"LP",NA,21
+87,"4-Jan-23","9-Jan-23","simplelong26_1",26,"constant",5,"LP",NA,30
+88,"12-Jan-23","17-Jan-23","simplelong7_1",7,"constant",2,"LP",NA,15
+88,"12-Jan-23","17-Jan-23","simplelong30_1",30,"constant",3,"LP",NA,39
+88,"12-Jan-23","17-Jan-23","simplelong30_1",30,"constant",3,"LM",NA,32
+89,"19-Jan-23","24-Jan-23","simplelong35_1",35,"constant",4,"LM",NA,29
+90,"2-Feb-23","7-Feb-23","simplelong37_095_9",37,"strong autocorrelation",2,"LP","cold-hot",22
+90,"2-Feb-23","7-Feb-23","simplelong37_095_9",37,"strong autocorrelation",2,"LM","cold-hot",35
+90,"2-Feb-23","7-Feb-23","simplelong37_000_9",37,"no autocorrelation",3,"LP",NA,18
+90,"2-Feb-23","7-Feb-23","simplelong37_000_9",37,"no autocorrelation",3,"LM",NA,21
+90,"2-Feb-23","7-Feb-23","simplelong37_095rev_9",37,"strong autocorrelation",4,"LP","hot-cold",17
+90,"2-Feb-23","7-Feb-23","simplelong37_095rev_9",37,"strong autocorrelation",4,"LM","hot-cold",17
+91,"9-Feb-23","14-Feb-23","simplelong37_095rev_10",37,"strong autocorrelation",2,"LP","cold-hot",11
+91,"9-Feb-23","14-Feb-23","simplelong37_095rev_10",37,"strong autocorrelation",2,"LM","cold-hot",31
+91,"9-Feb-23","14-Feb-23","simplelong37_095_10",37,"strong autocorrelation",3,"LP","hot-cold",0
+91,"9-Feb-23","14-Feb-23","simplelong37_095_10",37,"strong autocorrelation",3,"LM","hot-cold",14
+91,"9-Feb-23","14-Feb-23","simplelong37_000_10",37,"no autocorrelation",5,"LP",NA,36
+91,"9-Feb-23","14-Feb-23","simplelong37_000_10",37,"no autocorrelation",5,"LM",NA,37
+92,"16-Feb-23","21-Feb-23","simplelong37_000_11",37,"no autocorrelation",2,"LP",NA,12
+92,"16-Feb-23","21-Feb-23","simplelong37_000_11",37,"no autocorrelation",2,"LM",NA,19
+92,"16-Feb-23","21-Feb-23","simplelong37_095rev_11",37,"strong autocorrelation",3,"LP","hot-cold",19
+92,"16-Feb-23","21-Feb-23","simplelong37_095rev_11",37,"strong autocorrelation",3,"LM","hot-cold",0
+92,"16-Feb-23","21-Feb-23","simplelong37_095_11",37,"strong autocorrelation",4,"LP","cold-hot",17
+92,"16-Feb-23","21-Feb-23","simplelong37_095_11",37,"strong autocorrelation",4,"LM","cold-hot",21
+93,"24-Feb-23","1-Mar-23","simplelong37_095rev_12",37,"strong autocorrelation",2,"LP","hot-cold",25
+93,"24-Feb-23","1-Mar-23","simplelong37_095rev_12",37,"strong autocorrelation",2,"LM","hot-cold",21
+93,"24-Feb-23","1-Mar-23","simplelong37_000_12",37,"no autocorrelation",3,"LP",NA,21
+93,"24-Feb-23","1-Mar-23","simplelong37_000_12",37,"no autocorrelation",3,"LM",NA,20
+93,"24-Feb-23","1-Mar-23","simplelong37_095_12",37,"strong autocorrelation",4,"LP","cold-hot",21
+93,"24-Feb-23","1-Mar-23","simplelong37_095_12",37,"strong autocorrelation",4,"LM","cold-hot",23
+94,"2-Mar-23","7-Mar-23","simplelong10_000_12",10,"no autocorrelation",2,"LP",NA,14
+94,"2-Mar-23","7-Mar-23","simplelong10_000_12",10,"no autocorrelation",2,"LM",NA,18
+94,"2-Mar-23","7-Mar-23","simplelong10_095_12",10,"strong autocorrelation",3,"LP","cold-hot",17
+94,"2-Mar-23","7-Mar-23","simplelong10_095_12",10,"strong autocorrelation",3,"LM","cold-hot",19
+94,"2-Mar-23","7-Mar-23","simplelong10_095rev_12",10,"strong autocorrelation",4,"LP","hot-cold",12
+94,"2-Mar-23","7-Mar-23","simplelong10_095rev_12",10,"strong autocorrelation",4,"LM","hot-cold",21
+95,"9-Mar-23","14-Mar-23","simplelong10_095_13",10,"strong autocorrelation",2,"LP","hot-cold",17
+95,"9-Mar-23","14-Mar-23","simplelong10_095_13",10,"strong autocorrelation",2,"LM","hot-cold",18
+95,"9-Mar-23","14-Mar-23","simplelong10_000_13",10,"no autocorrelation",3,"LP",NA,14
+95,"9-Mar-23","14-Mar-23","simplelong10_000_13",10,"no autocorrelation",3,"LM",NA,17
+95,"9-Mar-23","14-Mar-23","simplelong10_095rev_13",10,"strong autocorrelation",4,"LP","cold-hot",19
+95,"9-Mar-23","14-Mar-23","simplelong10_095rev_13",10,"strong autocorrelation",4,"LM","cold-hot",16
+96,"17-Mar-23","22-Mar-23","simplelong20_1",20,"constant",5,"LP",NA,53
+96,"17-Mar-23","22-Mar-23","simplelong20_1",20,"constant",5,"LM",NA,68
+97,"23-Mar-23","28-Mar-23","simplelong37_095rev_14",37,"strong autocorrelation",2,"LP","cold-hot",35
+97,"23-Mar-23","28-Mar-23","simplelong37_095rev_14",37,"strong autocorrelation",2,"LM","cold-hot",32
+97,"23-Mar-23","28-Mar-23","simplelong37_095_14",37,"strong autocorrelation",3,"LP","hot-cold",0
+97,"23-Mar-23","28-Mar-23","simplelong37_095_14",37,"strong autocorrelation",3,"LM","hot-cold",17
+97,"23-Mar-23","28-Mar-23","simplelong37_000_14",37,"no autocorrelation",4,"LP",NA,20
+97,"23-Mar-23","28-Mar-23","simplelong37_000_14",37,"no autocorrelation",4,"LM",NA,25
+98,"30-Mar-23","4-Apr-23","simplelong37_000_15",37,"no autocorrelation",2,"LP",NA,27
+98,"30-Mar-23","4-Apr-23","simplelong37_000_15",37,"no autocorrelation",2,"LM",NA,45
+98,"30-Mar-23","4-Apr-23","simplelong37_095_15",37,"strong autocorrelation",3,"LP","hot-cold",39
+98,"30-Mar-23","4-Apr-23","simplelong37_095_15",37,"strong autocorrelation",3,"LM","hot-cold",26
+98,"30-Mar-23","4-Apr-23","simplelong37_095rev_15",37,"strong autocorrelation",4,"LP","cold-hot",41
+98,"30-Mar-23","4-Apr-23","simplelong37_095rev_15",37,"strong autocorrelation",4,"LM","cold-hot",50
+98,"30-Mar-23","4-Apr-23","simplelong40_1",40,"constant",5,"LP",NA,4
+98,"30-Mar-23","4-Apr-23","simplelong40_1",40,"constant",5,"LM",NA,0
+99,"6-Apr-23","11-Apr-23","simplelong27_000_22",27,"no autocorrelation",2,"LP",NA,55
+99,"6-Apr-23","11-Apr-23","simplelong27_000_22",27,"no autocorrelation",2,"LM",NA,111
+100,"13-Apr-23","18-Apr-23","simplelong27_095_22",27,"strong autocorrelation",3,"LP","hot-cold",41
+100,"13-Apr-23","18-Apr-23","simplelong27_095_22",27,"strong autocorrelation",3,"LM","hot-cold",64
+100,"13-Apr-23","18-Apr-23","simplelong27_095rev_22",27,"strong autocorrelation",4,"LP","cold-hot",46
+100,"13-Apr-23","18-Apr-23","simplelong27_095rev_22",27,"strong autocorrelation",4,"LM","cold-hot",62
+101,"27-Apr-23","2-May-23","simplelong37_095rev_16",37,"strong autocorrelation",2,"LP","cold-hot",11
+101,"27-Apr-23","2-May-23","simplelong37_095rev_16",37,"strong autocorrelation",2,"LM","cold-hot",28
+101,"27-Apr-23","2-May-23","simplelong37_095_16",37,"strong autocorrelation",3,"LP","hot-cold",12
+101,"27-Apr-23","2-May-23","simplelong37_095_16",37,"strong autocorrelation",3,"LM","hot-cold",13
+101,"27-Apr-23","2-May-23","simplelong37_000_16",37,"no autocorrelation",4,"LP",NA,28
+101,"27-Apr-23","2-May-23","simplelong37_000_16",37,"no autocorrelation",4,"LM",NA,30
+101,"2-May-23","7-May-23","simplelong40_1",40,"constant",6,"LP",NA,9
+102,"7-May-23","12-May-23","simplelong40_1",40,"constant",2,"LM",NA,10
+102,"7-May-23","12-May-23","simplelong40_1",40,"constant",2,"LP",NA,11
+102,"7-May-23","12-May-23","simplelong26_1",26,"constant",3,"LM",NA,40
+102,"7-May-23","12-May-23","simplelong26_1",26,"constant",3,"LP",NA,40
+102,"7-May-23","12-May-23","simplelong30_1",30,"constant",4,"LM",NA,50
+102,"7-May-23","12-May-23","simplelong30_1",30,"constant",4,"LP",NA,40
+102,"7-May-23","12-May-23","simplelong35_1",35,"constant",6,"LM",NA,41
+102,"7-May-23","12-May-23","simplelong35_1",35,"constant",6,"LP",NA,34
+103,"12-May-23","17-May-23","simplelong27_095_23",27,"strong autocorrelation",3,"LM","cold-hot",85
+103,"12-May-23","17-May-23","simplelong27_095_23",27,"strong autocorrelation",3,"LP","cold-hot",68
+103,"12-May-23","17-May-23","simplelong27_000_23",27,"no autocorrelation",4,"LM",NA,65
+103,"12-May-23","17-May-23","simplelong27_000_23",27,"no autocorrelation",4,"LP",NA,59
+103,"12-May-23","17-May-23","simplelong40_1",40,"constant",2,"LM",NA,8
+103,"12-May-23","17-May-23","simplelong40_1",40,"constant",2,"LP",NA,9
+104,"19-May-23","24-May-23","simplelong27_095rev_23",27,"strong autocorrelation",4,"LM","hot-cold",100
+104,"19-May-23","24-May-23","simplelong27_095rev_23",27,"strong autocorrelation",4,"LP","hot-cold",65
+104,"19-May-23","24-May-23","simplelong7_1",7,"constant",2,"LM",NA,12
+104,"19-May-23","24-May-23","simplelong7_1",7,"constant",2,"LP",NA,18
+104,"19-May-23","24-May-23","simplelong35_1",35,"constant",3,"LM",NA,30
+104,"19-May-23","24-May-23","simplelong35_1",35,"constant",3,"LP",NA,27
+105,"26-May-23","31-May-23","simplelong27_000_24",27,"no autocorrelation",2,"LP",NA,66
+105,"26-May-23","31-May-23","simplelong27_000_24",27,"no autocorrelation",2,"LM",NA,86
+105,"26-May-23","31-May-23","simplelong27_095_24",27,"strong autocorrelation",3,"LP","hot-cold",65
+105,"26-May-23","31-May-23","simplelong27_095_24",27,"strong autocorrelation",3,"LM","hot-cold",105
+105,"26-May-23","31-May-23","simplelong27_000_24",27,"strong autocorrelation",4,"LP","cold-hot",87
+105,"26-May-23","31-May-23","simplelong27_000_24",27,"strong autocorrelation",4,"LM","cold-hot",101
+105,"26-May-23","31-May-23","simplelong15_1",15,"constant",6,"LP",NA,21
+105,"26-May-23","31-May-23","simplelong15_1",15,"constant",6,"LM",NA,19
+106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",2,"LM",NA,25
+106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",2,"LP",NA,23
+106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",3,"LM",NA,30
+106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",3,"LP",NA,25
+106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",4,"LM",NA,25
+106,"2-Jun-23","7-Jun-23","simplelong15_1",15,"constant",4,"LP",NA,24
+106,"2-Jun-23","7-Jun-23","simplelong40_1",40,"constant",6,"LM",NA,12
+106,"2-Jun-23","7-Jun-23","simplelong40_1",40,"constant",6,"LP",NA,0
+107,"21-Jun-23","26-Jun-23","simplelong7_1",7,"constant",2,"LM",NA,14
+107,"21-Jun-23","26-Jun-23","simplelong7_1",7,"constant",2,"LP",NA,12
+107,"21-Jun-23","26-Jun-23","simplelong26_1",26,"constant",4,"LM",NA,31
+107,"21-Jun-23","26-Jun-23","simplelong26_1",26,"constant",4,"LP",NA,40
+108,"30-Jun-23","5-Jul-23","simplelong35_1",35,"constant",2,"LM",NA,19
+108,"30-Jun-23","5-Jul-23","simplelong35_1",35,"constant",2,"LP",NA,24
+108,"30-Jun-23","5-Jul-23","simplelong40_1",40,"constant",3,"LM",NA,0
+108,"30-Jun-23","5-Jul-23","simplelong40_1",40,"constant",3,"LP",NA,0
+108,"30-Jun-23","5-Jul-23","simplelong26_1",26,"constant",6,"LM",NA,33
+109,"5-Jul-23","10-Jul-23","simplelong35_1",35,"constant",2,"LM",NA,17
+109,"5-Jul-23","10-Jul-23","simplelong35_1",35,"constant",2,"LP",NA,17
+109,"5-Jul-23","10-Jul-23","simplelong11_1",11,"constant",4,"LM",NA,14
+109,"5-Jul-23","10-Jul-23","simplelong11_1",11,"constant",4,"LP",NA,12
+109,"5-Jul-23","10-Jul-23","simplelong30_1",30,"constant",6,"LM",NA,38
+109,"5-Jul-23","10-Jul-23","simplelong30_1",30,"constant",6,"LP",NA,39
+110,"12-Jul-23","17-Jul-23","simplelong11_1",11,"constant",4,"LM",NA,17
+110,"12-Jul-23","17-Jul-23","simplelong11_1",11,"constant",4,"LP",NA,15
+110,"12-Jul-23","17-Jul-23","simplelong11_1",11,"constant",6,"LM",NA,15
+110,"12-Jul-23","17-Jul-23","simplelong11_1",11,"constant",6,"LP",NA,14
+111,"4-Aug-23","9-Aug-23","simplelong37_095_17",37,"strong autocorrelation",2,"LM","hot-cold",30
+111,"4-Aug-23","9-Aug-23","simplelong37_095_17",37,"strong autocorrelation",2,"LP","hot-cold",28
+111,"4-Aug-23","9-Aug-23","simplelong37_000_17",37,"no autocorrelation",3,"LM",NA,30
+111,"4-Aug-23","9-Aug-23","simplelong37_000_17",37,"no autocorrelation",3,"LP",NA,31
+111,"4-Aug-23","9-Aug-23","simplelong37_095rev_17",37,"strong autocorrelation",4,"LM","cold-hot",36
+111,"4-Aug-23","9-Aug-23","simplelong37_095rev_17",37,"strong autocorrelation",4,"LP","cold-hot",31
+112,"11-Aug-23","16-Aug-23","simplelong37_095rev_18",37,"strong autocorrelation",2,"LM","hot-cold",13
+112,"11-Aug-23","16-Aug-23","simplelong37_095rev_18",37,"strong autocorrelation",2,"LP","hot-cold",14
+112,"11-Aug-23","16-Aug-23","simplelong37_095_18",37,"strong autocorrelation",3,"LM","cold-hot",26
+112,"11-Aug-23","16-Aug-23","simplelong37_095_18",37,"strong autocorrelation",3,"LP","cold-hot",25
+112,"11-Aug-23","16-Aug-23","simplelong37_000_18",37,"no autocorrelation",4,"LM",NA,20
+112,"11-Aug-23","16-Aug-23","simplelong37_000_18",37,"no autocorrelation",4,"LP",NA,1
+113,"18-Aug-23","23-Aug-23","simplelong27_095rev_25",27,"strong autocorrelation",2,"LM","cold-hot",72
+113,"18-Aug-23","23-Aug-23","simplelong27_095rev_25",27,"strong autocorrelation",2,"LP","cold-hot",46
+113,"18-Aug-23","23-Aug-23","simplelong27_095_25",27,"strong autocorrelation",3,"LM","hot-cold",65
+113,"18-Aug-23","23-Aug-23","simplelong27_095_25",27,"strong autocorrelation",3,"LP","hot-cold",57
+113,"18-Aug-23","23-Aug-23","simplelong27_000_25",27,"no autocorrelation",4,"LM",NA,59
+113,"18-Aug-23","23-Aug-23","simplelong27_000_25",27,"no autocorrelation",4,"LP",NA,40
+114,"25-Aug-23","30-Aug-23","simplelong27_000_26",27,"no autocorrelation",2,"LM",NA,95
+114,"25-Aug-23","30-Aug-23","simplelong27_000_26",27,"no autocorrelation",2,"LP",NA,57
+114,"25-Aug-23","30-Aug-23","simplelong27_095rev_26",27,"strong autocorrelation",3,"LM","cold-hot",86
+114,"25-Aug-23","30-Aug-23","simplelong27_095rev_26",27,"strong autocorrelation",3,"LP","cold-hot",78
+114,"25-Aug-23","30-Aug-23","simplelong27_095_26",27,"strong autocorrelation",4,"LM","hot-cold",98
+114,"25-Aug-23","30-Aug-23","simplelong27_095_26",27,"strong autocorrelation",4,"LP","hot-cold",60
+115,"1-Sep-23","6-Sep-23","simplelong27_095rev_27",27,"strong autocorrelation",2,"LM","hot-cold",80
+115,"1-Sep-23","6-Sep-23","simplelong27_095rev_27",27,"strong autocorrelation",2,"LP","hot-cold",70
+115,"1-Sep-23","6-Sep-23","simplelong27_000_27",27,"no autocorrelation",3,"LM",NA,82
+115,"1-Sep-23","6-Sep-23","simplelong27_000_27",27,"no autocorrelation",3,"LP",NA,52
+115,"1-Sep-23","6-Sep-23","simplelong27_095_27",27,"strong autocorrelation",4,"LM","cold-hot",88
+115,"1-Sep-23","6-Sep-23","simplelong27_095_27",27,"strong autocorrelation",4,"LP","cold-hot",74
+117,"15-Sep-23","20-Sep-23","simplelong27_095rev_28",27,"strong autocorrelation",3,"LM","hot-cold",53
+117,"15-Sep-23","20-Sep-23","simplelong27_095rev_28",27,"strong autocorrelation",3,"LP","hot-cold",24
+117,"15-Sep-23","20-Sep-23","simplelong27_000_28",27,"no autocorrelation",4,"LM",NA,46
+117,"15-Sep-23","20-Sep-23","simplelong27_000_28",27,"no autocorrelation",4,"LP",NA,54
+117,"15-Sep-23","20-Sep-23","simplelong27_095_28",27,"strong autocorrelation",6,"LM","cold-hot",50
+117,"15-Sep-23","20-Sep-23","simplelong27_095_28",27,"strong autocorrelation",6,"LP","cold-hot",23
+118,"22-Sep-23","27-Sep-23","simplelong27_095_29",27,"strong autocorrelation",3,"LM","cold-hot",53
+118,"22-Sep-23","27-Sep-23","simplelong27_095_29",27,"strong autocorrelation",3,"LP","cold-hot",48
+118,"22-Sep-23","27-Sep-23","simplelong27_000_29",27,"no autocorrelation",4,"LM",NA,38
+118,"22-Sep-23","27-Sep-23","simplelong27_000_29",27,"no autocorrelation",4,"LP",NA,33
+118,"22-Sep-23","27-Sep-23","simplelong27_095rev_29",27,"strong autocorrelation",6,"LM","hot-cold",40
+118,"22-Sep-23","27-Sep-23","simplelong27_095rev_29",27,"strong autocorrelation",6,"LP","hot-cold",39
+119,"29-Sep-23","4-Oct-23","simplelong27_000_30",27,"no autocorrelation",3,"LM",NA,93
+119,"29-Sep-23","4-Oct-23","simplelong27_000_30",27,"no autocorrelation",3,"LP",NA,65
+119,"29-Sep-23","4-Oct-23","simplelong27_095_30",27,"strong autocorrelation",4,"LM","hot-cold",86
+119,"29-Sep-23","4-Oct-23","simplelong27_095_30",27,"strong autocorrelation",4,"LP","hot-cold",69
+119,"29-Sep-23","4-Oct-23","simplelong27_095rev_30",27,"strong autocorrelation",6,"LM","cold-hot",90
+119,"29-Sep-23","4-Oct-23","simplelong27_095rev_30",27,"strong autocorrelation",6,"LP","cold-hot",69
+120,"6-Oct-23","11-Oct-23","simplelong27_095_31",27,"strong autocorrelation",2,"LM","cold-hot",75
+120,"6-Oct-23","11-Oct-23","simplelong27_095_31",27,"strong autocorrelation",2,"LP","cold-hot",61
+120,"6-Oct-23","11-Oct-23","simplelong27_000_31",27,"no autocorrelation",3,"LM",NA,56
+120,"6-Oct-23","11-Oct-23","simplelong27_000_31",27,"no autocorrelation",3,"LP",NA,40
+120,"6-Oct-23","11-Oct-23","simplelong27_095rev_31",27,"strong autocorrelation",6,"LM","hot-cold",68
+120,"6-Oct-23","11-Oct-23","simplelong27_095rev_31",27,"strong autocorrelation",6,"LP","hot-cold",33
+121,"13-Oct-23","18-Oct-23","simplelong27_095_32",27,"strong autocorrelation",2,"LM","hot-cold",94
+121,"13-Oct-23","18-Oct-23","simplelong27_095_32",27,"strong autocorrelation",2,"LP","hot-cold",70
+121,"13-Oct-23","18-Oct-23","simplelong27_095rev_32",27,"strong autocorrelation",4,"LM","cold-hot",86
+121,"13-Oct-23","18-Oct-23","simplelong27_095rev_32",27,"strong autocorrelation",4,"LP","cold-hot",73
+121,"13-Oct-23","18-Oct-23","simplelong27_000_32",27,"no autocorrelation",6,"LM",NA,108
+121,"13-Oct-23","18-Oct-23","simplelong27_000_32",27,"no autocorrelation",6,"LP",NA,84
+122,"20-Oct-23","25-Oct-23","simplelong27_095rev_33",27,"strong autocorrelation",2,"LM","cold-hot",90
+122,"20-Oct-23","25-Oct-23","simplelong27_095rev_33",27,"strong autocorrelation",2,"LP","cold-hot",74
+122,"20-Oct-23","25-Oct-23","simplelong27_095_33",27,"strong autocorrelation",3,"LM","hot-cold",91
+122,"20-Oct-23","25-Oct-23","simplelong27_095_33",27,"strong autocorrelation",3,"LP","hot-cold",63
+122,"20-Oct-23","25-Oct-23","simplelong27_000_33",27,"no autocorrelation",4,"LM",NA,101
+122,"20-Oct-23","25-Oct-23","simplelong27_000_33",27,"no autocorrelation",4,"LP",NA,88
